@@ -2,7 +2,7 @@ EnviroDIY Mayfly Data Logger
 ==============
 The EnviroDIY™ Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. The goal of the Mayfly Logger project is to enable professional-quality do-it-yourself environmental science and monitoring.
 
-![Image of Mayfly](http://363hx939kn9r1sp3hxo0om0z.wpengine.netdna-cdn.com/wp-content/uploads/2016/05/20160508_134514-001.jpg)
+<img src="http://363hx939kn9r1sp3hxo0om0z.wpengine.netdna-cdn.com/wp-content/uploads/2016/05/20160508_134514-001.jpg" width="300">
 
 ##Getting Started
  
