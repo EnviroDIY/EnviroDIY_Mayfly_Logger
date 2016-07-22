@@ -1,15 +1,19 @@
 EnviroDIY Mayfly Data Logger
 ==============
-The EnviroDIY™ Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. The goal of the Mayfly Logger project is to enable professional-quality do-it-yourself environmental science and monitoring.
+The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. The goal of the Mayfly Logger project is to enable professional-quality do-it-yourself environmental science and monitoring.
 
 <img src="http://363hx939kn9r1sp3hxo0om0z.wpengine.netdna-cdn.com/wp-content/uploads/2016/05/20160508_134514-001.jpg" width="300">
 
 ##Getting Started
  
-Read [Getting Started With the Mayfly Data Logger](http://envirodiy.org/mayfly/).
+1. Read [Getting Started With the Mayfly Data Logger](http://envirodiy.org/mayfly/).
+2. Purchase an [EnviroDIY Mayfly Data Logger Board](https://www.amazon.com/EnviroDIY-Mayfly-Logger-Arduino-Compatible/dp/B01F9B4WCG) or an [EnviroDIY Mayfly Data Logger Board and Starter Kit](https://www.amazon.com/EnviroDIY-Mayfly-Arduino-Compatible-Starter/dp/B01FCVALDW) on Amazon.com.
+3. Install the [Arduino Integrated Development Environment (IDE) application](https://www.arduino.cc/en/Main/Software) on your computer; add "EnviroDIY ATmega Boards" using the Tools > Board > Boards Manager as described in the [Mayfly Data Logger Software](http://envirodiy.org/mayfly/software/) post.
+4. Clone or [download](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/archive/master.zip) (and unzip) this entire repository into your Arduino Sketchbook directory.
+5. Run the code sketches (from File > Sketchbook) in our [EnviroDIY_Mayfly_Logger > workshop](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/workshop) or [EnviroDIY_Mayfly_Logger > examples](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/examples) folders.
 
 ##Contribute
-Open an issue first to discuss potential changes/additions.
+Open an [issue](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/issues) to suggest and discuss potential changes/additions.
 
 For power contributors:
 
@@ -21,7 +25,7 @@ For power contributors:
 
 
 ##License
-Software sketches and code are released under the BSD 3-Clause License -- See [LICENSE.md](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/LICENSE) file for details.
+Software sketches and code are released under the BSD 3-Clause License -- See [LICENSE.md](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/LICENSE.md) file for details.
 
 Documentation is licensed as [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA) copyright.
 
