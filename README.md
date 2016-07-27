@@ -40,6 +40,7 @@ This project has benefited from the support from the following funders:
 
 * William Penn Foundation
 * US Environmental Protection Agency (EPA)
+* National Science Foundation, awards [EAR-0724971](http://www.nsf.gov/awardsearch/showAward?AWD_ID=0724971), [EAR-1331856](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1331856), [ACI-1339834](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1339834)
 * Stroud Water Research Center endowment
 
 
