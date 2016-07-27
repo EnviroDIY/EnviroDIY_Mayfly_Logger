@@ -2,11 +2,11 @@
  
 // Connect the Grove Protoboard to the AA0-AA1 Grove socket on the Mayfly 
 
+// Include, or call, external code Libraries to import extra functionality
+#include <Wire.h>               // Call the Wire library for I2C/TWI communication to the ADC chip
+#include <Adafruit_ADS1015.h>   // Call the Analog-to-Digital Converter (ADC) chip library
 
-#include <Wire.h>
-#include <Adafruit_ADS1015.h>
- 
-Adafruit_ADS1115 ads;
+Adafruit_ADS1115 ads;   // Assign Adafruit_ADS1115 functions (16-bit version) to ads  
 
 int LEDpinRed = 8;      // Red LED is connected to Digital pin 5 (PWM pin)
 int LEDpinGreen = 9;    // Green LED is connected to Digital pin 6 (PWM pin)
@@ -24,7 +24,7 @@ void setup(void) {
 }
  
 void loop(void) {
-  fsrReading = ads.readADC_SingleEnded(0);    //does an analog read sample of the voltage coming from the FSR sensor
+  fsrReading = ads.readADC_SingleEnded(0);  //does an analog read sample of the voltage coming from the FSR sensor
   Serial.print("Analog reading = ");        //prints the data to the serial port
   //Serial.println(fsrReading);
   int FSRscaled = map(fsrReading, 0, 16800, 0, 100);
@@ -37,5 +37,5 @@ void loop(void) {
   // LED gets brighter the harder you press
   analogWrite(LEDpinRed, LEDbrightness);
   analogWrite(LEDpinGreen, LEDbrightnessNeg); 
-  delay(50);       //waits 100ms (0.1 second) then starts the loop over again
+  delay(50);       //waits 50ms (0.05 seconds) then starts the loop over again
 }
