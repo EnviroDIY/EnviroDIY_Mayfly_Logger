@@ -16,35 +16,43 @@ This code sketch was written for a Mayfly Data Logger with an xbee wifi radio mo
 
 ##Configuring WiFi
 Included in this repository is an example XBee Radio configuration file. There are several ways to configure this radio to meet your needs, including in-sketch code. The method used in this example is as follows:
-Materials used:
-    SparkFun Xbee Explorer - https://www.sparkfun.com/products/11812
-    Digi Xbee S6B - http://ftp1.digi.com/support/documentation/90002180.pdf
-    XCTU Software - https://www.digi.com/support/productdetail?pid=5585
-    Mini USB cable
+
+Tools used to configure the XBee Radio:
+
+1. [SparkFun Xbee Explorer](https://www.sparkfun.com/products/11812)
+2. [Digi Xbee S6B](http://ftp1.digi.com/support/documentation/90002180.pdf)
+3. [XCTU Software](https://www.digi.com/support/productdetail?pid=5585)
+4. Mini USB cable
+
 Steps:
-    Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585
-    Connect your XBee radio to the Explorer board, and connect the board to your computer with the USB cable.
-    Open the XCTU program and follow any prompts.
-    (OPTIONAL) Review the documentation found here: http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm
-    When fully loaded, click on "Add Devices".
-    When you see your XBee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.
-    After your device is connected, select it and ensure the Radio Configuration panel is opened.
-    (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current XBee settings.
-    Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
-    Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
-    Write the settings to your XBee radio.
-    Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
-    At this point, unplug the Explorer board from your computer, remove the XBee radio from the board, and insert the radio into your MayFly board.
+
+1. Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585
+2. Connect your XBee radio to the Explorer board, and connect the board to your computer with the USB cable.
+3. Open the XCTU program and follow any prompts.
+4. (OPTIONAL) Review the documentation found here: http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm
+5. When fully loaded, click on "Add Devices".
+6. When you see your XBee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.
+7. After your device is connected, select it and ensure the Radio Configuration panel is opened.
+8. (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current XBee settings.
+9. Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
+10. Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
+11. Write the settings to your XBee radio.
+12. Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
+13. At this point, unplug the Explorer board from your computer, remove the XBee radio from the board, and insert the radio into your MayFly board.
 
 ##Sensors and Configuration
+
 Sensors:
-    To add a sensor to the sketch, copy and paste the 'SensorTemplateFile.h' and 'SensorTemplateFile.cpp' files.
-    Rename the files to the desired name of your sensor.
-    Open both of your new files and follow the commented instructions.
-    Add your sensor(s) to the 'Config.h' file in sections 1 and 4
-    Rebuild and upload your sketch - no other files need to be updated
+
+1. To add a sensor to the sketch, copy and paste the 'SensorTemplateFile.h' and 'SensorTemplateFile.cpp' files.
+2. Rename the files to the desired name of your sensor.
+3. Open both of your new files and follow the commented instructions.
+4. Add your sensor(s) to the 'Config.h' file in sections 1 and 4
+5. Rebuild and upload your sketch - no other files need to be updated
+    
 Config.h:
-    Config.h aims to consolidate all important configuration details, without requiring a user to make edits to a large and complex file. Through this file, a user can choose sensors, web service details, and board options like baudrate.
+
+Config.h aims to consolidate all important configuration details, without requiring a user to make edits to a large and complex file. Through this file, a user can choose sensors, web service details, and board options like baudrate.
 
 ##Contribute
 Open an [issue](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/issues) to suggest and discuss potential changes/additions.
