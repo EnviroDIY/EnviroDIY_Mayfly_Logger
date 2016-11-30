@@ -1,4 +1,4 @@
 Mayfly Logger
 ==============
 
-Initial Readme file
+Sample Arduino sketches for the EnviroDIY Mayfly Data Logger board.
