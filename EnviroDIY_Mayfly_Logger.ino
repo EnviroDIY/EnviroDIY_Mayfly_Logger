@@ -25,13 +25,53 @@ wireless network prior to running this sketch.
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 **************************************************************************/
+
+
+// -----------------------------------------------
+// Note: All 'Serial.print' statements can be
+// removed if they are not desired - used for 
+// debugging only
+// -----------------------------------------------
+
+
+// -----------------------------------------------
+// 1. Include all sensors and necessary files here
+// -----------------------------------------------
 #include <Wire.h>
-#include "Config.h"
 #include "Sodaq_DS3231.h"
 
+// -----------------------------------------------
+// 2. Device registration and sampling features
+// -----------------------------------------------
+const String REGISTRATION_TOKEN = "94482d7f-0a2a-41af-b483-d3fdb1da3c53";
+const String SAMPLING_FEATURE = "1fee64b3-4ba7-43ac-925f-1d199f37f962";
+
+// -----------------------------------------------
+// 3. WebSDL Endpoints for POST requests
+// -----------------------------------------------
+const String HOST_ADDRESS = "wpfweb.uwrl.usu.edu";
+const String API_ENDPOINT = "/websdl/api/data-stream/";
+
+// -----------------------------------------------
+// 4. Misc. Options
+// -----------------------------------------------
+#define UPDATE_RATE 3000 // milliseconds
+#define MAIN_LOOP_DELAY 5000 // milliseconds
+#define COMMAND_TIMEOUT 10000 // ms (5000 ms = 5 s)
+
+// -----------------------------------------------
+// 5. Board setup info
+// -----------------------------------------------
+#define XB_BAUD 9600 // XBee BAUD rate (9600 is default)
+#define SERIAL_BAUD 57600 // Serial port BAUD rate
+
+// -----------------------------------------------
+// 6. Global variables 
+// -----------------------------------------------
 unsigned long lastUpdate = 0; // Keep track of last update time
 Sodaq_DS3231 sodaq;           // This is used for some board functions
 size_t sensorCount = 0;       // Keep this at 0 - it'll get set properly in the setup() function
+float ONBOARD_TEMPERATURE = 0;
 
 enum HTTP_RESPONSE
 {
@@ -43,6 +83,9 @@ enum HTTP_RESPONSE
     HTTP_OTHER
 };
 
+// Used to flush out the buffer after a post request.
+// Removing this may cause communication issues. If you
+// prefer to not see the std::out, remove the print statement
 void printRemainingChars(int timeDelay = 1, int timeout = 5000)
 {
     while (timeout-- > 0 && Serial1.available() > 0)
@@ -60,6 +103,7 @@ void printRemainingChars(int timeDelay = 1, int timeout = 5000)
     Serial1.flush();
 }
 
+// Used only for debugging - can be removed
 void printPostResult(int result)
 {
     switch (result)
@@ -193,14 +237,11 @@ String generatePostRequest(String dataString)
 
 bool updateAllSensors()
 {
-    bool success = true;
-
-    for (int i = 0; i < sensorCount; i++)
-    {
-        success &= SENSOR_LIST[i]->update();
-    }
-
-    return success;
+    // Get the temperature from the Mayfly's real time clock and convert to Farenheit
+    rtc.convertTemperature();  //convert current temperature into registers
+    float tempVal = rtc.getTemperature();
+    ONBOARD_TEMPERATURE = (tempVal * 9.0 / 5.0) + 32.0; // Convert to farenheit
+    return true;
 }
 
 String generateSensorDataString(void)
@@ -208,16 +249,7 @@ String generateSensorDataString(void)
     String jsonString = "{ ";
     jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-
-    for (int i = 0; i < sensorCount; i++)
-    {
-        jsonString += "\"" + SENSOR_LIST[i]->getName() + "\": " + SENSOR_LIST[i]->getValueAsString();
-        if (i + 1 != sensorCount)
-        {
-            jsonString += ", ";
-        }
-    }
-
+    jsonString += "\"ec0ad1f4-17bf-4ee5-a56d-3d5911e80825\": " + String(int(ONBOARD_TEMPERATURE));
     jsonString += " }";
     return jsonString;
 }
@@ -232,11 +264,9 @@ String getDateTime(void)
 
 void setup()
 {
-    sodaq.setEpoch(1476912806);  // Use this to set the current time, set to current unix epoch
+    sodaq.setEpoch(1481224540);  // Use this to set the current time, set to current unix epoch
     Serial.begin(SERIAL_BAUD);   // Start the serial connections
     Serial1.begin(XB_BAUD);      // XBee hardware serial connection
-    sensorCount = sizeof(SENSOR_LIST) / sizeof(SENSOR_LIST[0]);
-    Serial.println("There are " + String(sensorCount) + " sensors");
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
 }
 
@@ -246,14 +276,13 @@ void loop()
     if (millis() > (lastUpdate + UPDATE_RATE))
     {
         lastUpdate = millis();
-
-        Serial.println("\n----------\n----------\n");
+        Serial.println("\n---\n---\n");
         updateAllSensors(); // get the sensor value, store as string
-/*
         String request = generatePostRequest(generateSensorDataString());
         int result = postData(request);
-        printPostResult(result);*/
+        printPostResult(result);
     }
 
-    //delay(MAIN_LOOP_DELAY);
+    delay(MAIN_LOOP_DELAY);
 }
+
