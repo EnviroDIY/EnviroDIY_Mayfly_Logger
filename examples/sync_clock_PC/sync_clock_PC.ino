@@ -16,8 +16,7 @@ void setup()
 void loop()
 {
   //Print out current date/time
-  Serial.println("Current Date/Time: " + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
-  Serial.println(Serial.available());
+  Serial.println("Current Mayfly RTC Date/Time: " + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
 
   if (Serial.available())
   {
@@ -29,7 +28,8 @@ void loop()
   {
     Serial.read();
   }
-  delay(5000);
+
+  delay(1000);
 }
 
 
@@ -40,32 +40,34 @@ void syncRTCwithBatch()
 
   if (newTs > 0)
   {
-    Serial.println(newTs);
+    //Serial.println(newTs);
 
     // Add the timezone difference plus a few seconds
     // to compensate for transmission and processing delay
-    newTs += SYNC_DELAY + TIME_ZONE_SEC;
+    //newTs += SYNC_DELAY + TIME_ZONE_SEC;
 
-    //Get the old time stamp
+    //Get the old time stamp and print out difference in times
     uint32_t oldTs = rtc.now().getEpoch();
     int32_t diffTs = abs(newTs - oldTs);
     int32_t diffTs_abs = abs(diffTs);
     Serial.println("RTC is Off by " + String(diffTs_abs) + " seconds");
 
-    //If time is more than 30s off, update
-    if (diffTs_abs > 30)
-    {
-      //Display old and new time stamps
-      Serial.print("Updating RTC, old=" + String(oldTs));
-      Serial.println(" new=" + String(newTs));
+    //Display old and new time stamps
+    Serial.print("Updating RTC, old = " + String(oldTs));
+    Serial.println(" new = " + String(newTs));
 
-      //Update the rtc
-      rtc.setEpoch(newTs);
-    }
-    else
-    {
-      Serial.println("Clock not updated");
-    }
+    //Update the rtc
+    rtc.setEpoch(newTs);
+
+    //If time is more than 30s off, update
+    //if (diffTs_abs > 30)
+    //{
+
+    //}
+    //else
+    //{
+    // Serial.println("Clock not updated");
+    //}
   }
 }
 
