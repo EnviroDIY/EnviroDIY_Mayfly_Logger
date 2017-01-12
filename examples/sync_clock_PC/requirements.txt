@@ -1,0 +1,3 @@
+python=2.7.13
+pyserial=2.7
+ntplib=0.3.3

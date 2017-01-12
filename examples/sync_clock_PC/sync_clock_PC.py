@@ -6,23 +6,25 @@ Created by Sara Geleskie Damiano on 1/9/2017 at 2:24 PM
 __author__ = 'Sara Geleskie Damiano'
 __contact__ = 'sdamiano@stroudcenter.org'
 
+This interacts with an EnviroDIY Mayfly running  sync_clock_PC.ino to
+synchronize the RTC chip on the Mayfly to NTP (or local PC time is NTP is unavailable)
 
 """
 
-# import the serial library to talk to the arduino
-import serial
-import serial.tools.list_ports
+
+import datetime
+import time
 import warnings
 
-# import libraries for timezones
-import time
-import datetime
 import ntplib
-from tzlocal import get_localzone
+import serial.tools.list_ports
+
+
+# from tzlocal import get_localzone
 
 
 # get local timezone
-local_tz = get_localzone()
+# local_tz = get_localzone()
 
 
 def get_mayfly_time():
@@ -30,11 +32,11 @@ def get_mayfly_time():
     # Returns the current time as a time-zone aware python date-time object
     mayfly_time_str = mayfly.readline()
     # print mayfly_time_str
-    # Convert into a time-zone aware python datetime value
     mayfly_rtc = int(mayfly_time_str.split("(")[1].split(")")[0])
-    mayfly_rtc_unaware = datetime.datetime.utcfromtimestamp(mayfly_rtc)
-    mayfly_rtc_aware = local_tz.localize(mayfly_rtc_unaware, is_dst=False)
-    return mayfly_rtc, mayfly_rtc_aware
+    # Convert into a time-zone aware python datetime value
+    # mayfly_rtc_unaware = datetime.datetime.utcfromtimestamp(mayfly_rtc)
+    # mayfly_rtc_aware = local_tz.localize(mayfly_rtc_unaware, is_dst=False)
+    return mayfly_rtc  # , mayfly_rtc_aware
 
 
 def get_pc_time(notifications=False):
@@ -55,12 +57,14 @@ def get_pc_time(notifications=False):
         if notifications:
             print "Using local computer time"
 
-    ntp_unaware = datetime.datetime.utcfromtimestamp(utc_unix_time)
-    ntp_aware = local_tz.localize(ntp_unaware, is_dst=False)
-    local_unix_time = (ntp_aware - local_tz.localize(datetime.datetime(1970, 1, 1), is_dst=False)).total_seconds()
+    # Conversions to deal with local vs. UTC time
+    # ntp_unaware = datetime.datetime.utcfromtimestamp(utc_unix_time)
+    # ntp_aware = local_tz.localize(ntp_unaware, is_dst=False)
+    # local_unix_time = (ntp_aware - datetime.datetime(1970, 1, 1)).total_seconds()
     if notifications:
-        print "Mayfly is being set to time zone %s" % local_tz
-    return int(local_unix_time), ntp_aware
+        # print "Mayfly is being set to time zone %s" % local_tz
+        print "Mayfly RTC chip is being set to UTC - Please take this into account in your sketch"
+    return int(utc_unix_time)  # , ntp_aware
 
 
 def parse_mayfly_set_response():
@@ -81,7 +85,7 @@ ports = list(serial.tools.list_ports.comports())
 mayfly_ports = [
     p for p in ports
     if 'AH03IQ5AA' in p[2]
-]
+    ]
 
 # Give warnings if 0 or >1 Mayflies found
 if not mayfly_ports:
@@ -92,7 +96,6 @@ if len(mayfly_ports) > 1:
 # Open up the Mayfly serial port
 mayfly = serial.Serial(str(mayfly_ports[0][0]), 9600, timeout=5)
 
-
 # Wait for the Mayfly to initialize
 print "Waiting for Mayfly to initialize"
 time.sleep(2)
@@ -100,23 +103,22 @@ print mayfly.readline()
 
 # Send the time to the Mayfly
 print "First attempt to set the clock"
-mayfly.write("T"+str(get_pc_time(notifications=True)[0]))
+mayfly.write("T" + str(get_pc_time(notifications=True)))
 mf_resp1 = parse_mayfly_set_response()
 print "Clock set to %s" % mf_resp1[1]
 
 # Send the time to the Mayfly again to double-check the offsets
 print "Checking the Mayfly response offset"
 mayfly.readline()
-mayfly.write("T"+str(get_pc_time()[0]))
+mayfly.write("T" + str(get_pc_time()))
 mf_resp2 = parse_mayfly_set_response()
-
 
 # Send the time to the Mayfly again adjusting for the offset
 if mf_resp2[2] > 1:
     print "Mayfly takes %s seconds to respond to the PC time set command" % mf_resp2[2]
     print "Re-Adjusting the Mayfly Clock"
     mayfly.readline()
-    mayfly.write("T"+str(get_pc_time()[0] + mf_resp2[2]))
+    mayfly.write("T" + str(get_pc_time() + mf_resp2[2]))
 
 print "Mayfly RTC is now within 1 second of computer or NTP clock"
 print mayfly.readline()

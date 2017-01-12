@@ -1,9 +1,26 @@
+/* ***********************************************************************************************
+ * 
+ * Sara Damiano - January 12, 2017
+ * 
+ * This script is intended to synchronize the RTC clock chip of an EnviroDIY Mayfly.
+ * After uploading this script to your Mayfly, the time can be set by either manually sending 
+ * a "T" followed by a unix time stamp to the Mayfly (ie, T1451606400) or by running the
+ * sync_clock_PC.py python script which will automatically synchronize the RTC to UTC based
+ * on the computer's clock or NTP (if internet connection is available).
+ * 
+ * This script is meant to be use on a naked EnviroDIY Mayfly board with no connection other than
+ * directly to the computer via microUSB.  If a GPRSbee or other internet/radio access shields are 
+ * attached to they Mayfly, it is more efficient to utilize the internet directly to synchronize the
+ * RTC chip rather than using this script.  An example of that type of script is available on Sodaq's
+ * website.
+ * 
+ * This script requires the wire library generally built into the Arduino IDE and the Sodaq DS3231
+ * library, linked below.
+ *
+ *********************************************************************************************** */
+
 #include <Wire.h>  //http://arduino.cc/en/Reference/Wire (included with Arduino IDE)
 #include <Sodaq_DS3231.h> //Sodaq's library for the DS3231: https://github.com/SodaqMoja/Sodaq_DS3231
-
-#define SYNC_DELAY 0    // Time between sending the type and clock update
-#define TIME_ZONE -5.0  // Time zone difference from UTC
-#define TIME_ZONE_SEC (TIME_ZONE * 3600)
 
 void setup()
 {
@@ -48,7 +65,7 @@ void syncRTCwithBatch()
 
     //Get the old time stamp and print out difference in times
     uint32_t oldTs = rtc.now().getEpoch();
-    int32_t diffTs = abs(newTs - oldTs);
+    int32_t diffTs = newTs - oldTs;
     int32_t diffTs_abs = abs(diffTs);
     Serial.println("RTC is Off by " + String(diffTs_abs) + " seconds");
 
@@ -58,16 +75,6 @@ void syncRTCwithBatch()
 
     //Update the rtc
     rtc.setEpoch(newTs);
-
-    //If time is more than 30s off, update
-    //if (diffTs_abs > 30)
-    //{
-
-    //}
-    //else
-    //{
-    // Serial.println("Clock not updated");
-    //}
   }
 }
 
