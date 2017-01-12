@@ -84,14 +84,16 @@ ports = list(serial.tools.list_ports.comports())
 # Keep only ports with the Mayfly serial number (AH03IQ5AA)
 mayfly_ports = [
     p for p in ports
-    if 'AH03IQ5AA' in p[2]
+    if 'VID_0403+PID_6001' in p[2]
     ]
 
 # Give warnings if 0 or >1 Mayflies found
 if not mayfly_ports:
     raise IOError("No Mayfly found")
-if len(mayfly_ports) > 1:
-    warnings.warn('Multiple Mayflies found - using the first')
+elif len(mayfly_ports) > 1:
+    warnings.warn('Multiple Mayflies found - using %s' % mayfly_ports[0][1])
+else:
+    print "FTDI Device (Mayfly) found at %s" % mayfly_ports[0][1]
 
 # Open up the Mayfly serial port
 mayfly = serial.Serial(str(mayfly_ports[0][0]), 9600, timeout=5)
@@ -100,6 +102,14 @@ mayfly = serial.Serial(str(mayfly_ports[0][0]), 9600, timeout=5)
 print "Waiting for Mayfly to initialize"
 time.sleep(2)
 print mayfly.readline()
+
+# Check that getting expected responses from the Mayfly
+try:
+    get_mayfly_time()
+except:
+    print "Mayfly is not sending expected output.  Please ensure that sync_clock_PC.ino has been uploaded to the Mayfly"
+    print "Stopping script"
+    exit()
 
 # Send the time to the Mayfly
 print "First attempt to set the clock"
