@@ -1,12 +1,8 @@
 
 //TMP36 Analog Temperature Sensor
-// Connect the Grove Protoboard to the AA0-AA1 Grove socket on the Mayfly 
 
-
-#include <Wire.h>
-#include <Adafruit_ADS1015.h>
- 
-Adafruit_ADS1115 ads;
+// Connect the "Mayfly Grove Analog Sensor Board" to the Mayfly's 20-pin Analog Pin header
+// Plug the TMP36 temperature sensor into the 4-pin header labeled "TMP36"
 
 int sensorPin = 1;   //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a
@@ -19,20 +15,18 @@ int sensorPin = 1;   //the analog pin the TMP36's Vout (sense) pin is connected 
 void setup()
 {
   Serial.begin(57600);  //Start the serial connection with the computer
-                       //to view the result open the serial monitor 
-  pinMode(22, OUTPUT);
-  digitalWrite(22, HIGH);                
+                       //to view the result open the serial monitor             
 }
  
 void loop()                     // run over and over again
 {
  //getting the voltage reading from the temperature sensor
- int reading = ads.readADC_SingleEnded(sensorPin);
+ int reading = analogRead(sensorPin);
  
  
  // converting that reading to voltage, for 3.3v arduino use 3.3, use 5.0 for Uno boards
  float voltage = reading * 3.3;
- voltage /= 17585;   //convert bits to volts
+ voltage /= 1024;   //convert bits to volts
  
  // print out the voltage
  Serial.print(voltage); Serial.println(" volts");
