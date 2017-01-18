@@ -1,12 +1,10 @@
 
 //TMP36 Analog Temperature Sensor with Xbee telemetry for live data
 
-// Connect the Grove Protoboard to the AA0-AA1 Grove socket on the Mayfly
+// Connect the "Mayfly Grove Analog Sensor Board" to the Mayfly's 20-pin Analog pin header
+// Plug the TMP36 temperature sensor into the 4-pin header labeled "TMP36"
+// Plug an Xbee module into the Xbee socket on the Mayfly
 
-#include <Wire.h>
-#include <Adafruit_ADS1015.h>
-
-Adafruit_ADS1115 ads;
 
 String LoggerName = "DemoA";   //change "DemoA" to a unique name before uploading!!!
 
@@ -23,19 +21,17 @@ void setup()
   Serial.begin(57600);  //Start the serial connection with the computer
                        //to view the result open the serial monitor
   Serial1.begin(9600);    //this is the Xbee transmit port
-  pinMode(22, OUTPUT);
-  digitalWrite(22, HIGH);
 }
 
 void loop()                     // run over and over again
 {
  //getting the voltage reading from the temperature sensor
- int reading = ads.readADC_SingleEnded(sensorPin);
+ int reading = analogRead(sensorPin);
 
 
  // converting that reading to voltage, for 3.3v arduino use 3.3, use 5.0 for Uno boards
  float voltage = reading * 3.3;
- voltage /= 17585;   //convert bits to volts
+ voltage /= 1024;   //convert bits to volts
 
  // print out the voltage
  Serial.print(voltage); Serial.println(" volts");
