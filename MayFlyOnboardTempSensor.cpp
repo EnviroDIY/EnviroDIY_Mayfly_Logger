@@ -5,7 +5,7 @@
 #include "MayFlyOnboardTempSensor.h"
 
 MayFlyOnboardTempSensor::MayFlyOnboardTempSensor(void)
-    : Sensor<float>("WindDir_Avg")
+    : Sensor<float>("temperatureDatalogger")
 {
     // Do nothing
 }

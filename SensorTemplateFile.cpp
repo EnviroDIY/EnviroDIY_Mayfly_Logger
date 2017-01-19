@@ -18,7 +18,24 @@ bool SensorTemplateFile::update(void)
     return true;
 }
 
+
 String SensorTemplateFile::getValueAsString()
 {
     return String(int(m_value));
+}
+
+
+bool SensorTemplateFile::sleep(void)
+{
+    // Put your sensor to sleep, if applicable
+    // Return true if successful
+    return true;
+}
+
+
+bool SensorTemplateFile::wake(void)
+{
+    // Wake your sensor up, if applicable
+    // Return true if successful
+    return true;
 }

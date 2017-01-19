@@ -9,9 +9,6 @@
 #include "WProgram.h"
 #endif
 
-#include "Sensor.h"
-#include "Sodaq_DS3231.h"
-#include <Wire.h>
 
 class SensorTemplateFile : public Sensor<float/*SENSORS_DATA_TYPE*/>
 {
@@ -19,6 +16,8 @@ public:
     SensorTemplateFile(void);
     bool update(void);
     String getValueAsString();
+    bool sleep(void);
+    bool wake(void);
 };
 
 #endif
