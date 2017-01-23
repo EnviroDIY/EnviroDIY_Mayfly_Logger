@@ -45,3 +45,17 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# PyCharm
+.idea/
+
+# Atom
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+
+# PlatformIO
+platformio.ini
+/lib
+.travis.yml
