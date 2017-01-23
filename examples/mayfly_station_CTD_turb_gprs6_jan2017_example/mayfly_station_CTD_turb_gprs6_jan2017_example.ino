@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /**************************************************************************
   mayfly_station_CTD_turb_gprs6_jan2017_example.ino
 

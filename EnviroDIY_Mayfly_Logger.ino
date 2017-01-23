@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 /**************************************************************************
 Mayfly_XBeeWiFi.ino
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
