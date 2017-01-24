@@ -2,22 +2,13 @@
 Mayfly_XBeeWiFi.ino
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
+Additional Work
 Creation Date: 6/3/2016
-Development Environment: Arduino 1.6.9
+Development Environment: Arduino 1.8.0
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
 Radio Module: XBee S6b WiFi module.
 
-This sketch is an example of posting data to SparkFun's data stream server
-(http://data.sparkfun.com) using a Mayfly Arduino board and an XBee Wifi
-module. As a quick example, it uses the temperature values from the Mayfly's
-real time clock and POSTs them to a stream at http://data.sparkfun.com. This
-sketch could easily be modified to post any sensor measurements to a stream
-at data.sparkfun.com that has been configured to accept them.
-
-This sketch was adapted from Jim Lindblom's example at:
-
-https://learn.sparkfun.com/tutorials/internet-datalogging-with-arduino-and-xbee-wifi
-
+This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
 1. The XBee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
@@ -29,7 +20,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 
 // -----------------------------------------------
 // Note: All 'Serial.print' statements can be
-// removed if they are not desired - used for 
+// removed if they are not desired - used for
 // debugging only
 // -----------------------------------------------
 
@@ -43,8 +34,8 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // -----------------------------------------------
 // 2. Device registration and sampling features
 // -----------------------------------------------
-const String REGISTRATION_TOKEN = "94482d7f-0a2a-41af-b483-d3fdb1da3c53";
-const String SAMPLING_FEATURE = "1fee64b3-4ba7-43ac-925f-1d199f37f962";
+const String REGISTRATION_TOKEN = "9e8bbb13-1b71-4720-b930-1d7b0d7602b0";
+const String SAMPLING_FEATURE = "a8bff3ec-4ca3-4d13-b1e2-e5effeceb4a1";
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
@@ -66,7 +57,7 @@ const String API_ENDPOINT = "/websdl/api/data-stream/";
 #define SERIAL_BAUD 57600 // Serial port BAUD rate
 
 // -----------------------------------------------
-// 6. Global variables 
+// 6. Global variables
 // -----------------------------------------------
 unsigned long lastUpdate = 0; // Keep track of last update time
 Sodaq_DS3231 sodaq;           // This is used for some board functions
@@ -140,7 +131,7 @@ void printPostResult(int result)
 
         default:
         {
-            Serial.println("\An unknown error has occured, and we're pretty confused\n");
+            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
         }
     }
 }
@@ -249,7 +240,7 @@ String generateSensorDataString(void)
     String jsonString = "{ ";
     jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"ec0ad1f4-17bf-4ee5-a56d-3d5911e80825\": " + String(int(ONBOARD_TEMPERATURE));
+    jsonString += "\"71408b33-b486-436c-8ed6-7382491f1e12\": " + String(int(ONBOARD_TEMPERATURE));
     jsonString += " }";
     return jsonString;
 }
@@ -264,7 +255,6 @@ String getDateTime(void)
 
 void setup()
 {
-    sodaq.setEpoch(1481224540);  // Use this to set the current time, set to current unix epoch
     Serial.begin(SERIAL_BAUD);   // Start the serial connections
     Serial1.begin(XB_BAUD);      // XBee hardware serial connection
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
@@ -285,4 +275,3 @@ void loop()
 
     delay(MAIN_LOOP_DELAY);
 }
-
