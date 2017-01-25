@@ -62,4 +62,4 @@ install:
     - pip install -U platformio
 #
 script:
-    - platformio ci --lib="." --project-conf="."
+    - platformio ci --lib="." --project-conf=platformio.ini
