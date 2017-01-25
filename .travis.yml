@@ -47,6 +47,7 @@ env:
     - PLATFORMIO_CI_SRC=workshop/mayfly_08_magnetswitch/mayfly_08_magnetswitch.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_09_tmp36_analogTemp_xbee/mayfly_09_tmp36_analogTemp_xbee.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_10_sonar/mayfly_10_sonar.ino
+    
 #
 install:
     - pip install -U platformio
