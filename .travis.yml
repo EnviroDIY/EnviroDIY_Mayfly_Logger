@@ -39,4 +39,4 @@ install:
     - platformio lib -g install https://github.com/EnviroDIY/Libraries.git
 #
 script:
-    - platformio ci --project-conf=platformio.ini
+    - platformio ci --project-conf=platformio.ini --verbose
