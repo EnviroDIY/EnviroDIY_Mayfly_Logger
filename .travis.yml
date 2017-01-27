@@ -36,7 +36,7 @@ env:
 #
 install:
     - pip install -U platformio
+    - platformio update
 #
 script:
-    - platformio update
     - platformio ci --project-conf=platformio.ini
