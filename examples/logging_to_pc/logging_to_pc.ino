@@ -19,16 +19,9 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Wire.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
-#include <SPI.h>
-#include <SD.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
-#include <Sodaq_PcInt.h>  // Pin Change interrupts, without SDI-12
-
-//#include <SDI12_Mod.h>  // SDI-12 Communications
-//#include <Sodaq_PcInt_Mod.h>  // Pin Change interrupts, with SDI-12
-//#include <GPRSbee.h>  // GPRSbee Communications
-//#include <Adafruit_ADS1015.h>  // Auxillary ADD
+#include <Sodaq_PcInt.h>
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
@@ -39,13 +32,13 @@ const String SAMPLING_FEATURE = "a8bff3ec-4ca3-4d13-b1e2-e5effeceb4a1";
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
 // -----------------------------------------------
-const String HOST_ADDRESS = "wpfweb.uwrl.usu.edu";
-const String API_ENDPOINT = "/websdl/api/data-stream/";
+const String HOST_ADDRESS = "data.envirodiy.org";
+const String API_ENDPOINT = "/api/data-stream/";
 
 // -----------------------------------------------
 // 4. Misc. Options
 // -----------------------------------------------
-#define UPDATE_RATE 3000 // milliseconds
+#define UPDATE_RATE 30000 // milliseconds
 #define MAIN_LOOP_DELAY 5000 // milliseconds
 #define COMMAND_TIMEOUT 10000 // ms (5000 ms = 5 s)
 #define READ_DELAY 1
@@ -54,12 +47,6 @@ const String API_ENDPOINT = "/websdl/api/data-stream/";
 // 5. Board setup info
 // -----------------------------------------------
 #define SERIAL_BAUD 57600 // Serial port BAUD rate
-
-#define BATTERY_PIN A6  // select the input pin for the potentiometer
-#define DATAPIN 7  // change to the proper pin for sdi-12 data pin, pin 7 on shield 3.0
-#define SWITCHED_POWER = 22;    // sensor power is pin 22 on Mayfly
-
-#define XB_BAUD 9600  // XBee BAUD rate (9600 is default)
 #define GPRSBEE_PWRPIN  23  //DTR
 #define XBEECTS_PIN     19   //CTS
 
@@ -93,7 +80,7 @@ enum HTTP_RESPONSE
 Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
 RTCTimer timer;  // The timer functions for the RTC
 //Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
-//SDI12 mySDI12(DATAPIN);   // The SDI-12 Library
+//SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
 
 // -----------------------------------------------
 // 8. Working functions
@@ -170,10 +157,9 @@ int postData(String requestString, bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
-    Serial1.flush();
-    Serial1.print(requestString.c_str());
-    Serial1.flush();
-
+    //Serial1.flush();
+    //Serial1.print(requestString.c_str());
+    //Serial1.flush();
 
     Serial.flush();
     Serial.println(" -- Request -- ");
@@ -236,6 +222,7 @@ int postData(String requestString, bool redirected = false)
     return result;
 }
 
+// This function generates the POST request that gets sent to data.envirodiy.org
 String generatePostRequest(String dataString)
 {
     String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
@@ -251,6 +238,8 @@ String generatePostRequest(String dataString)
     return request;
 }
 
+// This function updates the values for any connected sensors. Need to add code for
+// Any sensors connected - this example only uses temperature.
 bool updateAllSensors()
 {
     // Get the temperature from the Mayfly's real time clock and convert to Farenheit
@@ -260,6 +249,9 @@ bool updateAllSensors()
     return true;
 }
 
+// This function generates the JSON data string that becomes the body of the POST request
+// For now, the Result UUID is hard coded here
+// TODO:  Move the Result UUID somewhere easier to configure.
 String generateSensorDataString(void)
 {
     String jsonString = "{ ";
@@ -270,6 +262,7 @@ String generateSensorDataString(void)
     return jsonString;
 }
 
+// This function returns the datetime from the realtime clock
 String getDateTime(void)
 {
     DateTime currDateTime = sodaq.now();
@@ -278,25 +271,161 @@ String getDateTime(void)
     return date + time;
 }
 
-void setup()
+
+// Helper function to retrieve and display the current time
+void showTime(uint32_t ts)
 {
-    Serial.begin(SERIAL_BAUD);   // Start the serial connections
-    Serial1.begin(XB_BAUD);      // XBee hardware serial connection
-    Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
+  // Retrieve and display the current date/time
+  String dateTime = getDateTime();
+  //Serial.println(dateTime);
 }
 
+
+// Set-up the RTC Timer events
+void setupTimer()
+{
+  // Schedule the wakeup every minute
+  timer.every(READ_DELAY, showTime);
+
+  // Instruct the RTCTimer how to get the current time reading
+  timer.setNowCallback(sodaq.now());
+}
+
+
+void wakeISR()
+{
+  //Leave this blank
+}
+
+
+// Sets up the sleep mode (used on device wake-up)
+void setupSleep()
+{
+  pinMode(RTC_PIN, INPUT_PULLUP);
+  PcInt::attachInterrupt(RTC_PIN, wakeISR);
+
+  //Setup the RTC in interrupt mode
+  rtc.enableInterrupts(RTC_INT_PERIOD);
+
+  //Set the sleep mode
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+}
+
+
+// Puts the system to sleep to conserve battery life.
+void systemSleep()
+{
+  // This method handles any sensor specific sleep setup
+  sensorsSleep();
+
+  // Wait until the serial ports have finished transmitting
+  Serial.flush();
+  Serial1.flush();
+
+  // The next timed interrupt will not be sent until this is cleared
+  rtc.clearINTStatus();
+
+  // Disable ADC
+  ADCSRA &= ~_BV(ADEN);
+
+  // Sleep time
+  noInterrupts();
+  sleep_enable();
+  interrupts();
+  sleep_cpu();
+  sleep_disable();
+
+  // Enbale ADC
+  ADCSRA |= _BV(ADEN);
+
+  // This method handles any sensor specific wake setup
+  sensorsWake();
+}
+
+
+void sensorsSleep()
+{
+  // Add any code which your sensors require before sleep
+}
+
+
+void sensorsWake()
+{
+  // Add any code which your sensors require after waking
+}
+
+
+// Flashess to Mayfly's LED's
+void greenred4flash()
+{
+  for (int i = 1; i <= 4; i++) {
+    digitalWrite(8, HIGH);
+    digitalWrite(9, LOW);
+    delay(50);
+    digitalWrite(8, LOW);
+    digitalWrite(9, HIGH);
+    delay(50);
+  }
+  digitalWrite(9, LOW);
+}
+
+// Main setup function
+void setup()
+{
+  // Start the primary serial connection to the PC
+  Serial.begin(SERIAL_BAUD);   // Start the serial connections
+  // Start the serial connection with the *bee
+  //Serial1.begin(XB_BAUD);      // XBee hardware serial connection
+
+  // Start the Real Time Clock
+  rtc.begin();
+  delay(100);
+
+  // Set up pins for the LED's (Mayfly pins 8 & 9)
+  pinMode(8, OUTPUT);
+  pinMode(9, OUTPUT);
+
+  // Blink the LEDs to show the board is on and starting up
+  greenred4flash();
+
+  // Setup timer events
+  setupTimer();
+
+  // Setup sleep mode
+  setupSleep();
+
+  // Print a start-up note to the first serial port
+  Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
+
+}
+
+// Continuously Running Loop
 void loop()
 {
-    // Check to see if it is time to post the data to the server
-    if (millis() > (lastUpdate + UPDATE_RATE))
+    // Update the timer
+    timer.update();
+
+    // Check of the current time is an even interval of the test minute
+    if (currentminute % testminute == 0)
     {
-        lastUpdate = millis();
+        // Blink the LED
+        digitalWrite(8, HIGH);
+        // Print a few blank lines to show new reading
         Serial.println("\n---\n---\n");
         updateAllSensors(); // get the sensor value, store as string
         String request = generatePostRequest(generateSensorDataString());
         int result = postData(request);
         printPostResult(result);
+        testtimer++;
     }
 
+      // Check if the time is an interval of 5 minutes
+      if (testtimer >= 5)
+      { testminute = 5;
+      }
+
     delay(MAIN_LOOP_DELAY);
+
+    //Sleep
+    systemSleep();
 }
