@@ -29,7 +29,6 @@ cache:
 #
 env:
     - PLATFORMIO_CI_SRC=examples/logging_to_pc/logging_to_pc.ino
-    - PLATFORMIO_CI_SRC=examples/mayfly_station_CTD_turb_gprs6_jan2017_example/mayfly_station_CTD_turb_gprs6_jan2017_example.ino
     - PLATFORMIO_CI_SRC=examples/simple_logging_example/simple_logging_example.ino
     - PLATFORMIO_CI_SRC=examples/sync_clock_PC/sync_clock_PC.ino
     - PLATFORMIO_CI_SRC=examples/mayfly_xbeewifi_usu/mayfly_xbeewifi_usu.ino
