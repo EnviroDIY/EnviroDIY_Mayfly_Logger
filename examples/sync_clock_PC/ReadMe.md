@@ -11,6 +11,5 @@ This example works to synchronize the EnviroDIY Mayfly RTC clock chip with NTP o
 
 **Requirements**
 
-For manual synchronization:
  * Arduino wire library (generally built into IDE)
  * Sodaq DS3231 library (https://github.com/SodaqMoja/Sodaq_DS3231)
