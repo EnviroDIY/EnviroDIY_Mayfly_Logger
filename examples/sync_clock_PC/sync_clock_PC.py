@@ -81,7 +81,7 @@ def parse_mayfly_set_response():
 # Check all available serial ports
 ports = list(serial.tools.list_ports.comports())
 
-# Keep only ports with the Mayfly serial number (AH03IQ5AA)
+# Keep only ports with the Mayfly communication type
 mayfly_ports = [
     p for p in ports
     if 'VID_0403+PID_6001' in p[2]
@@ -89,7 +89,9 @@ mayfly_ports = [
 
 # Give warnings if 0 or >1 Mayflies found
 if not mayfly_ports:
-    raise IOError("No Mayfly found")
+    print "No Mayfly found"
+    raw_input("Press Enter to Exit")
+    exit()
 elif len(mayfly_ports) > 1:
     warnings.warn('Multiple Mayflies found - using %s' % mayfly_ports[0][1])
 else:
@@ -108,7 +110,7 @@ try:
     get_mayfly_time()
 except:
     print "Mayfly is not sending expected output.  Please ensure that sync_clock_PC.ino has been uploaded to the Mayfly"
-    print "Stopping script"
+    raw_input("Press Enter to Exit")
     exit()
 
 # Send the time to the Mayfly
@@ -134,3 +136,6 @@ print "Mayfly RTC is now within 1 second of computer or NTP clock"
 print mayfly.readline()
 
 mayfly.close()
+
+raw_input("Press Enter to Exit")
+exit()
