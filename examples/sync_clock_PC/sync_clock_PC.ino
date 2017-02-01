@@ -34,7 +34,7 @@ void setup()
 void loop()
 {
   //Print out current date/time
-  Serial.println("Current Mayfly RTC Date/Time: " + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
+  Serial.println("Current RTC Date/Time: " + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
 
   if (Serial.available())
   {
