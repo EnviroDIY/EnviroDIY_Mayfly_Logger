@@ -25,8 +25,9 @@
 void setup()
 {
   //Start Serial for serial monitor
-  Serial.begin(9600);
+  Serial.begin(57600);
   while (!Serial) ; // wait until Arduino Serial Monitor opens
+  Serial.println("Running sketch: sync_clock_PC.ino");
 }
 
 
