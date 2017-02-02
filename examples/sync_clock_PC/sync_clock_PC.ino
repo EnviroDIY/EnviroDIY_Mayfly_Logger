@@ -22,32 +22,43 @@
 #include <Wire.h>  //http://arduino.cc/en/Reference/Wire (included with Arduino IDE)
 #include <Sodaq_DS3231.h> //Sodaq's library for the DS3231: https://github.com/SodaqMoja/Sodaq_DS3231
 
-void setup()
+String getDateTime()
 {
-  //Start Serial for serial monitor
-  Serial.begin(57600);
-  while (!Serial) ; // wait until Arduino Serial Monitor opens
-  Serial.println("Running sketch: sync_clock_PC.ino");
+  String dateTimeStr;
+
+  //Create a DateTime object from the current time
+  DateTime dt(rtc.makeDateTime(rtc.now().getEpoch()));
+
+  //Convert it to a String
+  dt.addToString(dateTimeStr);
+
+  return dateTimeStr;
 }
 
 
-void loop()
-{
-  //Print out current date/time
-  Serial.println("Current RTC Date/Time: " + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
+/*  code to process time sync messages from the serial port   */
+#define TIME_HEADER  "T"   // Header tag for serial time sync message
 
-  if (Serial.available())
-  {
-    //Sync time
-    syncRTCwithBatch();
-  }
-  // Empty the serial buffer
-  while (Serial.available() > 0)
-  {
-    Serial.read();
-  }
+unsigned long processSyncMessage() {
+  unsigned long pctime = 0L;
+  const unsigned long DEFAULT_TIME = 1451606400; // Jan 1 2016 00:00:00.000
+  const unsigned long MAX_TIME = 2713910400; // Jan 1 2056 00:00:00.000
 
-  delay(1000);
+  if (Serial.find(TIME_HEADER)) {
+    pctime = Serial.parseInt();
+    Serial.println("Received:" + String(pctime));
+    if ( pctime < DEFAULT_TIME) // check the value is a valid time (greater than Jan 1 2016)
+    {
+      Serial.println("Time out of range");
+      pctime = 0L; // return 0 to indicate that the time is not valid
+    }
+    if ( pctime > MAX_TIME) // check the value is a valid time (greater than Jan 1 2016)
+    {
+      Serial.println("Time out of range");
+      pctime = 0L; // return 0 to indicate that the time is not valid
+    }
+  }
+  return pctime;
 }
 
 
@@ -80,41 +91,31 @@ void syncRTCwithBatch()
 }
 
 
-String getDateTime()
+void setup()
 {
-  String dateTimeStr;
-
-  //Create a DateTime object from the current time
-  DateTime dt(rtc.makeDateTime(rtc.now().getEpoch()));
-
-  //Convert it to a String
-  dt.addToString(dateTimeStr);
-
-  return dateTimeStr;
+  //Start Serial for serial monitor
+  Serial.begin(57600);
+  while (!Serial) ; // wait until Arduino Serial Monitor opens
+  Serial.println("Running sketch: sync_clock_PC.ino");
 }
 
-/*  code to process time sync messages from the serial port   */
-#define TIME_HEADER  "T"   // Header tag for serial time sync message
 
-unsigned long processSyncMessage() {
-  unsigned long pctime = 0L;
-  const unsigned long DEFAULT_TIME = 1451606400; // Jan 1 2016 00:00:00.000
-  const unsigned long MAX_TIME = 2713910400; // Jan 1 2056 00:00:00.000
+void loop()
+{
+  //Print out current date/time
+  Serial.println("Current RTC Date/Time: " + String(rtc.now().dayOfWeek()) + String(getDateTime()) + " (" + String(rtc.now().getEpoch()) + ")");
 
-  if (Serial.find(TIME_HEADER)) {
-    pctime = Serial.parseInt();
-    Serial.println("Received:" + String(pctime));
-    if ( pctime < DEFAULT_TIME) // check the value is a valid time (greater than Jan 1 2016)
-    {
-      Serial.println("Time out of range");
-      pctime = 0L; // return 0 to indicate that the time is not valid
-    }
-    if ( pctime > MAX_TIME) // check the value is a valid time (greater than Jan 1 2016)
-    {
-      Serial.println("Time out of range");
-      pctime = 0L; // return 0 to indicate that the time is not valid
-    }
+  if (Serial.available())
+  {
+    //Sync time
+    syncRTCwithBatch();
   }
-  return pctime;
+  // Empty the serial buffer
+  while (Serial.available() > 0)
+  {
+    Serial.read();
+  }
+
+  delay(1000);
 }
 
