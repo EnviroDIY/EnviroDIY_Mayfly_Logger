@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <wire.h>
+#include <Wire.h>
 
 int delayTime = 500;   //milliseconds
 

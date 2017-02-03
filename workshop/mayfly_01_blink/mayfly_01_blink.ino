@@ -1,6 +1,6 @@
 //Mayfly LED Blink demo
 #include <Arduino.h>
-#include <wire.h>
+#include <Wire.h>
 
 // Declare variables with a type and initialize with an inital value assignment
 int i = 1;

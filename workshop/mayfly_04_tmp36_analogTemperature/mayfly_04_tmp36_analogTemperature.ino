@@ -5,7 +5,7 @@
 // Plug the TMP36 temperature sensor into the 4-pin header labeled "TMP36"
 
 #include <Arduino.h>
-#include <wire.h>
+#include <Wire.h>
 
 int sensorPin = 1;   //the analog pin the TMP36's Vout (sense) pin is connected to
                         //the resolution is 10 mV / degree centigrade with a

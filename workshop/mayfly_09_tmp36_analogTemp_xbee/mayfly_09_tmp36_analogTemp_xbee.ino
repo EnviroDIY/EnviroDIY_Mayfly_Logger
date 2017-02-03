@@ -6,7 +6,7 @@
 // Plug an Xbee module into the Xbee socket on the Mayfly
 
 #include <Arduino.h>
-#include <wire.h>
+#include <Wire.h>
 
 
 String LoggerName = "DemoA";   //change "DemoA" to a unique name before uploading!!!

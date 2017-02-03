@@ -7,7 +7,7 @@
  */
 
  #include <Arduino.h>
- #include <wire.h>
+ #include <Wire.h>
 
 const int buttonPin = 21;     // the number of the pushbutton pin
 const int greenLEDpin = 8;      // the number of the green LED pin
