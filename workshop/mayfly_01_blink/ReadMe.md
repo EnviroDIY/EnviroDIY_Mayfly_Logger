@@ -1,5 +1,7 @@
-Workshop Skecth 1: Blink
+Workshop Sketch 1: Blink
 ==============
+
+Lights blink!
 
 ###Basic code elements, Lesson 1:
 
@@ -24,7 +26,7 @@ Workshop Skecth 1: Blink
   * `i++`
 
 
-### Play with the code
+### Interactive Excercise
 
 * Adjust blink rate
   * Change `delaytime` variable, and Upload code again (overwriting last upload)
