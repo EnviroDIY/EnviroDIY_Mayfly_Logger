@@ -2,7 +2,7 @@
 
 // Declare variables with a type and initialize with an inital value assignment
 int i = 1;
-int delaytime = 200;
+int delaytime = 200;  // time in milliseconds
 
 // The setup function runs once when you press reset or power the board
 void setup()           // the void keyword is used in function declarations to indicate that no information will be returned outside the function.
