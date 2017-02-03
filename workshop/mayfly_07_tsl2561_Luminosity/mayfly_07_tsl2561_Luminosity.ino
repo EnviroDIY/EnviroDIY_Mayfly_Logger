@@ -4,7 +4,7 @@
 
 
 #include <Wire.h>
-#include "TSL2561.h"
+#include "TSL2561.h"  // Adafruit_TSL2561 library for the TSL2561 digital luminosity (light) sensors
 
 TSL2561 tsl(TSL2561_ADDR_LOW); 
 

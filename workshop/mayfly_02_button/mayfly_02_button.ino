@@ -16,7 +16,7 @@ int buttonState = 0;         // variable for reading the pushbutton status
 void setup() {
   
   Serial.begin(57600);   // We'll send debugging information via the Serial monitor
-  Serial.println("Mayfly Button teseting sketch");
+  Serial.println("Mayfly Button testing sketch");
   // initialize the LED pin as an output:
   pinMode(greenLEDpin, OUTPUT);      
   // initialize the pushbutton pin as an input:
