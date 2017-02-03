@@ -2,10 +2,11 @@
 
 //Connect the Grove Magnet Switch to the D10-11 Grove socket on the Mayfly
 //Optional:  Connect a Grove Buzzer to the D6-7 Grove socket on the Mayfly
- 
+
+#include <Arduino.h>
 
 #define MAGNECTIC_SWITCH 10
-#define buzzer	6   
+#define buzzer	6
 int tips = 0;
 
 void setup()
@@ -15,9 +16,9 @@ void setup()
 	pinMode(buzzer,OUTPUT);
         pinMode(22, OUTPUT);
         digitalWrite(22, HIGH);
-} 
- 
-void loop() 
+}
+
+void loop()
 {
 	if(isNearMagnet())//if the magnetic switch is near the magnet?
 	{
@@ -29,7 +30,7 @@ void loop()
 	}
 	else
 	{
-		
+
 	}
 }
 
@@ -48,5 +49,3 @@ boolean isNearMagnet()
 		return false;//no,return false
 	}
 }
-
-

@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 #include <SD.h>
@@ -21,29 +22,29 @@ int batterysenseValue = 0;  // variable to store the value coming from the analo
 float batteryvoltage;       // the battery voltage as calculated by the formula below
 
 
-void setup() 
+void setup()
 {
   //Initialise the serial connection
   Serial.begin(57600);
-    
+
   //Initialise log file
   setupLogFile();
-  
+
   //Echo the data header to the serial connection
   Serial.println(DATA_HEADER);
-  
+
 }
 
-void loop() 
+void loop()
 {
   String dataRec = createDataRecord();
-  
+
   //Save the data record to the log file
   logData(dataRec);
-  
+
   //Echo the data to the serial connection
   Serial.println(dataRec);
-  
+
   delay(sampleinterval*1000);   //multiply by 1000 to convert from milliseconds to seconds
 
 }
@@ -56,24 +57,24 @@ void setupLogFile()
   {
     Serial.println("Error: SD card failed to initialise or is missing.");
     //Hang
-  //  while (true); 
+  //  while (true);
   }
-  
+
   //Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);  
-  
+  bool oldFile = SD.exists(FILE_NAME);
+
   //Open the file in write mode
   File logFile = SD.open(FILE_NAME, FILE_WRITE);
-  
+
   //Add header information if the file did not already exist
   if (!oldFile)
   {
     logFile.println(LOGGERNAME);
     logFile.println(DATA_HEADER);
   }
-  
+
   //Close the file to save it
-  logFile.close();  
+  logFile.close();
 }
 
 
@@ -81,12 +82,12 @@ void logData(String rec)
 {
   //Re-open the file
   File logFile = SD.open(FILE_NAME, FILE_WRITE);
-  
+
   //Write the CSV data
   logFile.println(rec);
-  
+
   //Close the file to save it
-  logFile.close();  
+  logFile.close();
 }
 
 String createDataRecord()
@@ -94,7 +95,7 @@ String createDataRecord()
   //Create a String type data record in csv format
   //SampleNumber, Battery
   String data = "";
-  data += samplenum;           //creates a string called "data", put in the sample number 
+  data += samplenum;           //creates a string called "data", put in the sample number
   data += ",";                 //adds a comma between values
   batterysenseValue = analogRead(batteryPin);         // reads the analog voltage on the batteryPin, reported in bits
   batteryvoltage = (3.3/1023.) * 1.47 * batterysenseValue;      // converts bits into volts (see batterytest sketch for more info)

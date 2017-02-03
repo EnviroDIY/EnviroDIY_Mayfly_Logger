@@ -1,9 +1,10 @@
 // This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor and a SSD1306 OLED display
 
 //Connect the Maxbotix sensor to the Mayfly's D4-5 Grove connector
-//Connect the OLED display to the Mayfly's I2C Grove connector 
+//Connect the OLED display to the Mayfly's I2C Grove connector
 
 // Import required libraries
+#include <Arduino.h>
 #include <SDL_Arduino_SSD1306.h>    // Modification of Adafruit_SSD1306 for ESP8266 compatibility
 #include <AMAdafruit_GFX.h>   // Needs a little change in original Adafruit library (See README.txt file)
 #include <SPI.h>            // For SPI comm (needed for not getting compile error)
@@ -32,7 +33,7 @@ void setup()
   display.println("Mayfly");
   display.println("Sonar demo");
   display.display();
-     
+
   Serial.println("Mayfly Maxbotix sonar sensor rangefinder example");
   delay(3000);
 }
@@ -46,9 +47,9 @@ void loop()
 
     Serial.print("Range: ");
     Serial.print(range);
-    Serial.println(" mm");     
-             
-    display.clearDisplay(); 
+    Serial.println(" mm");
+
+    display.clearDisplay();
     display.setTextSize(3);
     display.setTextColor(WHITE);
     display.setCursor(0,0);
@@ -56,13 +57,13 @@ void loop()
     display.print(range);
     display.println(" mm");
     display.display();
-             
-    delay(700);                                    
+
+    delay(700);
   }
 }
 
 
-int EZreadSonar() 
+int EZreadSonar()
 {
   int result;
   char inData[5];                                          //char array to read data into
@@ -83,11 +84,11 @@ int EZreadSonar()
         {
           if (sonarSerial.available())
           {
-            inData[index] = sonarSerial.read(); 
+            inData[index] = sonarSerial.read();
             //Serial.println(inData[index]);               //Debug line
 
             index++;                                       // Increment where to write next
-          }  
+          }
         }
         inData[index] = 0x00;                              //add a padding byte at end for atoi() function
       }

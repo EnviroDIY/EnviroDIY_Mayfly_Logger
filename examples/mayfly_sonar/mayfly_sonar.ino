@@ -1,8 +1,9 @@
-// This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor 
+// This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor
 
 // Connect the Maxbotix serial data output pin to Mayfly pin 5
 // Provide 3.3v and GND to the Maxbotix sensor power pins
 
+#include <Arduino.h>
 #include <SoftwareSerial.h>
 SoftwareSerial sonarSerial(5, -1);            //define serial port for recieving data.
 
@@ -15,7 +16,7 @@ void setup()
   Serial.begin(57600);                                      //start serial port for display
   sonarSerial.begin(9600);                                 //start serial port for maxSonar
   pinMode(5, INPUT);
-     
+
   Serial.println("Mayfly Maxbotix sonar sensor rangefinder example");
   delay(3000);
 }
@@ -29,14 +30,14 @@ void loop()
 
     Serial.print("Range: ");
     Serial.print(range);
-    Serial.println(" mm");     
-             
-    delay(1000);                                    
+    Serial.println(" mm");
+
+    delay(1000);
   }
 }
 
 
-int EZreadSonar() 
+int EZreadSonar()
 {
   int result;
   char inData[5];                                          //char array to read data into
@@ -57,11 +58,11 @@ int EZreadSonar()
         {
           if (sonarSerial.available())
           {
-            inData[index] = sonarSerial.read(); 
+            inData[index] = sonarSerial.read();
             //Serial.println(inData[index]);               //Debug line
 
             index++;                                       // Increment where to write next
-          }  
+          }
         }
         inData[index] = 0x00;                              //add a padding byte at end for atoi() function
       }

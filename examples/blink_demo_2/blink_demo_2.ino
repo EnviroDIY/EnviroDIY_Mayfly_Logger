@@ -1,19 +1,21 @@
+#include <Arduino.h>
+
 int State8 = LOW;
 int State9 = LOW;
- 
+
 int delayTime = 1000;   //milliseconds
- 
-void setup () 
+
+void setup ()
 {
     pinMode(8, OUTPUT);
     pinMode(9, OUTPUT);
     Serial.begin(57600);
     delay(1000);
     Serial.println("Mayfly: Blink demo 2");
-    delay(1000);       
+    delay(1000);
 }
- 
-void loop () 
+
+void loop ()
 {
     if (State8 == LOW) {
       State8 = HIGH;

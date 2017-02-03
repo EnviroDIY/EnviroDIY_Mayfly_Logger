@@ -5,6 +5,8 @@
 // Plug the TMP36 temperature sensor into the 4-pin header labeled "TMP36"
 // Plug an Xbee module into the Xbee socket on the Mayfly
 
+#include <Arduino.h>
+
 
 String LoggerName = "DemoA";   //change "DemoA" to a unique name before uploading!!!
 
@@ -54,5 +56,3 @@ void loop()                     // run over and over again
 
  delay(5000);                                     //waiting a few seconds
 }
-
-
