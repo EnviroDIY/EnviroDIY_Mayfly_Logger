@@ -1,5 +1,24 @@
-#include <Wire.h>
-#include "Sodaq_DS3231.h"
+/**************************************************************************
+
+* Written By:  Shannon Hicks <shicks@stroudcenter.org>
+* Documentation By: Anthony Aufdenkampe <aaufdenkampe@limno.com>
+* Creation Date: 2016
+* Development Environment: Arduino IDE 1.6.5+
+* Hardware Platform: Stroud Center, EnviroDIY Mayfly Arduino Datalogger
+
+All of the Mayfly boards have been pre-programmed with this initial 
+demonstration sketch. This sketch uses a library called *Sodaq_DS3231.h*, 
+which is necessary to interact with the Real Time Clock's DS3231 RTC chip. 
+In order to load this sketch, you first need to install the SODAQ_DS3231 
+library, either by: using the Arudino IDE from this menu utility: 
+Skectch > Include Library > Manage Libraries...; or by 
+directly obtaining the library from: 
+https://github.com/SodaqMoja/Sodaq_DS3231
+
+**************************************************************************/
+
+#include <Wire.h>           // This library is included with the Arduino IDE, and allows communication with I2C/TWI devices
+#include "Sodaq_DS3231.h"   // Install this library to interact with the Real Time Clock
 
 int State8 = LOW;
 int State9 = LOW;
