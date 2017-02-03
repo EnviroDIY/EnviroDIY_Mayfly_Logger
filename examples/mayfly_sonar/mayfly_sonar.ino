@@ -4,6 +4,7 @@
 // Provide 3.3v and GND to the Maxbotix sensor power pins
 
 #include <Arduino.h>
+#include <wire.h>
 #include <SoftwareSerial.h>
 SoftwareSerial sonarSerial(5, -1);            //define serial port for recieving data.
 

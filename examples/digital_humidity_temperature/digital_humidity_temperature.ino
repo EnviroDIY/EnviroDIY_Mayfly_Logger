@@ -3,6 +3,7 @@
 //Connect the Grove Digital Temp/Humidity board to D10-11 Grove connector on the Mayfly
 
 #include <Arduino.h>
+#include <wire.h>
 #include "DHT.h"
 
 #define DHTPIN 10     // what pin the DHT signal is connected to

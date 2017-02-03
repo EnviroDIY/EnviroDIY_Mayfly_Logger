@@ -4,6 +4,7 @@
 //Optional:  Connect a Grove Buzzer to the D6-7 Grove socket on the Mayfly
 
 #include <Arduino.h>
+#include <wire.h>
 
 #define MAGNECTIC_SWITCH 10
 #define buzzer	6

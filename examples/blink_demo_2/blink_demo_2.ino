@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <wire.h>
 
 int State8 = LOW;
 int State9 = LOW;

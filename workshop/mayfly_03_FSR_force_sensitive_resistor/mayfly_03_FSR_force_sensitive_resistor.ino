@@ -3,6 +3,7 @@
 // Connect the "Mayfly Grove Analog Sensor Board" to the Mayfly's 20-pin Analog header
 // Pug the Force Sensitive Resistor into the 2-pin header labeled "FSR"
 #include <Arduino.h>
+#include <wire.h>
 
 
 int LEDpinRed = 8;      // Red LED is connected to Digital pin 5 (PWM pin)

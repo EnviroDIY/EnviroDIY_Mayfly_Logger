@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <wire.h>
 
 int batteryPin = A6;    // on the Mayfly board, pin A6 is connected to a resistor divider on the battery input
 

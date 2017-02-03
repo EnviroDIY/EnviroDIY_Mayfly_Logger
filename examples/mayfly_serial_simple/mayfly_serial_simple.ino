@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <wire.h>
 
 void setup()
 {
