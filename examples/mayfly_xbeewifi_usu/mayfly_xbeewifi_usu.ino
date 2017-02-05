@@ -9,9 +9,9 @@ Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
 Radio Module: XBee S6b WiFi module.
 
 This sketch is an example of posting data to the EnviroDIY Water Quality
-data portal (http://data.envirodiy.org) using a Mayfly Arduino board and an 
-XBee Wifi module. As a quick example, it uses the temperature values from 
-the Mayfly's real time clock and POSTs them to http://data.envirodiy.org. 
+data portal (http://data.envirodiy.org) using a Mayfly Arduino board and an
+XBee Wifi module. As a quick example, it uses the temperature values from
+the Mayfly's real time clock and POSTs them to http://data.envirodiy.org.
 This sketch could easily be modified to post any sensor measurements to a stream
 at http://data.envirodiy.org that has been configured to accept them.
 
@@ -22,7 +22,7 @@ https://learn.sparkfun.com/tutorials/internet-datalogging-with-arduino-and-xbee-
 Assumptions:
 1. The XBee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
-2. The Mayfly has been registered at http://data.envirodiy.org and the sensor 
+2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
 has been configured. In this example, only temperature is used.
 
 DISCLAIMER:
@@ -32,7 +32,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 
 // -----------------------------------------------
 // Note: All 'Serial.print' statements can be
-// removed if they are not desired - used for 
+// removed if they are not desired - used for
 // debugging only
 // -----------------------------------------------
 
@@ -70,7 +70,7 @@ const String API_ENDPOINT = "/api/data-stream/";
 #define SERIAL_BAUD 57600 // Serial port BAUD rate
 
 // -----------------------------------------------
-// 6. Global variables 
+// 6. Global variables
 // -----------------------------------------------
 unsigned long lastUpdate = 0; // Keep track of last update time
 Sodaq_DS3231 sodaq;           // This is used for some board functions
@@ -144,7 +144,7 @@ void printPostResult(int result)
 
         default:
         {
-            Serial.println("\An unknown error has occured, and we're pretty confused\n");
+            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
         }
     }
 }
@@ -176,7 +176,7 @@ int postData(String requestString, bool redirected = false)
     }
 
     // Process the HTTP response
-    if (timeout > 0 || Serial1.available() >= 12)
+    if (timeout > 0 && Serial1.available() >= 12)
     {
         char response[10];
         char code[4];
@@ -251,6 +251,15 @@ bool updateAllSensors()
     return true;
 }
 
+// This function returns the datetime from the realtime clock
+String getDateTime(void)
+{
+    DateTime currDateTime = sodaq.now();
+    String date = String(currDateTime.year()) + "-" + String(currDateTime.month()) + "-" + String(currDateTime.date()) + " ";
+    String time = String(currDateTime.hour()) + ":" + String(currDateTime.minute()) + ":" + String(currDateTime.second());
+    return date + time;
+}
+
 // This function generates the JSON data string that becomes the body of the POST request
 // For now, the Result UUID is hard coded here
 // TODO:  Move the Result UUID somewhere easier to configure.
@@ -264,18 +273,9 @@ String generateSensorDataString(void)
     return jsonString;
 }
 
-// This function returns the datetime from the realtime clock
-String getDateTime(void)
-{
-    DateTime currDateTime = sodaq.now();
-    String date = String(currDateTime.year()) + "-" + String(currDateTime.month()) + "-" + String(currDateTime.date()) + " ";
-    String time = String(currDateTime.hour()) + ":" + String(currDateTime.minute()) + ":" + String(currDateTime.second());
-    return date + time;
-}
-
 // Main setup function
 void setup()
-{ 
+{
     sodaq.setEpoch(1481224540);  // Use this to set the current time, set to current unix epoch
     Serial.begin(SERIAL_BAUD);   // Start the serial connections
     Serial1.begin(XB_BAUD);      // XBee hardware serial connection
@@ -297,4 +297,3 @@ void loop()
 
     delay(MAIN_LOOP_DELAY);
 }
-

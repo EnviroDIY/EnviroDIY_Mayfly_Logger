@@ -28,12 +28,9 @@ cache:
         - "~/.platformio"
 #
 env:
-<<<<<<< HEAD
-    - PLATFORMIO_CI_SRC=examples/logging_to_pc/logging_to_pc.ino
     - PLATFORMIO_CI_SRC=examples/simple_logging_example/simple_logging_example.ino
-    - PLATFORMIO_CI_SRC=examples/sync_clock_PC/sync_clock_PC.ino
     - PLATFORMIO_CI_SRC=examples/mayfly_xbeewifi_usu/mayfly_xbeewifi_usu.ino
-=======
+
     - PLATFORMIO_CI_SRC=examples/battery_measurement/battery_measurement.ino
     - PLATFORMIO_CI_SRC=examples/blink_demo_1/blink_demo_1.ino
     - PLATFORMIO_CI_SRC=examples/blink_demo_2/blink_demo_2.ino
@@ -53,7 +50,6 @@ env:
     - PLATFORMIO_CI_SRC=workshop/mayfly_08_magnetswitch/mayfly_08_magnetswitch.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_09_tmp36_analogTemp_xbee/mayfly_09_tmp36_analogTemp_xbee.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_10_sonar/mayfly_10_sonar.ino
->>>>>>> refs/remotes/origin/master
 #
 install:
     - pip install -U platformio
