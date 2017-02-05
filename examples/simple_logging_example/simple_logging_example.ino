@@ -1,10 +1,10 @@
 /**************************************************************************
-Mayfly_XBeeWiFi.ino
+simple_logging_example.ino
+Initial Creation Date: 6/3/2016
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
-Additional Work
-Creation Date: 6/3/2016
-Development Environment: Arduino 1.8.0
+Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
+Development Environment: PlatformIO 3.2.1
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
 Radio Module: XBee S6b WiFi module.
 
@@ -12,11 +12,12 @@ This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
 1. The XBee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
+2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
+has been configured. In this example, only temperature is used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 **************************************************************************/
-
 
 // -----------------------------------------------
 // Note: All 'Serial.print' statements can be
@@ -28,41 +29,60 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // -----------------------------------------------
 // 1. Include all sensors and necessary files here
 // -----------------------------------------------
+#include <Arduino.h>
 #include <Wire.h>
-#include "Sodaq_DS3231.h"
+#include <avr/sleep.h>
+#include <avr/wdt.h>
+#include <RTCTimer.h>
+#include <Sodaq_DS3231.h>
+#include <Sodaq_PcInt.h>
+const String PROGRAM_NAME = "simple_logging_example.ino";
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
 // -----------------------------------------------
+// Register your site and get these tokens from data.envirodiy.org
 const String REGISTRATION_TOKEN = "9e8bbb13-1b71-4720-b930-1d7b0d7602b0";
 const String SAMPLING_FEATURE = "a8bff3ec-4ca3-4d13-b1e2-e5effeceb4a1";
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
 // -----------------------------------------------
-const String HOST_ADDRESS = "wpfweb.uwrl.usu.edu";
-const String API_ENDPOINT = "/websdl/api/data-stream/";
+const String HOST_ADDRESS = "data.envirodiy.org";
+const String API_ENDPOINT = "/api/data-stream/";
 
 // -----------------------------------------------
 // 4. Misc. Options
 // -----------------------------------------------
-#define UPDATE_RATE 3000 // milliseconds
-#define MAIN_LOOP_DELAY 5000 // milliseconds
-#define COMMAND_TIMEOUT 10000 // ms (5000 ms = 5 s)
+int LOGGING_INTERVAL = 1;  // How frequently (in minutes) to log data
+int READ_DELAY = 1;  // How often (in minutes) the timer wakes up
+int UPDATE_RATE = 200; // How frequently (in milliseconds) the logger checks if it should log
+int COMMAND_TIMEOUT = 10000;  // How long (in milliseconds) to wait for a server response
 
 // -----------------------------------------------
 // 5. Board setup info
 // -----------------------------------------------
-#define XB_BAUD 9600 // XBee BAUD rate (9600 is default)
-#define SERIAL_BAUD 57600 // Serial port BAUD rate
+int BEE_BAUD = 9600;  // XBee BAUD rate (9600 is default)
+int SERIAL_BAUD = 57600;  // Serial port BAUD rate
+int BEE_PWR_PIN = 23;  // DTR
+int BEE_CTS_PIN = 19;   // CTS
+int GREEN_LED = 8;  // Pin for the green LED
+int RED_LED = 9;  // Pin for the red LED
+
+#define RTC_PIN A7  // RTC Interrupt pin
+#define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
+
+int SD_SS_PIN = 12;  // SD Card Pin
 
 // -----------------------------------------------
-// 6. Global variables
+// 6. Setup variables
 // -----------------------------------------------
-unsigned long lastUpdate = 0; // Keep track of last update time
-Sodaq_DS3231 sodaq;           // This is used for some board functions
-size_t sensorCount = 0;       // Keep this at 0 - it'll get set properly in the setup() function
-float ONBOARD_TEMPERATURE = 0;
+float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
+// Variables for the timer function
+int currentminute;
+int testtimer = 0;
+int testminute = 1;
+long currentepochtime = 0;
 
 enum HTTP_RESPONSE
 {
@@ -73,6 +93,14 @@ enum HTTP_RESPONSE
     HTTP_REDIRECT,
     HTTP_OTHER
 };
+Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
+RTCTimer timer;  // The timer functions for the RTC
+//Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
+//SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
+
+// -----------------------------------------------
+// 8. Working functions
+// -----------------------------------------------
 
 // Used to flush out the buffer after a post request.
 // Removing this may cause communication issues. If you
@@ -87,53 +115,157 @@ void printRemainingChars(int timeDelay = 1, int timeout = 5000)
             Serial.print(netChar);
             delay(timeDelay);
         }
-
         delay(timeDelay);
     }
-
     Serial1.flush();
 }
 
-// Used only for debugging - can be removed
-void printPostResult(int result)
+// This function returns the datetime from the realtime clock as a string formated for the POST request
+String getDateTime(void)
 {
-    switch (result)
-    {
-        case HTTP_SUCCESS:
-        {
-            Serial.println("\nSucessfully sent data to " + HOST_ADDRESS + "\n");
-        }
-        break;
+  String dateTimeStr;
+  //Create a DateTime object from the current time
+  DateTime dt(rtc.makeDateTime(rtc.now().getEpoch()));
+  //Convert it to a String
+  dt.addToString(dateTimeStr);
+  return dateTimeStr;
+}
 
-        case HTTP_FAILURE:
-        {
-            Serial.println("\nFailed to send data to " + HOST_ADDRESS + "\n");
-        }
-        break;
+// This function returns the datetime from the realtime clock as a string in the built-in string format
+void showTime(uint32_t ts)
+{
+  // Retrieve and display the current date/time
+  String dateTime = getDateTime();
+}
 
-        case HTTP_TIMEOUT:
-        {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server.\n");
-        }
-        break;
+// Helper function to get the current date/time from the RTC
+// as a unix timestamp
+uint32_t getNow()
+{
+  currentepochtime = rtc.now().getEpoch();
+  return currentepochtime;
+}
 
-        case HTTP_REDIRECT:
-        {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " was redirected.\n");
-        }
-        break;
+// Set-up the RTC Timer events
+void setupTimer()
+{
+  // Schedule the wakeup every minute
+  timer.every(READ_DELAY, showTime);
 
-        case HTTP_SERVER_ERROR:
-        {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " caused an internal server error.\n");
-        }
-        break;
+  // Instruct the RTCTimer how to get the current time reading
+  timer.setNowCallback(getNow);
+}
 
-        default:
-        {
-            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
-        }
-    }
+void wakeISR()
+{
+  //Leave this blank
+}
+
+// Sets up the sleep mode (used on device wake-up)
+void setupSleep()
+{
+  pinMode(RTC_PIN, INPUT_PULLUP);
+  PcInt::attachInterrupt(RTC_PIN, wakeISR);
+
+  //Setup the RTC in interrupt mode
+  rtc.enableInterrupts(RTC_INT_PERIOD);
+
+  //Set the sleep mode
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+}
+
+void sensorsSleep()
+{
+  // Add any code which your sensors require before sleep
+}
+
+void sensorsWake()
+{
+  // Add any code which your sensors require after waking
+}
+
+// Puts the system to sleep to conserve battery life.
+void systemSleep()
+{
+  // This method handles any sensor specific sleep setup
+  sensorsSleep();
+
+  // Wait until the serial ports have finished transmitting
+  Serial.flush();
+  Serial1.flush();
+
+  // The next timed interrupt will not be sent until this is cleared
+  rtc.clearINTStatus();
+
+  // Disable ADC
+  ADCSRA &= ~_BV(ADEN);
+
+  // Sleep time
+  noInterrupts();
+  sleep_enable();
+  interrupts();
+  sleep_cpu();
+  sleep_disable();
+
+  // Enable ADC
+  ADCSRA |= _BV(ADEN);
+
+  // This method handles any sensor specific wake setup
+  sensorsWake();
+}
+
+// Flashess to Mayfly's LED's
+void greenred4flash()
+{
+  for (int i = 1; i <= 4; i++) {
+    digitalWrite(GREEN_LED, HIGH);
+    digitalWrite(RED_LED, LOW);
+    delay(50);
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED, HIGH);
+    delay(50);
+  }
+  digitalWrite(RED_LED, LOW);
+}
+
+// This function updates the values for any connected sensors. Need to add code for
+// Any sensors connected - this example only uses temperature.
+bool updateAllSensors()
+{
+    // Get the temperature from the Mayfly's real time clock and convert to Farenheit
+    rtc.convertTemperature();  //convert current temperature into registers
+    float tempVal = rtc.getTemperature();
+    ONBOARD_TEMPERATURE = (tempVal * 9.0 / 5.0) + 32.0; // Convert to farenheit
+    return true;
+}
+
+// This function generates the JSON data string that becomes the body of the POST request
+// For now, the Result UUID is hard coded here
+// TODO:  Move the Result UUID somewhere easier to configure.
+String generateSensorDataString(void)
+{
+    String jsonString = "{ ";
+    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
+    jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
+    jsonString += "\"71408b33-b486-436c-8ed6-7382491f1e12\": " + String(int(ONBOARD_TEMPERATURE));
+    jsonString += " }";
+    return jsonString;
+}
+
+// This function generates the POST request that gets sent to data.envirodiy.org
+String generatePostRequest(String dataString)
+{
+    String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
+    request += "Host: " + HOST_ADDRESS + "\r\n";
+    request += "token: " + REGISTRATION_TOKEN + "\r\n";
+    request += "Content-Type: application/json\r\n";
+    request += "Cache-Control: no-cache\r\n";
+    request += "Content-Length: " + String(dataString.length() + 3) + "\r\n";
+    request += "\r\n";
+    request += dataString;
+    request += "\r\n\r\n";
+
+    return request;
 }
 
 // This function makes an HTTP connection to the server and POSTs data
@@ -163,7 +295,7 @@ int postData(String requestString, bool redirected = false)
     }
 
     // Process the HTTP response
-    if (timeout > 0 || Serial1.available() >= 12)
+    if (timeout > 0 && Serial1.available() >= 12)
     {
         char response[10];
         char code[4];
@@ -211,67 +343,116 @@ int postData(String requestString, bool redirected = false)
     return result;
 }
 
-String generatePostRequest(String dataString)
+// Used only for debugging - can be removed
+void printPostResult(int result)
 {
-    String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
-    request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += "token: " + REGISTRATION_TOKEN + "\r\n";
-    request += "Content-Type: application/json\r\n";
-    request += "Cache-Control: no-cache\r\n";
-    request += "Content-Length: " + String(dataString.length() + 3) + "\r\n";
-    request += "\r\n";
-    request += dataString;
-    request += "\r\n\r\n";
+    switch (result)
+    {
+        case HTTP_SUCCESS:
+        {
+            Serial.println("\nSucessfully sent data to " + HOST_ADDRESS + "\n");
+        }
+        break;
 
-    return request;
+        case HTTP_FAILURE:
+        {
+            Serial.println("\nFailed to send data to " + HOST_ADDRESS + "\n");
+        }
+        break;
+
+        case HTTP_TIMEOUT:
+        {
+            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server.\n");
+        }
+        break;
+
+        case HTTP_REDIRECT:
+        {
+            Serial.println("\nRequest to " + HOST_ADDRESS + " was redirected.\n");
+        }
+        break;
+
+        case HTTP_SERVER_ERROR:
+        {
+            Serial.println("\nRequest to " + HOST_ADDRESS + " caused an internal server error.\n");
+        }
+        break;
+
+        default:
+        {
+            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
+        }
+    }
 }
 
-bool updateAllSensors()
-{
-    // Get the temperature from the Mayfly's real time clock and convert to Farenheit
-    rtc.convertTemperature();  //convert current temperature into registers
-    float tempVal = rtc.getTemperature();
-    ONBOARD_TEMPERATURE = (tempVal * 9.0 / 5.0) + 32.0; // Convert to farenheit
-    return true;
-}
-
-String generateSensorDataString(void)
-{
-    String jsonString = "{ ";
-    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
-    jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"71408b33-b486-436c-8ed6-7382491f1e12\": " + String(int(ONBOARD_TEMPERATURE));
-    jsonString += " }";
-    return jsonString;
-}
-
-String getDateTime(void)
-{
-    DateTime currDateTime = sodaq.now();
-    String date = String(currDateTime.year()) + "-" + String(currDateTime.month()) + "-" + String(currDateTime.date()) + " ";
-    String time = String(currDateTime.hour()) + ":" + String(currDateTime.minute()) + ":" + String(currDateTime.second());
-    return date + time;
-}
-
+// Main setup function
 void setup()
 {
-    Serial.begin(SERIAL_BAUD);   // Start the serial connections
-    Serial1.begin(XB_BAUD);      // XBee hardware serial connection
+  // Start the primary serial connection
+  Serial.begin(57600);
+  // Start the serial connection with the *bee
+  Serial1.begin(57600);
+
+  // Start the Real Time Clock
+    rtc.begin();
+    delay(100);
+
+    // Start the SDI-12 Library
+    //mySDI12.begin();
+    //delay(100);
+
+  // Set up pins for the LED's
+    pinMode(GREEN_LED, OUTPUT);
+    pinMode(RED_LED, OUTPUT);
+
+  // Blink the LEDs to show the board is on and starting up
+    greenred4flash();
+
+  // Setup timer events
+    setupTimer();
+
+  // Setup sleep mode
+    setupSleep();
+
+  // Print a start-up note to the first serial port
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
+    Serial.println("Now running " + PROGRAM_NAME + "\n");
+    Serial.print("Current Mayfly RTC time is :" + getDateTime());
 }
 
 void loop()
 {
-    // Check to see if it is time to post the data to the server
-    if (millis() > (lastUpdate + UPDATE_RATE))
+    // Update the timer
+    timer.update();
+
+    // Check of the current time is an even interval of the test minute
+    if (currentminute % testminute == 0)
     {
-        lastUpdate = millis();
+        // Turn on the LED
+        digitalWrite(GREEN_LED, HIGH);
+        // Print a few blank lines to show new reading
         Serial.println("\n---\n---\n");
-        updateAllSensors(); // get the sensor value, store as string
+        // Get the sensor value(s), store as string
+        updateAllSensors();
+        // Generate the sensor data string and post request
         String request = generatePostRequest(generateSensorDataString());
+        // Post the data to the WebSDL
         int result = postData(request);
+        // Print the response from the WebSDL
         printPostResult(result);
+        // Turn off the LED
+        digitalWrite(GREEN_LED, LOW);
+        // Advance the timer
+        testtimer++;
     }
 
-    delay(MAIN_LOOP_DELAY);
+    // Check if the time is an even unit of the logging interval
+    if (testtimer >= LOGGING_INTERVAL)
+    {
+       testminute = LOGGING_INTERVAL;
+    }
+
+    // Sleep
+    delay(UPDATE_RATE);
+    systemSleep();
 }
