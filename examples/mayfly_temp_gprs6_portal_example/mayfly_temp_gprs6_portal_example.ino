@@ -4,7 +4,7 @@
   Written By:  Anthony Aufdenkampe <aaufdenkampe@limno.com>
   Modified from:
     - mayfly_station_CTD_turb_gprs6_jan2017_example.ino by Shannon Hicks <shicks@stroudcenter.org>
-    - Mayfly_XBeeWiFi.ino by Jeff Horsburgh (jeff.horsburgh@usu.edu) 
+    - Mayfly_BeeWiFi.ino by Jeff Horsburgh (jeff.horsburgh@usu.edu)
                           and Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
   Creation Date: 2016
   Development Environment: Arduino IDE 1.8x
@@ -12,11 +12,11 @@
   Radio Module:  GPRSbee rev.6 cell wireless
   Sensors:
     - Mayfly DS3231 Real Time Clock (RTC) and Temperature sensor
-    
-  This sketch is a simple example sketch for a solar-powered cell-radio wireless
-  sensing station 
 
-  
+  This sketch is a simple example sketch for a solar-powered cell-radio wireless
+  sensing station
+
+
 **WARNING:** This sketch will not work in it's entirity as it is currently
   written, because the data are posted to a dummy RESTful endpoint URL
   (http://somewebsite.com/somescript.php?) using the syntax
@@ -85,8 +85,8 @@ float lowturbidity, highturbidity;   //variables to hold the calculated NTU valu
 int SwitchedPower = 22;    // sensor power is pin 22 on Mayfly
 SDI12 mySDI12(DATAPIN);
 
-#define GPRSBEE_PWRPIN  23  //DTR
-#define XBEECTS_PIN     19   //CTS
+#define BEE_DTR_PIN 23  // Bee DTR Pin (Data Terminal Ready - used for sleep)
+#define BEE_CTS_PIN 19   // Bee CTS Pin (Clear to Send)
 
 // RTC Interrupt pin
 #define RTC_PIN A7
@@ -97,7 +97,7 @@ SDI12 mySDI12(DATAPIN);
 
 /**************************************************************************
    setup() - The SETUP function runs once when you turn your Mayfly on.
-             The VOID keyword is used in function declarations to indicate that 
+             The VOID keyword is used in function declarations to indicate that
              no information will be returned outside the function.
 **************************************************************************/
 void setup()
@@ -124,9 +124,9 @@ void setup()
   digitalWrite(SwitchedPower, LOW);
 
   // Set up pins for the *bee
-  pinMode(23, OUTPUT);    // Bee socket DTR pin
-  digitalWrite(23, LOW);   // on GPRSbee v6, setting this high turns on the GPRSbee.  leave it high to keep GPRSbee on.
-  gprsbee.init(Serial1, XBEECTS_PIN, GPRSBEE_PWRPIN);
+  pinMode(BEE_DTR_PIN, OUTPUT);    // Bee socket DTR pin
+  digitalWrite(BEE_DTR_PIN, LOW);   // on GPRSbee v6, setting this high turns on the GPRSbee.  leave it high to keep GPRSbee on.
+  gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
   // Comment out the next line when used with GPRSbee Rev.4
   gprsbee.setPowerSwitchedOnOff(true);
 
@@ -154,7 +154,7 @@ void setup()
 
 /**************************************************************************
    loop() -  The LOOP function runs over and over as long as your Mayfly is on.
-             The VOID keyword is used in function declarations to indicate that 
+             The VOID keyword is used in function declarations to indicate that
              no information will be returned outside the function.
 
 **************************************************************************/
@@ -201,13 +201,13 @@ REMOVING THIS CODE BLOCK
     assembleURL();
 
     delay(100);
-    digitalWrite(23, HIGH);
+    digitalWrite(BEE_DTR_PIN, HIGH);
     delay(1000);
 
     sendviaGPRS();
 
     delay(1000);
-    digitalWrite(23, LOW);
+    digitalWrite(BEE_DTR_PIN, LOW);
     delay(500);
 
     String dataRec = "";

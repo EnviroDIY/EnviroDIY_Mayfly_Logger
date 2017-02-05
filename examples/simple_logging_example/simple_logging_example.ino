@@ -6,11 +6,11 @@ Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
-Radio Module: XBee S6b WiFi module.
+Radio Module: Bee S6b WiFi module.
 
 This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
-1. The XBee WiFi module has must be configured correctly to connect to the
+1. The Bee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
 has been configured. In this example, only temperature is used.
@@ -33,17 +33,26 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Wire.h>
 #include <avr/sleep.h>
 #include <avr/wdt.h>
+#include <SPI.h>
+#include <SD.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt.h>
-const String PROGRAM_NAME = "simple_logging_example.ino";
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
 // -----------------------------------------------
+// Skecth file name
+const String SKETCH_NAME = "simple_logging_example.ino";
+
+// Data header, for data log file on SD card
+const String LOGGERNAME = "Mayfly 160073";
+const String FILE_NAME = "Mayfly 160073";
+const String DATA_HEADER = "JSON Formatted Data";
+
 // Register your site and get these tokens from data.envirodiy.org
-const String REGISTRATION_TOKEN = "9e8bbb13-1b71-4720-b930-1d7b0d7602b0";
-const String SAMPLING_FEATURE = "a8bff3ec-4ca3-4d13-b1e2-e5effeceb4a1";
+const String REGISTRATION_TOKEN = "ac8502b6-2ba4-4b2c-a504-9df0af70360b";
+const String SAMPLING_FEATURE = "1aa8f9f7-e5b5-4942-8b2d-a8b44fd93efb";
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
@@ -57,15 +66,15 @@ const String API_ENDPOINT = "/api/data-stream/";
 int LOGGING_INTERVAL = 1;  // How frequently (in minutes) to log data
 int READ_DELAY = 1;  // How often (in minutes) the timer wakes up
 int UPDATE_RATE = 200; // How frequently (in milliseconds) the logger checks if it should log
-int COMMAND_TIMEOUT = 10000;  // How long (in milliseconds) to wait for a server response
+int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server response
 
 // -----------------------------------------------
 // 5. Board setup info
 // -----------------------------------------------
-int BEE_BAUD = 9600;  // XBee BAUD rate (9600 is default)
 int SERIAL_BAUD = 57600;  // Serial port BAUD rate
-int BEE_PWR_PIN = 23;  // DTR
-int BEE_CTS_PIN = 19;   // CTS
+int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
+int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
+int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
 int RED_LED = 9;  // Pin for the red LED
 
@@ -235,7 +244,7 @@ bool updateAllSensors()
     // Get the temperature from the Mayfly's real time clock and convert to Farenheit
     rtc.convertTemperature();  //convert current temperature into registers
     float tempVal = rtc.getTemperature();
-    ONBOARD_TEMPERATURE = (tempVal * 9.0 / 5.0) + 32.0; // Convert to farenheit
+    ONBOARD_TEMPERATURE = tempVal; // Convert to farenheit
     return true;
 }
 
@@ -244,20 +253,60 @@ bool updateAllSensors()
 // TODO:  Move the Result UUID somewhere easier to configure.
 String generateSensorDataString(void)
 {
-    String jsonString = "{ ";
-    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
+    String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"71408b33-b486-436c-8ed6-7382491f1e12\": " + String(int(ONBOARD_TEMPERATURE));
-    jsonString += " }";
+    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
+    jsonString += "\"a76b27aa-489b-435a-bd49-d4c81968eaca\": " + String(int(ONBOARD_TEMPERATURE));
+    jsonString += "}";
     return jsonString;
+}
+
+// Initializes the SDcard and prints a header to it
+void setupLogFile()
+{
+  // Initialise the SD card
+  if (!SD.begin(SD_SS_PIN))
+  {
+    Serial.println("Error: SD card failed to initialise or is missing.");
+    //Hang
+    //  while (true);
+  }
+
+  // Check if the file already exists
+  bool oldFile = SD.exists(FILE_NAME);
+
+  // Open the file in write mode
+  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+
+  // Add header information if the file did not already exist
+  if (!oldFile)
+  {
+    logFile.println(LOGGERNAME);
+    logFile.println(DATA_HEADER);
+  }
+
+  //Close the file to save it
+  logFile.close();
+}
+
+// Writes a string to a text file on the SDCar
+void logData(String rec)
+{
+  // Re-open the file
+  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+
+  // Write the CSV data
+  logFile.println(rec);
+
+  // Close the file to save it
+  logFile.close();
 }
 
 // This function generates the POST request that gets sent to data.envirodiy.org
 String generatePostRequest(String dataString)
 {
-    String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
-    request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += "token: " + REGISTRATION_TOKEN + "\r\n";
+    String request = "POST http://" + HOST_ADDRESS + API_ENDPOINT + "\r\n";
+    request += "TOKEN: " + REGISTRATION_TOKEN + "\r\n";
     request += "Content-Type: application/json\r\n";
     request += "Cache-Control: no-cache\r\n";
     request += "Content-Length: " + String(dataString.length() + 3) + "\r\n";
@@ -289,9 +338,15 @@ int postData(String requestString, bool redirected = false)
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
     int timeout = COMMAND_TIMEOUT;
-    while ((timeout-- > 0) && Serial1.available() > 0)
+    Serial.print(timeout);
+    while ((timeout > 0) && Serial1.available() < 12)
     {
-        delay(2);
+      // Serial.print(timeout);
+      // Serial.print("---");
+      // Serial.print(Serial1.available());
+      // Serial.print("\n");
+      delay(2);
+      timeout--;
     }
 
     // Process the HTTP response
@@ -397,16 +452,15 @@ void setup()
     rtc.begin();
     delay(100);
 
-    // Start the SDI-12 Library
-    //mySDI12.begin();
-    //delay(100);
-
   // Set up pins for the LED's
     pinMode(GREEN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
 
   // Blink the LEDs to show the board is on and starting up
     greenred4flash();
+
+    // Set up the log file
+    setupLogFile();
 
   // Setup timer events
     setupTimer();
@@ -416,7 +470,7 @@ void setup()
 
   // Print a start-up note to the first serial port
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
-    Serial.println("Now running " + PROGRAM_NAME + "\n");
+    Serial.println("Now running " + SKETCH_NAME + "\n");
     Serial.print("Current Mayfly RTC time is :" + getDateTime());
 }
 
@@ -434,6 +488,8 @@ void loop()
         Serial.println("\n---\n---\n");
         // Get the sensor value(s), store as string
         updateAllSensors();
+        //Save the data record to the log file
+        logData(generateSensorDataString());
         // Generate the sensor data string and post request
         String request = generatePostRequest(generateSensorDataString());
         // Post the data to the WebSDL

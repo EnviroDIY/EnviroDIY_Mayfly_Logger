@@ -71,8 +71,8 @@ float lowturbidity, highturbidity;   //variables to hold the calculated NTU valu
 int SwitchedPower = 22;    // sensor power is pin 22 on Mayfly
 SDI12 mySDI12(DATAPIN);
 
-#define GPRSBEE_PWRPIN  23  //DTR
-#define XBEECTS_PIN     19   //CTS
+#define BEE_DTR_PIN  23  //DTR
+#define BEE_CTS_PIN     19   //CTS
 
 // RTC Interrupt pin
 #define RTC_PIN A7
@@ -117,7 +117,7 @@ void setup()
   // Set up pins for the *bee
   pinMode(23, OUTPUT);    // Bee socket DTR pin
   digitalWrite(23, LOW);   // on GPRSbee v6, setting this high turns on the GPRSbee.  leave it high to keep GPRSbee on.
-  gprsbee.init(Serial1, XBEECTS_PIN, GPRSBEE_PWRPIN);
+  gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
   // Comment out the next line when used with GPRSbee Rev.4
   gprsbee.setPowerSwitchedOnOff(true);
 

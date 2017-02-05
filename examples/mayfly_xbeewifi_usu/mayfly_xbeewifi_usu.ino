@@ -1,16 +1,16 @@
 /**************************************************************************
-Mayfly_XBeeWiFi_USU.ino
+Mayfly_BeeWiFi_USU.ino
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Creation Date: 6/3/2016
 Updated: 1/24/2017
 Development Environment: Arduino 1.6.9
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
-Radio Module: XBee S6b WiFi module.
+Radio Module: Bee S6b WiFi module.
 
 This sketch is an example of posting data to the EnviroDIY Water Quality
 data portal (http://data.envirodiy.org) using a Mayfly Arduino board and an
-XBee Wifi module. As a quick example, it uses the temperature values from
+Bee Wifi module. As a quick example, it uses the temperature values from
 the Mayfly's real time clock and POSTs them to http://data.envirodiy.org.
 This sketch could easily be modified to post any sensor measurements to a stream
 at http://data.envirodiy.org that has been configured to accept them.
@@ -20,7 +20,7 @@ This sketch was adapted from Jim Lindblom's example at:
 https://learn.sparkfun.com/tutorials/internet-datalogging-with-arduino-and-xbee-wifi
 
 Assumptions:
-1. The XBee WiFi module has must be configured correctly to connect to the
+1. The Bee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
 has been configured. In this example, only temperature is used.
@@ -66,7 +66,7 @@ const String API_ENDPOINT = "/api/data-stream/";
 // -----------------------------------------------
 // 5. Board setup info
 // -----------------------------------------------
-#define XB_BAUD 9600 // XBee BAUD rate (9600 is default)
+#define XB_BAUD 9600 // Bee BAUD rate (9600 is default)
 #define SERIAL_BAUD 57600 // Serial port BAUD rate
 
 // -----------------------------------------------
@@ -278,7 +278,7 @@ void setup()
 {
     sodaq.setEpoch(1481224540);  // Use this to set the current time, set to current unix epoch
     Serial.begin(SERIAL_BAUD);   // Start the serial connections
-    Serial1.begin(XB_BAUD);      // XBee hardware serial connection
+    Serial1.begin(XB_BAUD);      // Bee hardware serial connection
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
 }
 

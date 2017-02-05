@@ -15,26 +15,26 @@ The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is a powerfu
 This code sketch was written for a Mayfly Data Logger with an xbee wifi radio module (configuration file included - see 'xbee_radio_config.xml') and a second temperature sensor added on pin A5. The sketch and xbee radio are configured to post data to an ODM2 web service that is currently under development and may be subject to changes.
 
 ##Configuring WiFi
-Included in this repository is an example XBee Radio configuration file. There are several ways to configure this radio to meet your needs, including in-sketch code. The method used in this example is as follows:
+Included in this repository is an example Bee Radio configuration file. There are several ways to configure this radio to meet your needs, including in-sketch code. The method used in this example is as follows:
 Materials used:
     SparkFun Xbee Explorer - https://www.sparkfun.com/products/11812
-    Digi Xbee S6B - http://ftp1.digi.com/support/documentation/90002180.pdf
+    Digi XBee S6B - http://ftp1.digi.com/support/documentation/90002180.pdf
     XCTU Software - https://www.digi.com/support/productdetail?pid=5585
     Mini USB cable
 Steps:
     Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585
-    Connect your XBee radio to the Explorer board, and connect the board to your computer with the USB cable.
+    Connect your Bee radio to the Explorer board, and connect the board to your computer with the USB cable.
     Open the XCTU program and follow any prompts.
     (OPTIONAL) Review the documentation found here: http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm
     When fully loaded, click on "Add Devices".
-    When you see your XBee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.
+    When you see your Bee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.
     After your device is connected, select it and ensure the Radio Configuration panel is opened.
-    (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current XBee settings.
+    (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current Bee settings.
     Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
     Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
-    Write the settings to your XBee radio.
+    Write the settings to your Bee radio.
     Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
-    At this point, unplug the Explorer board from your computer, remove the XBee radio from the board, and insert the radio into your MayFly board.
+    At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the radio into your MayFly board.
 
 ##Sensors and Configuration
 Sensors:
@@ -76,6 +76,3 @@ This project has benefited from the support from the following funders:
 * US Environmental Protection Agency (EPA)
 * National Science Foundation, awards [EAR-0724971](http://www.nsf.gov/awardsearch/showAward?AWD_ID=0724971), [EAR-1331856](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1331856), [ACI-1339834](http://www.nsf.gov/awardsearch/showAward?AWD_ID=1339834)
 * Stroud Water Research Center endowment
-
-
-
