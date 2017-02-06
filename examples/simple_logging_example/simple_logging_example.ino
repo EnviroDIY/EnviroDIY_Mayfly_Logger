@@ -53,6 +53,7 @@ const String DATA_HEADER = "JSON Formatted Data";
 // Register your site and get these tokens from data.envirodiy.org
 const String REGISTRATION_TOKEN = "ac8502b6-2ba4-4b2c-a504-9df0af70360b";
 const String SAMPLING_FEATURE = "1aa8f9f7-e5b5-4942-8b2d-a8b44fd93efb";
+const String ONBOARD_TEMPERATURE_GUID = "a76b27aa-489b-435a-bd49-d4c81968eaca";
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
@@ -256,7 +257,7 @@ String generateSensorDataString(void)
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
     jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
-    jsonString += "\"a76b27aa-489b-435a-bd49-d4c81968eaca\": " + String(int(ONBOARD_TEMPERATURE));
+    jsonString += "\"" + ONBOARD_TEMPERATURE_GUID + "\": " + String(int(ONBOARD_TEMPERATURE));
     jsonString += "}";
     return jsonString;
 }
@@ -313,8 +314,18 @@ String generatePostRequest(String dataString)
     request += "\r\n";
     request += dataString;
     request += "\r\n\r\n";
-
     return request;
+
+    // String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
+    // request += "Host: " + HOST_ADDRESS + "\r\n";
+    // request += "token: " + REGISTRATION_TOKEN + "\r\n";
+    // request += "Content-Type: application/json\r\n";
+    // request += "Cache-Control: no-cache\r\n";
+    // request += "Content-Length: " + String(dataString.length() + 3) + "\r\n";
+    // request += "\r\n";
+    // request += dataString;
+    // request += "\r\n\r\n";
+    // return request;
 }
 
 // This function makes an HTTP connection to the server and POSTs data
@@ -338,14 +349,13 @@ int postData(String requestString, bool redirected = false)
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
     int timeout = COMMAND_TIMEOUT;
-    Serial.print(timeout);
     while ((timeout > 0) && Serial1.available() < 12)
     {
       // Serial.print(timeout);
       // Serial.print("---");
       // Serial.print(Serial1.available());
       // Serial.print("\n");
-      delay(2);
+      delay(1);
       timeout--;
     }
 

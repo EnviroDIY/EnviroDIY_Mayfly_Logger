@@ -22,19 +22,17 @@ Materials used:
     XCTU Software - https://www.digi.com/support/productdetail?pid=5585
     Mini USB cable
 Steps:
-    Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585
-    Connect your Bee radio to the Explorer board, and connect the board to your computer with the USB cable.
-    Open the XCTU program and follow any prompts.
-    (OPTIONAL) Review the documentation found here: http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm
-    When fully loaded, click on "Add Devices".
-    When you see your Bee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.
-    After your device is connected, select it and ensure the Radio Configuration panel is opened.
-    (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current Bee settings.
-    Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
-    Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
-    Write the settings to your Bee radio.
-    Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
-    At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the radio into your MayFly board.
+    1. Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585.  While you are there you can also review the module [documetation](http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm).
+    2. Connect your Bee radio to the Explorer board, and connect the board to your computer with the USB cable.
+    3. Open the XCTU program and follow any prompts.
+    4. When fully loaded, click on "Add Devices".
+    5. When you see your Bee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.  After your device is connected, select it and ensure the Radio Configuration panel is opened.
+    6. (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current Bee settings.
+    7. Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
+    8. Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
+    9. Write the settings to your Bee radio.
+    10. Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
+    11. At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the radio into your MayFly board.
 
 ##Sensors and Configuration
 Sensors:
