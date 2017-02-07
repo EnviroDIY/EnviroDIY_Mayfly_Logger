@@ -44,7 +44,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // 2. Device registration and sampling features
 // -----------------------------------------------
 // Skecth file name
-const String SKETCH_NAME = "simple_logging_example.ino";
+const String SKETCH_NAME = "load_test.ino";
 
 // Data header, for data log file on SD card
 const String LOGGERNAME = "Mayfly 160073";
@@ -52,11 +52,24 @@ const String FILE_NAME = "Mayfly 160073";
 const String DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
-const String REGISTRATION_TOKEN = "ac8502b6-2ba4-4b2c-a504-9df0af70360b";
-const String SAMPLING_FEATURE = "1aa8f9f7-e5b5-4942-8b2d-a8b44fd93efb";
-const String ONBOARD_TEMPERATURE_UUID = "a76b27aa-489b-435a-bd49-d4c81968eaca";
+const String REGISTRATION_TOKEN = "a6619e25-53ae-4843-aa96-704619828660";
+const String SAMPLING_FEATURE = "63afe80f-a041-44d6-9df7-52775e973802";
+const String ONBOARD_TEMPERATURE_UUID = "ed75384f-3c5f-42c6-b260-5ce9b12f180c";
 const String ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
 int TIME_ZONE = -5;
+String UUIDs[] =
+{
+  "0fc01830-fbcf-437f-b6bc-c17c7510aa95", "f8616ae2-686c-45b4-bd03-bb1a460a0bd2",
+  "4d644311-3498-4117-86a0-5a7b34af72e4", "c21ccedb-cfc7-4549-9365-85b2e41f6e5a",
+  "ed25ea36-e494-450c-8ae3-f948ea61ef4f", "ad3fba9b-33e7-413c-9499-413adbf12684",
+  "85299af3-9c10-4c71-a991-7ce000ff5a6a", "c03f0253-a6bb-4516-a04d-e39842e76695",
+  "51588508-8d0a-4df2-a8a8-1b184d541c4b", "78dad08c-265a-4c92-8918-8e48b2cd8783",
+  "ac19a9d4-6228-4f9b-a45b-e46acce21e2b", "ab10c168-6f00-4b3b-affd-43a1c46201e5",
+  "27b8c5aa-eaac-44d0-b1a4-87c05c818290", "b45a281e-193b-465a-8b58-4b936aa6dba8",
+  "6f559986-a3eb-4ac7-9e2a-eeb298a1749d", "d684a77b-a99b-4ba8-b5bc-35ee752ee270",
+  "5aa14237-7d94-4f05-8223-a24f88df7460", "abdbc6be-ccf9-4cb6-a288-19f8a9e009a7",
+  "b9c9ebca-85b6-4007-8407-59e6f1bf228c", "68bfdd17-646c-468b-8f29-603ddffbab16"
+};
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
@@ -93,7 +106,8 @@ int SD_SS_PIN = 12;  // SD Card Pin
 // 6. Setup variables
 // -----------------------------------------------
 float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
-float ONBOARD_BATTERY = 0;  // variable to store the value coming from the sensor
+float ONBOARD_BATTERY;  // variable to store the value coming from the sensor
+
 // Variables for the timer function
 int currentminute;
 int testtimer = 0;
@@ -262,7 +276,6 @@ bool updateAllSensors()
 
     float rawBattery = analogRead(BATTERY_PIN);
     ONBOARD_BATTERY = (3.3 / 1023.) * 1.47 * rawBattery;
-
     return true;
 }
 
@@ -273,8 +286,14 @@ String generateSensorDataString(void)
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
     jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
-    jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + String(int(ONBOARD_TEMPERATURE));
-    jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + String(int(ONBOARD_BATTERY));
+    jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
+    int sensor_num = 0;
+    while(sensor_num < 20)
+    {
+      jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(100000000)/10000000.0,7) + ", ";
+      sensor_num++;
+    }
+    jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + ONBOARD_BATTERY;
     jsonString += "}";
     return jsonString;
 }
