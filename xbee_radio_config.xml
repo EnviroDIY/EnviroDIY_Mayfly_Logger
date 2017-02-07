@@ -17,7 +17,7 @@
       <setting command="DO">3</setting>
       <setting command="EQ">devicecloud.digi.com</setting>
       <setting command="NS">129.123.0.1</setting>
-      <setting command="DL">129.123.9.14</setting>
+      <setting command="DL">129.123.9.68</setting>
       <setting command="NI">0x20</setting>
       <setting command="KP">0x20</setting>
       <setting command="KC">0x20</setting>

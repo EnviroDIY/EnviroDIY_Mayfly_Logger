@@ -52,10 +52,10 @@ const String FILE_NAME = "Mayfly 160073";
 const String DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
-const String REGISTRATION_TOKEN = "ac8502b6-2ba4-4b2c-a504-9df0af70360b";
-const String SAMPLING_FEATURE = "1aa8f9f7-e5b5-4942-8b2d-a8b44fd93efb";
-const String ONBOARD_TEMPERATURE_UUID = "a76b27aa-489b-435a-bd49-d4c81968eaca";
-const String ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
+const String REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
+const String SAMPLING_FEATURE = "39bf098f-d11d-4ea6-9be3-6a073969b019";
+const String ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
+const String ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
 int TIME_ZONE = -5;
 
 // -----------------------------------------------
