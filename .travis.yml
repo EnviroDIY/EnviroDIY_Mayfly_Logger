@@ -36,6 +36,7 @@ env:
     - PLATFORMIO_CI_SRC=examples/mayfly_serial_simple/mayfly_serial_simple.ino
     - PLATFORMIO_CI_SRC=examples/mayfly_sonar/mayfly_sonar.ino
     - PLATFORMIO_CI_SRC=examples/simple_file_example/simple_file_example.ino
+    - PLATFORMIO_CI_SRC=examples/logging_to_EnviroDIY/logging_to_EnviroDIY.ino
 
     - PLATFORMIO_CI_SRC=workshop/mayfly_01_blink/mayfly_01_blink.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_02_button/mayfly_02_button.ino
