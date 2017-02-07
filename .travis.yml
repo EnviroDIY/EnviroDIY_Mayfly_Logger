@@ -28,9 +28,6 @@ cache:
         - "~/.platformio"
 #
 env:
-    - PLATFORMIO_CI_SRC=examples/simple_logging_example/simple_logging_example.ino
-    - PLATFORMIO_CI_SRC=examples/mayfly_xbeewifi_usu/mayfly_xbeewifi_usu.ino
-
     - PLATFORMIO_CI_SRC=examples/battery_measurement/battery_measurement.ino
     - PLATFORMIO_CI_SRC=examples/blink_demo_1/blink_demo_1.ino
     - PLATFORMIO_CI_SRC=examples/blink_demo_2/blink_demo_2.ino
