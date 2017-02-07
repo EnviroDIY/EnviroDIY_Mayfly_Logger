@@ -11,39 +11,6 @@ The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is a powerfu
 3. Install the [Arduino Integrated Development Environment (IDE) application](https://www.arduino.cc/en/Main/Software) on your computer; add "EnviroDIY ATmega Boards" using the Tools > Board > Boards Manager as described in the [Mayfly Data Logger Software](http://envirodiy.org/mayfly/software/) post.
 4. Clone or [download](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/archive/master.zip) (and unzip) this entire repository into your Arduino Sketchbook directory.
 
-##Assumptions Made
-This code sketch was written for a Mayfly Data Logger with an xbee wifi radio module (configuration file included - see 'xbee_radio_config.xml') and a second temperature sensor added on pin A5. The sketch and xbee radio are configured to post data to an ODM2 web service that is currently under development and may be subject to changes.
-
-##Configuring WiFi
-Included in this repository is an example Bee Radio configuration file. There are several ways to configure this radio to meet your needs, including in-sketch code. The method used in this example is as follows:
-Materials used:
-    SparkFun Xbee Explorer - https://www.sparkfun.com/products/11812
-    Digi XBee S6B - http://ftp1.digi.com/support/documentation/90002180.pdf
-    XCTU Software - https://www.digi.com/support/productdetail?pid=5585
-    Mini USB cable
-Steps:
-    1. Download and install the drivers and XCTU software on Digi's support page: https://www.digi.com/support/productdetail?pid=5585.  While you are there you can also review the module [documetation](http://www.digi.com/resources/documentation/digidocs/90001458-13/default.htm).
-    2. Connect your Bee radio to the Explorer board, and connect the board to your computer with the USB cable.
-    3. Open the XCTU program and follow any prompts.
-    4. When fully loaded, click on "Add Devices".
-    5. When you see your Bee radio, select that device and fill in the serial connection settings as needed. Again, follow any additional prompts given.  After your device is connected, select it and ensure the Radio Configuration panel is opened.
-    6. (OPTIONAL) You may load the configuration profile (the example XML configuration file) included, but be aware this will overwrite your current Bee settings.
-    7. Ensure you are connected to a WiFi hotspot. This can be set by clicking on the configuration option "Active Scan".
-    8. Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
-    9. Write the settings to your Bee radio.
-    10. Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
-    11. At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the radio into your MayFly board.
-
-##Sensors and Configuration
-Sensors:
-    To add a sensor to the sketch, copy and paste the 'SensorTemplateFile.h' and 'SensorTemplateFile.cpp' files.
-    Rename the files to the desired name of your sensor.
-    Open both of your new files and follow the commented instructions.
-    Add your sensor(s) to the 'Config.h' file in sections 1 and 4
-    Rebuild and upload your sketch - no other files need to be updated
-Config.h:
-    Config.h aims to consolidate all important configuration details, without requiring a user to make edits to a large and complex file. Through this file, a user can choose sensors, web service details, and board options like baudrate.
-
 ##Contribute
 Open an [issue](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/issues) to suggest and discuss potential changes/additions.
 
