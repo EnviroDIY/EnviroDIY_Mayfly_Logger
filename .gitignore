@@ -55,3 +55,8 @@ Temporary Items
 .clang_complete
 .gcc-flags.json
 lib/readme.txt
+
+# Other
+SRGD_Home_profile_2026.xml
+SWRC_profile_2026.xml
+POST_test.py
