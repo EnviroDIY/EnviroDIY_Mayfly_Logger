@@ -12,11 +12,11 @@ int tips = 0;
 
 void setup()
 {
-        Serial.begin(57600);
+  Serial.begin(57600);
 	pinMode(MAGNECTIC_SWITCH, INPUT);
 	pinMode(buzzer,OUTPUT);
-        pinMode(22, OUTPUT);
-        digitalWrite(22, HIGH);
+  pinMode(22, OUTPUT);      // Setting up Pin 22 to provide power to Grove Ports
+  digitalWrite(22, HIGH);   // Provide power to D10-11 and D6-7 Grove Ports
 }
 
 void loop()

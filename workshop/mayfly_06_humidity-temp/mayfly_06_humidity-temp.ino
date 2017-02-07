@@ -1,8 +1,8 @@
-//Connect the Grove Digital Temp/Humidity board to D10-11 Grove connector on the Mayfly
+//Connect the Grove Digital Humidity and Temperature (DHT) board to D10-11 Grove connector on the Mayfly
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "DHT.h"      // WARNING, this sketch presently requires an old version of the Adafruit DHT Library, https://github.com/adafruit/DHT-sensor-library/tree/09344416d2f3e8da0526494eb008c98d95fc0d79
+#include "DHT.h"      // Includes the Adafruit DHT-sensor-library 1.3.0+, which was updated to require the Unified Adafruit_Sensor sensor
 
 #define DHTPIN 10     // what pin the DHT signal is connected to
 
@@ -20,8 +20,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void setup()
 {
-    pinMode(22, OUTPUT);
-    digitalWrite(22, HIGH);
+    pinMode(22, OUTPUT);    // Setting up Pin 22 to provide power to Grove Ports
+    digitalWrite(22, HIGH); // Provide power to D10-11 and D6-7 Grove Ports
     delay(200);
     Serial.begin(57600);
     Serial.println("Digital Humidity/Temperature");
