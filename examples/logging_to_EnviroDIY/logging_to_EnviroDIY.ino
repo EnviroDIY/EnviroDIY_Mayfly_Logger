@@ -38,7 +38,6 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt.h>
-#include <Sodaq_WifiBee.h>
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
