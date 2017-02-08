@@ -6,7 +6,7 @@ Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
-Radio Module: Bee S6b WiFi module.
+Radio Module: Sodaq GPRSbee.
 
 This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
@@ -38,7 +38,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt.h>
-#include <Sodaq_WifiBee.h>
+#include <GPRSbee.h>
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
@@ -94,6 +94,7 @@ int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
 int RED_LED = 9;  // Pin for the red LED
+const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 int RTC_PIN = A7;  // RTC Interrupt pin
 #define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
@@ -161,25 +162,48 @@ uint32_t getNow()
   return currentepochtime;
 }
 
-// This function returns the datetime from the realtime clock as a string formated for the POST request
-String getDateTime(void)
+
+// This function returns the datetime from the realtime clock as an ISO 8601 formated string
+String getDateTime_ISO8601(void)
 {
   String dateTimeStr;
   //Create a DateTime object from the current time
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
+  dateTimeStr.replace(" ", "T");
+  String tzString = String(TIME_ZONE);
+  if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
+  {
+      tzString += ":00";
+  }
+  else if (-10 < TIME_ZONE && TIME_ZONE < 0)
+  {
+      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+  }
+  else if (TIME_ZONE == 0)
+  {
+      tzString = "Z";
+  }
+  else if (0 < TIME_ZONE && TIME_ZONE < 10)
+  {
+      tzString = "+0" + tzString + ":00";
+  }
+  else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
+  {
+      tzString = "+" + tzString + ":00";
+  }
+  dateTimeStr += tzString;
   return dateTimeStr;
 }
 
-// This sets up the function to be called by the timer.
-// This function has no return on its own.
+// This sets up the function to be called by the timer with no raturn of its own.
 // This structure is required by the timer library.
 // See http://support.sodaq.com/sodaq-one/adding-a-timer-to-schedule-readings/
 void showTime(uint32_t ts)
 {
   // Retrieve the current date/time
-  String dateTime = getDateTime();
+  String dateTime = getDateTime_ISO8601();
   return;
 }
 
@@ -285,7 +309,7 @@ String generateSensorDataString(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
+    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
     jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
     int sensor_num = 0;
     while(sensor_num < 20)
@@ -363,69 +387,70 @@ int postData(String requestString, bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
-    Serial1.flush();
-    Serial1.print(requestString.c_str());
-    Serial1.flush();
-
-
     Serial.flush();
     Serial.println(" -- Request -- ");
     Serial.print(requestString.c_str());
     Serial.flush();
 
-    // Add a brief delay for at least the first 12 characters of the HTTP response
-    int timeout = COMMAND_TIMEOUT;
-    while ((timeout > 0) && Serial1.available() < 12)
+    gprsbee.setDiag(Serial);
+    //Response buffer
+    char buffer[1024];
+    memset(buffer, '\0', sizeof(buffer));
+    String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
+    bool response = (gprsbee.doHTTPPOSTWithReply(APN, url.c_str(),
+                                    requestString.c_str(), sizeof(requestString),
+                                    buffer, sizeof(buffer)));
+    if (response)
     {
-      delay(1);
-      timeout--;
+        Serial.println(buffer);
+        result = HTTP_SUCCESS;
     }
 
     // Process the HTTP response
-    if (timeout > 0 && Serial1.available() >= 12)
-    {
-        char response[10];
-        char code[4];
-        memset(response, '\0', 10);
-        memset(code, '\0', 4);
-
-        int responseBytes = Serial1.readBytes(response, 9);
-        int codeBytes = Serial1.readBytes(code, 3);
-        Serial.println("\n -- Response -- ");
-        Serial.print(response);
-        Serial.println(code);
-
-        printRemainingChars(5, 5000);
-
-        // Check the response to see if it was successful
-        if (memcmp(response, "HTTP/1.0 ", responseBytes) == 0
-            || memcmp(response, "HTTP/1.1 ", responseBytes) == 0)
-        {
-            if (memcmp(code, "200", codeBytes) == 0
-                || memcmp(code, "201", codeBytes) == 0)
-            {
-                // The first 12 characters of the response indicate "HTTP/1.1 200" which is success
-                result = HTTP_SUCCESS;
-            }
-            else if (memcmp(code, "302", codeBytes) == 0)
-            {
-                result = HTTP_REDIRECT;
-            }
-            else if (memcmp(code, "400", codeBytes) == 0
-                || memcmp(code, "404", codeBytes) == 0)
-            {
-                result = HTTP_FAILURE;
-              }
-              else if (memcmp(code, "403", codeBytes) == 0)
-              {
-                  result = HTTP_FORBIDDEN;
-              }
-            else if (memcmp(code, "500", codeBytes) == 0)
-            {
-                result = HTTP_SERVER_ERROR;
-            }
-        }
-    }
+    // if (timeout > 0 && Serial1.available() >= 12)
+    // {
+    //     char response[10];
+    //     char code[4];
+    //     memset(response, '\0', 10);
+    //     memset(code, '\0', 4);
+    //
+    //     int responseBytes = Serial1.readBytes(response, 9);
+    //     int codeBytes = Serial1.readBytes(code, 3);
+    //     Serial.println("\n -- Response -- ");
+    //     Serial.print(response);
+    //     Serial.println(code);
+    //
+    //     printRemainingChars(5, 5000);
+    //
+    //     // Check the response to see if it was successful
+    //     if (memcmp(response, "HTTP/1.0 ", responseBytes) == 0
+    //         || memcmp(response, "HTTP/1.1 ", responseBytes) == 0)
+    //     {
+    //         if (memcmp(code, "200", codeBytes) == 0
+    //             || memcmp(code, "201", codeBytes) == 0)
+    //         {
+    //             // The first 12 characters of the response indicate "HTTP/1.1 200" which is success
+    //             result = HTTP_SUCCESS;
+    //         }
+    //         else if (memcmp(code, "302", codeBytes) == 0)
+    //         {
+    //             result = HTTP_REDIRECT;
+    //         }
+    //         else if (memcmp(code, "400", codeBytes) == 0
+    //             || memcmp(code, "404", codeBytes) == 0)
+    //         {
+    //             result = HTTP_FAILURE;
+    //           }
+    //           else if (memcmp(code, "403", codeBytes) == 0)
+    //           {
+    //               result = HTTP_FORBIDDEN;
+    //           }
+    //         else if (memcmp(code, "500", codeBytes) == 0)
+    //         {
+    //             result = HTTP_SERVER_ERROR;
+    //         }
+    //     }
+    // }
     else // Otherwise timeout, no response from server
     {
         result = HTTP_TIMEOUT;
@@ -485,35 +510,40 @@ void printPostResult(int result)
 // Main setup function
 void setup()
 {
-  // Start the primary serial connection
-  Serial.begin(SERIAL_BAUD);
-  // Start the serial connection with the *bee
-  Serial1.begin(BEE_BAUD);
+    // Start the primary serial connection
+    Serial.begin(SERIAL_BAUD);
+    // Start the serial connection with the *bee
+    Serial1.begin(BEE_BAUD);
 
-  // Start the Real Time Clock
+    // Start the Real Time Clock
     rtc.begin();
     delay(100);
 
-  // Set up pins for the LED's
+    // Set up pins for the LED's
     pinMode(GREEN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
 
-  // Blink the LEDs to show the board is on and starting up
+    // Blink the LEDs to show the board is on and starting up
     greenred4flash();
+
+    // Initialize the GPRSBee
+    gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
+    //Comment out the next line when used with GPRSbee Rev.4
+    gprsbee.setPowerSwitchedOnOff(true);
 
     // Set up the log file
     setupLogFile();
 
-  // Setup timer events
+    // Setup timer events
     setupTimer();
 
-  // Setup sleep mode
+    // Setup sleep mode
     setupSleep();
 
-  // Print a start-up note to the first serial port
+    // Print a start-up note to the first serial port
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
     Serial.println("Now running " + SKETCH_NAME + "\n");
-    Serial.print("Current Mayfly RTC time is :" + getDateTime());
+    Serial.print("Current Mayfly RTC time is :" + getDateTime_ISO8601());
 }
 
 void loop()
