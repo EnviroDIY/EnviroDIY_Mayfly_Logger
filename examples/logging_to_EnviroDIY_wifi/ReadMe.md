@@ -54,8 +54,11 @@ Materials used:
   9. Open the Serial Monitor in the Arduino IDE by clicking the button on the upper right.  This will give you a view of the data being sent.  You should see a header, a clump of data between brackets, and, hopefully a message that the data was sent sucessfully.
   10.  Refresh your site page on data.envirodiy.org to verify that the data appears there.  If you are not successfully sending data, first verify your UUIDs have been copied correctly.  Next verify your wireless settings, particularly the Destination IP address.
 
-  [d529431b]: https://www.arduino.cc/en/Guide/Libraries#toc5 "Arduino Library Guide"
-
 
 ## Other Notes
-It is important to understand two basic limitations of the WiFiBee:  1 - It can only connect to the single WiFi hotspot it has been programmed for.  2 - It can only send and recieve data from one IP address/port.  This means that if you program your XBee while sitting at your local coffee shop, it will only be able to use that shop's WiFi until it has been reprogrammed.  This also means that regardless of what website URL you program into your sketch, the only sites the WiFiBee will actually be able to access are those hosted on the server at the destination IP address until the Bee has been reprogrammed.  This sketch calls the EnviroDIY Data Portal.  The WiFiBee can only make a connection to that portal if the destination IP address programmed into it is the IP address of that server.  If you later want to use your WiFiBee to access Google's home page, you will need to reprogram it with Google's IP address.  Both of these limitations could potentially be overcome using a complex enough sketch on the Mayfly, but that is far, far beyond the scope of the example.
+  It is important to understand two basic limitations of the WiFiBee:
+
+  1. It can only connect to the single WiFi hotspot it has been programmed for.  
+  2. It can only send and recieve data from one IP address/port.
+
+  This means that if you program your XBee while sitting at your local coffee shop, it will only be able to use that shop's WiFi until it has been reprogrammed.  This also means that regardless of what website URL you program into your sketch, the only sites the WiFiBee will actually be able to access are those hosted on the server at the destination IP address until the Bee has been reprogrammed.  This sketch calls the EnviroDIY Data Portal.  The WiFiBee can only make a connection to that portal if the destination IP address programmed into it is the IP address of that server.  If you later want to use your WiFiBee to access Google's home page, you will need to reprogram it with Google's IP address.  Both of these limitations could potentially be overcome using a complex enough sketch on the Mayfly, but that is far, far beyond the scope of the example.
