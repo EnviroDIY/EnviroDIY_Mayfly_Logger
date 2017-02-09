@@ -45,7 +45,7 @@ Materials used:
 ## Programming your Mayfly with the Arduino IDE
   1. If you have not already done so, follow these instructions to install the Arduino IDE and set it up to connect to your Mayfly.
   2. Download logging_to_EnviroDIY_wifi.ino and place it in a folder named "logging_to_EnviroDIY" in your main Arduino directory.
-  3. Download the file https://github.com/EnviroDIY/Libraries/raw/master/libraries.zip from the EnviroDIY Libraries GitHub repository.  Decompress the zip file into your Arduino libraries folder.  (See ["Manual Installation" in the Arduino Library Guide][d529431b] for more details.)
+  3. Download the file https://github.com/EnviroDIY/Libraries/raw/master/libraries.zip from the EnviroDIY Libraries GitHub repository.  Decompress the zip file into your Arduino libraries folder.  (See "Manual Installation" in the [Arduino Library Guide](https://www.arduino.cc/en/Guide/Libraries#toc5) for more details.)
   4. Open the Arduino.cc software.
   5. After plugging your configured WiFiBee into the socket on your Mayfly, connect your Mayfly to your computer. Make sure the Mayfly is visible to the Arduino Software.
   6. Open logging_to_EnviroDIY_wifi.ino from whereever you saved it.  Scroll to line 53 of the sketch.  You should see a string "REGISTRATION_TOKEN = " followed by a string of letters and numbers.  Look back at your site page on data.envirodiy.org.  Find the Registration Token on your site page.  Copy and paste that value into the sketch, replacing the values currently there.  Be careful to keep the value between quotation marks.
