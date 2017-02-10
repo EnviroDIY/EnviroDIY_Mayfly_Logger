@@ -69,6 +69,22 @@ String UUIDs[] =
   "6f559986-a3eb-4ac7-9e2a-eeb298a1749d", "d684a77b-a99b-4ba8-b5bc-35ee752ee270",
   "5aa14237-7d94-4f05-8223-a24f88df7460", "abdbc6be-ccf9-4cb6-a288-19f8a9e009a7",
   "b9c9ebca-85b6-4007-8407-59e6f1bf228c", "68bfdd17-646c-468b-8f29-603ddffbab16"
+  "dac59b60-efbc-11e6-a380-0050569b4416", "dac6fac9-efbc-11e6-a380-0050569b4416",
+  "dac7187a-efbc-11e6-a380-0050569b4416", "dac730d1-efbc-11e6-a380-0050569b4416",
+  "dac74bb1-efbc-11e6-a380-0050569b4416", "dac76f76-efbc-11e6-a380-0050569b4416",
+  "dac82103-efbc-11e6-a380-0050569b4416", "dac838e0-efbc-11e6-a380-0050569b4416",
+  "dac850f7-efbc-11e6-a380-0050569b4416", "dac86952-efbc-11e6-a380-0050569b4416",
+  "dac88223-efbc-11e6-a380-0050569b4416", "dac8a527-efbc-11e6-a380-0050569b4416",
+  "dac8bd7d-efbc-11e6-a380-0050569b4416", "dac8d53a-efbc-11e6-a380-0050569b4416",
+  "dac8eceb-efbc-11e6-a380-0050569b4416", "dac90507-efbc-11e6-a380-0050569b4416",
+  "dac91ce7-efbc-11e6-a380-0050569b4416", "dac934a0-efbc-11e6-a380-0050569b4416",
+  "dac94c26-efbc-11e6-a380-0050569b4416", "dac963a0-efbc-11e6-a380-0050569b4416",
+  "dac97be7-efbc-11e6-a380-0050569b4416", "dac99390-efbc-11e6-a380-0050569b4416",
+  "dac9aadf-efbc-11e6-a380-0050569b4416", "dac9c288-efbc-11e6-a380-0050569b4416",
+  "dac9d9bb-efbc-11e6-a380-0050569b4416", "dac9f07c-efbc-11e6-a380-0050569b4416",
+  "daca080e-efbc-11e6-a380-0050569b4416", "daca2055-efbc-11e6-a380-0050569b4416",
+  "daca3641-efbc-11e6-a380-0050569b4416", "daca4b35-efbc-11e6-a380-0050569b4416",
+  "dac58b60-efbc-11e6-a380-0050569b4416"
 };
 
 // -----------------------------------------------
@@ -304,7 +320,6 @@ bool updateAllSensors()
 }
 
 // This function generates the JSON data string that becomes the body of the POST request
-// For now, the Result UUID is hard coded here
 String generateSensorDataString(void)
 {
     String jsonString = "{";
@@ -312,9 +327,9 @@ String generateSensorDataString(void)
     jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
     jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
     int sensor_num = 0;
-    while(sensor_num < 20)
+    while(sensor_num < 48)
     {
-      jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(100000000)/10000000.0,7) + ", ";
+      jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(1000000000)/100000000.0,10) + ", ";
       sensor_num++;
     }
     jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + ONBOARD_BATTERY;
@@ -370,7 +385,7 @@ String generatePostHeaders(String dataString)
     if (BEE_TYPE == "WIFI")  // Add additional headers for the WiFi
     {
         header += "\r\nCache-Control: no-cache\r\n";
-        header += "Content-Length: " + String(dataString.length()-1) + "\r\n";
+        header += "Content-Length: " + String(dataString.length()) + "\r\n";
         header += "Content-Type: application/json\r\n";
     }
     return header;
@@ -389,7 +404,7 @@ String generatePostRequest(void)
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
-int postData(String requestString, bool redirected = false)
+int postDataWiFi(String requestString, bool redirected = false)
 {
     // Serial.println("Checking for remaining data in the buffer");
     printRemainingChars(5, 5000);
@@ -601,9 +616,9 @@ void setup()
     setupSleep();
 
   // Print a start-up note to the first serial port
-    Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
-    Serial.println("Now running " + SKETCH_NAME + "\n");
-    Serial.print("Current Mayfly RTC time is :" + getDateTime_ISO8601());
+    Serial.println("WebSDL Device: EnviroDIY Mayfly");
+    Serial.println("Now running " + SKETCH_NAME);
+    Serial.println("Current Mayfly RTC time is: " + getDateTime_ISO8601());
 }
 
 void loop()
@@ -633,7 +648,7 @@ void loop()
             // Generate the sensor data string and post request
             String request = generatePostRequest();
             // Post the data to the WebSDL
-            result = postData(request);
+            result = postDataWiFi(request);
         };
         // Print the response from the WebSDL
         printPostResult(result);
