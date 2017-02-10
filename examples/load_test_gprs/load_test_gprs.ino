@@ -161,7 +161,6 @@ uint32_t getNow()
   return currentepochtime;
 }
 
-
 // This function returns the datetime from the realtime clock as an ISO 8601 formated string
 String getDateTime_ISO8601(void)
 {
@@ -387,7 +386,6 @@ String generatePostRequest(void)
     return request;
 }
 
-
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
 int postData(String requestString, bool redirected = false)
 {
@@ -580,7 +578,7 @@ void setup()
     // Blink the LEDs to show the board is on and starting up
     greenred4flash();
 
-    if (BEE_TYPE == "WIFI")
+    if (BEE_TYPE == "GPRS")
     {
         // Initialize the GPRSBee
         gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
