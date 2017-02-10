@@ -42,7 +42,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // 2. Device registration and sampling features
 // -----------------------------------------------
 // Skecth file name
-const String SKETCH_NAME = "load_test.ino";
+const String SKETCH_NAME = "load_test_gprs.ino";
 
 // Data header, for data log file on SD card
 const String LOGGERNAME = "Mayfly 160073";
@@ -325,7 +325,7 @@ String generateSensorDataString(void)
     jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
     jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
     int sensor_num = 0;
-    while(sensor_num < 48)
+    while(sensor_num < 51)
     {
       jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(1000000000)/100000000.0,10) + ", ";
       sensor_num++;
@@ -402,7 +402,7 @@ String generatePostRequest(void)
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
-int postDataWiFi(String requestString, bool redirected = false)
+int postDataWiFi(bool redirected = false)
 {
     // Serial.println("Checking for remaining data in the buffer");
     printRemainingChars(5, 5000);
@@ -411,13 +411,13 @@ int postDataWiFi(String requestString, bool redirected = false)
     HTTP_RESPONSE result = HTTP_OTHER;
 
     Serial1.flush();
-    Serial1.print(requestString.c_str());
+    Serial1.print(generatePostRequest().c_str());
     Serial1.flush();
 
 
     Serial.flush();
     Serial.println(" -- Request -- ");
-    Serial.print(requestString.c_str());
+    Serial.print(generatePostRequest().c_str());
     Serial.flush();
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
@@ -552,7 +552,7 @@ void printPostResult(int result)
 
         case HTTP_TIMEOUT:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server.\n");
+            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server or insufficient signal to send message.\n");
         }
         break;
 
@@ -643,10 +643,7 @@ void loop()
         };
         if (BEE_TYPE == "WIFI")
         {
-            // Generate the sensor data string and post request
-            String request = generatePostRequest();
-            // Post the data to the WebSDL
-            result = postDataWiFi(request);
+            result = postDataWiFi();
         };
         // Print the response from the WebSDL
         printPostResult(result);
