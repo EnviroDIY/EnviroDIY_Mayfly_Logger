@@ -10,10 +10,8 @@ Radio Module: Sodaq GPRSbee.
 
 This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
-1. The Bee WiFi module has must be configured correctly to connect to the
-wireless network prior to running this sketch.
-2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
-has been configured. In this example, only temperature is used.
+1. The Mayfly has been registered at http://data.envirodiy.org and the sensor
+has been configured. In this example, only temperature and batter voltage are used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
@@ -90,6 +88,7 @@ int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server
 // -----------------------------------------------
 int SERIAL_BAUD = 9600;  // Serial port BAUD rate
 int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
+const String BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
 int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
@@ -363,22 +362,33 @@ void logData(String rec)
   logFile.close();
 }
 
-// This function generates the POST request that gets sent to data.envirodiy.org
-String generatePostRequest(String dataString)
+// This generates the POST headers.
+String generatePostHeaders(String dataString)
+{
+    String header = "TOKEN: " + REGISTRATION_TOKEN;
+    if (BEE_TYPE == "WIFI")  // Add additional headers for the WiFi
+    {
+        header += "\r\nCache-Control: no-cache\r\n";
+        header += "Content-Length: " + String(dataString.length()-1) + "\r\n";
+        header += "Content-Type: application/json\r\n";
+    }
+    return header;
+}
+
+// This function generates the full POST request that gets sent to data.envirodiy.org
+String generatePostRequest(void)
 {
     String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
     request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += "TOKEN: " + REGISTRATION_TOKEN + "\r\n";
-    request += "Content-Type: application/json\r\n";
-    request += "Cache-Control: no-cache\r\n";
-    request += "Content-Length: " + String(dataString.length()) + "\r\n";
+    request += generatePostHeaders(generateSensorDataString());
     request += "\r\n";
-    request += dataString;
+    request += generateSensorDataString();
     request += "\r\n\r\n";
     return request;
 }
 
-// This function makes an HTTP connection to the server and POSTs data
+
+// This function makes an HTTP connection to the server and POSTs data - for WIFI
 int postData(String requestString, bool redirected = false)
 {
     // Serial.println("Checking for remaining data in the buffer");
@@ -387,70 +397,115 @@ int postData(String requestString, bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
+    Serial1.flush();
+    Serial1.print(requestString.c_str());
+    Serial1.flush();
+
+
     Serial.flush();
     Serial.println(" -- Request -- ");
     Serial.print(requestString.c_str());
     Serial.flush();
 
-    gprsbee.setDiag(Serial);
-    //Response buffer
-    char buffer[1024];
-    memset(buffer, '\0', sizeof(buffer));
-    String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
-    bool response = (gprsbee.doHTTPPOSTWithReply(APN, url.c_str(),
-                                    requestString.c_str(), sizeof(requestString),
-                                    buffer, sizeof(buffer)));
-    if (response)
+    // Add a brief delay for at least the first 12 characters of the HTTP response
+    int timeout = COMMAND_TIMEOUT;
+    while ((timeout > 0) && Serial1.available() < 12)
     {
-        Serial.println(buffer);
-        result = HTTP_SUCCESS;
+      delay(1);
+      timeout--;
     }
 
     // Process the HTTP response
-    // if (timeout > 0 && Serial1.available() >= 12)
-    // {
-    //     char response[10];
-    //     char code[4];
-    //     memset(response, '\0', 10);
-    //     memset(code, '\0', 4);
-    //
-    //     int responseBytes = Serial1.readBytes(response, 9);
-    //     int codeBytes = Serial1.readBytes(code, 3);
-    //     Serial.println("\n -- Response -- ");
-    //     Serial.print(response);
-    //     Serial.println(code);
-    //
-    //     printRemainingChars(5, 5000);
-    //
-    //     // Check the response to see if it was successful
-    //     if (memcmp(response, "HTTP/1.0 ", responseBytes) == 0
-    //         || memcmp(response, "HTTP/1.1 ", responseBytes) == 0)
-    //     {
-    //         if (memcmp(code, "200", codeBytes) == 0
-    //             || memcmp(code, "201", codeBytes) == 0)
-    //         {
-    //             // The first 12 characters of the response indicate "HTTP/1.1 200" which is success
-    //             result = HTTP_SUCCESS;
-    //         }
-    //         else if (memcmp(code, "302", codeBytes) == 0)
-    //         {
-    //             result = HTTP_REDIRECT;
-    //         }
-    //         else if (memcmp(code, "400", codeBytes) == 0
-    //             || memcmp(code, "404", codeBytes) == 0)
-    //         {
-    //             result = HTTP_FAILURE;
-    //           }
-    //           else if (memcmp(code, "403", codeBytes) == 0)
-    //           {
-    //               result = HTTP_FORBIDDEN;
-    //           }
-    //         else if (memcmp(code, "500", codeBytes) == 0)
-    //         {
-    //             result = HTTP_SERVER_ERROR;
-    //         }
-    //     }
-    // }
+    if (timeout > 0 && Serial1.available() >= 12)
+    {
+        char response[10];
+        char code[4];
+        memset(response, '\0', 10);
+        memset(code, '\0', 4);
+
+        int responseBytes = Serial1.readBytes(response, 9);
+        int codeBytes = Serial1.readBytes(code, 3);
+        Serial.println("\n -- Response -- ");
+        Serial.print(response);
+        Serial.println(code);
+
+        printRemainingChars(5, 5000);
+
+        // Check the response to see if it was successful
+        if (memcmp(response, "HTTP/1.0 ", responseBytes) == 0
+            || memcmp(response, "HTTP/1.1 ", responseBytes) == 0)
+        {
+            if (memcmp(code, "200", codeBytes) == 0
+                || memcmp(code, "201", codeBytes) == 0)
+            {
+                // The first 12 characters of the response indicate "HTTP/1.1 200" which is success
+                result = HTTP_SUCCESS;
+            }
+            else if (memcmp(code, "302", codeBytes) == 0)
+            {
+                result = HTTP_REDIRECT;
+            }
+            else if (memcmp(code, "400", codeBytes) == 0
+                || memcmp(code, "404", codeBytes) == 0)
+            {
+                result = HTTP_FAILURE;
+              }
+              else if (memcmp(code, "403", codeBytes) == 0)
+              {
+                  result = HTTP_FORBIDDEN;
+              }
+            else if (memcmp(code, "500", codeBytes) == 0)
+            {
+                result = HTTP_SERVER_ERROR;
+            }
+        }
+    }
+    else // Otherwise timeout, no response from server
+    {
+        result = HTTP_TIMEOUT;
+    }
+
+    return result;
+}
+
+// This function makes an HTTP connection to the server and POSTs data - for GPRS
+int postDataGPRS(bool redirected = false)
+{
+    // Serial.println("Checking for remaining data in the buffer");
+    printRemainingChars(5, 5000);
+    // Serial.println("\n");
+
+    HTTP_RESPONSE result = HTTP_OTHER;
+
+    String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
+    String headers = generatePostHeaders(generateSensorDataString());
+
+    Serial.flush();
+    Serial.println(" -- Request -- ");
+    Serial.println(url);
+    Serial.println(headers);
+    Serial.println("Content-Type: application/json");
+    Serial.println(generateSensorDataString());
+    Serial.flush();
+
+    // Add the needed HTTP Headers
+    gprsbee.addHTTPHeaders(headers);
+    gprsbee.addContentType("application/json");
+
+    // Set up the Response buffer
+    char buffer[1024];
+    memset(buffer, '\0', sizeof(buffer));
+
+    // Actually make the post request
+    bool response = (gprsbee.doHTTPPOSTWithReply(APN, url.c_str(),
+                             generateSensorDataString().c_str(),
+                             strlen(generateSensorDataString().c_str()),
+                             buffer, sizeof(buffer)));
+
+    if (response)
+    {
+        result = HTTP_SUCCESS;
+    }
     else // Otherwise timeout, no response from server
     {
         result = HTTP_TIMEOUT;
@@ -522,14 +577,19 @@ void setup()
     // Set up pins for the LED's
     pinMode(GREEN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
-
     // Blink the LEDs to show the board is on and starting up
     greenred4flash();
 
-    // Initialize the GPRSBee
-    gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
-    //Comment out the next line when used with GPRSbee Rev.4
-    gprsbee.setPowerSwitchedOnOff(true);
+    if (BEE_TYPE == "WIFI")
+    {
+        // Initialize the GPRSBee
+        gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
+        //Comment out the next line when used with GPRSbee Rev.4
+        gprsbee.setPowerSwitchedOnOff(true);
+        gprsbee.setMinSignalQuality(7);
+        // Only to see for debugging - comment this out
+        // gprsbee.setDiag(Serial);
+    }
 
     // Set up the log file
     setupLogFile();
@@ -562,10 +622,19 @@ void loop()
         updateAllSensors();
         //Save the data record to the log file
         logData(generateSensorDataString());
-        // Generate the sensor data string and post request
-        String request = generatePostRequest(generateSensorDataString());
         // Post the data to the WebSDL
-        int result = postData(request);
+        int result;
+        if (BEE_TYPE == "GPRS")
+        {
+            result = postDataGPRS();
+        };
+        if (BEE_TYPE == "WIFI")
+        {
+            // Generate the sensor data string and post request
+            String request = generatePostRequest();
+            // Post the data to the WebSDL
+            result = postData(request);
+        };
         // Print the response from the WebSDL
         printPostResult(result);
         // Turn off the LED

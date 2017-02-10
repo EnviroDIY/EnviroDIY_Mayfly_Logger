@@ -194,8 +194,7 @@ String getDateTime_ISO8601(void)
   return dateTimeStr;
 }
 
-// This sets up the function to be called by the timer.
-// This function has no return on its own.
+// This sets up the function to be called by the timer with no raturn of its own.
 // This structure is required by the timer library.
 // See http://support.sodaq.com/sodaq-one/adding-a-timer-to-schedule-readings/
 void showTime(uint32_t ts)
