@@ -6,11 +6,13 @@ Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
-Radio Module: Sodaq GPRSbee.
+Radio Module: Sodaq GPRSbee or Digi XBee S6B (WiFi)
 
 This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
-1. The Mayfly has been registered at http://data.envirodiy.org and the sensor
+1. The Bee WiFi module has must be configured correctly to connect to the
+wireless network prior to running this sketch. (If Applicable)
+2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
 has been configured. In this example, only temperature and batter voltage are used.
 
 DISCLAIMER:
@@ -121,7 +123,7 @@ int SD_SS_PIN = 12;  // SD Card Pin
 // 6. Setup variables
 // -----------------------------------------------
 float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
-float ONBOARD_BATTERY;  // variable to store the value coming from the sensor
+float ONBOARD_BATTERY = 0;  // variable to store the value coming from the sensor
 
 // Variables for the timer function
 int currentminute;
@@ -311,7 +313,7 @@ void greenred4flash()
 }
 
 // This function updates the values for any connected sensors. Need to add code for
-// Any sensors connected - this example only uses temperature.
+// Any sensors connected - this example only uses temperature and battery voltage.
 bool updateAllSensors()
 {
     // Get the temperature from the Mayfly's real time clock
