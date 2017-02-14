@@ -146,25 +146,47 @@ uint32_t getNow()
   return currentepochtime;
 }
 
-// This function returns the datetime from the realtime clock as a string formated for the POST request
-String getDateTime(void)
+// This function returns the datetime from the realtime clock as an ISO 8601 formated string
+String getDateTime_ISO8601(void)
 {
   String dateTimeStr;
   //Create a DateTime object from the current time
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
+  dateTimeStr.replace(" ", "T");
+  String tzString = String(TIME_ZONE);
+  if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
+  {
+      tzString += ":00";
+  }
+  else if (-10 < TIME_ZONE && TIME_ZONE < 0)
+  {
+      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+  }
+  else if (TIME_ZONE == 0)
+  {
+      tzString = "Z";
+  }
+  else if (0 < TIME_ZONE && TIME_ZONE < 10)
+  {
+      tzString = "+0" + tzString + ":00";
+  }
+  else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
+  {
+      tzString = "+" + tzString + ":00";
+  }
+  dateTimeStr += tzString;
   return dateTimeStr;
 }
 
-// This sets up the function to be called by the timer.
-// This function has no return on its own.
+// This sets up the function to be called by the timer with no raturn of its own.
 // This structure is required by the timer library.
 // See http://support.sodaq.com/sodaq-one/adding-a-timer-to-schedule-readings/
 void showTime(uint32_t ts)
 {
   // Retrieve the current date/time
-  String dateTime = getDateTime();
+  String dateTime = getDateTime_ISO8601();
   return;
 }
 
@@ -271,7 +293,7 @@ String generateSensorDataJSON(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
+    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
     jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + String(int(ONBOARD_TEMPERATURE));
     jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + String(int(ONBOARD_BATTERY));
     jsonString += "}";
@@ -493,7 +515,7 @@ void setup()
   // Print a start-up note to the first serial port
     Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
     Serial.println("Now running " + SKETCH_NAME + "\n");
-    Serial.print("Current Mayfly RTC time is :" + getDateTime());
+    Serial.print("Current Mayfly RTC time is :" + getDateTime_ISO8601());
 }
 
 void loop()
