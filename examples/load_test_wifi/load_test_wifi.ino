@@ -384,26 +384,16 @@ void logData(String rec)
   logFile.close();
 }
 
-// This generates the POST headers.
-String generatePostHeaders(String dataString)
-{
-    String header = "TOKEN: " + REGISTRATION_TOKEN;
-    if (BEE_TYPE == "WIFI")  // Add additional headers for the WiFi
-    {
-        header += "\r\nCache-Control: no-cache\r\n";
-        header += "Content-Length: " + String(dataString.length()) + "\r\n";
-        header += "Content-Type: application/json\r\n";
-    }
-    return header;
-}
 
 // This function generates the full POST request that gets sent to data.envirodiy.org
 String generatePostRequest(void)
 {
     String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
     request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += generatePostHeaders(generateSensorDataJSON());
-    request += "\r\n";
+    request += "TOKEN: " + REGISTRATION_TOKEN;
+    request += "\r\nCache-Control: no-cache\r\n";
+    request += "Content-Length: " + String(generateSensorDataJSON().length()) + "\r\n";
+    request += "Content-Type: application/json\r\n";
     request += generateSensorDataJSON();
     request += "\r\n\r\n";
     return request;
@@ -499,7 +489,7 @@ int postDataGPRS(bool redirected = false)
     HTTP_RESPONSE result = HTTP_OTHER;
 
     String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
-    String headers = generatePostHeaders(generateSensorDataJSON());
+    String headers = "TOKEN: " + REGISTRATION_TOKEN;
 
     Serial.flush();
     Serial.println(F(" -- Request -- "));

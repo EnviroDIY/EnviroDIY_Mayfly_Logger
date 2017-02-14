@@ -51,9 +51,9 @@ const char *DATA_HEADER = "JSON Formatted Data";
 // Register your site and get these tokens from data.envirodiy.org
 const char *REGISTRATION_TOKEN = "a6619e25-53ae-4843-aa96-704619828660";
 const char *SAMPLING_FEATURE = "63afe80f-a041-44d6-9df7-52775e973802";
+int TIME_ZONE = -5;
 const char *ONBOARD_TEMPERATURE_UUID = "ed75384f-3c5f-42c6-b260-5ce9b12f180c";
 const char *ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
-int TIME_ZONE = -5;
 const char *UUIDs[] =
 {
   "0fc01830-fbcf-437f-b6bc-c17c7510aa95", "f8616ae2-686c-45b4-bd03-bb1a460a0bd2",
@@ -324,7 +324,7 @@ bool updateAllSensors()
 }
 
 // This function generates the JSON data string that becomes the body of the POST request
-char* generateSensorDataJSON(void)
+String generateSensorDataJSON(void)
 {
     char jsonString[] = "{\"sampling_feature\": \"";
     strcat(jsonString, SAMPLING_FEATURE);
@@ -395,37 +395,22 @@ void logData(String rec)
   logFile.close();
 }
 
-// This generates the POST headers.
-char* generatePostHeaders(char *dataString)
-{
-    char header[] = "TOKEN: ";
-    strcat(header, REGISTRATION_TOKEN);
-    if (strcasecmp(BEE_TYPE, "WIFI")== 0)  // Add additional headers for the WiFi
-    {
-        strcat(header, "\r\nCache-Control: no-cache\r\n");
-        strcat(header, "Content-Length: ");
-        char lenDataString[4];
-        strcat(header, itoa(strlen(dataString), lenDataString, 10));
-        strcat(header, "\r\n");
-        strcat(header, "Content-Type: application/json\r\n");
-    }
-    return header;
-}
-
 // This function generates the full POST request that gets sent to data.envirodiy.org
-char* generatePostRequest(void)
+// This is only needed for transparent Bee's (ie, WiFi)
+void printPostRequest(Stream & stream)
 {
-    char request[] = "POST ";
-    strcat(request, API_ENDPOINT);
-    strcat(request, " HTTP/1.1\r\n");
-    strcat(request, "Host: ");
-    strcat(request, HOST_ADDRESS);
-    strcat(request, "\r\n");
-    strcat(request, generatePostHeaders(generateSensorDataJSON()));
-    strcat(request, "\r\n");
-    strcat(request, generateSensorDataJSON());
-    strcat(request, "\r\n\r\n");
-    return request;
+    stream.print(F("POST "));
+    stream.print(API_ENDPOINT);
+    stream.print(F(" HTTP/1.1\r\nHost: "));
+    stream.print(HOST_ADDRESS);
+    stream.print(F("\r\n TOKEN: "));
+    stream.print(REGISTRATION_TOKEN);
+    stream.print(F("\r\nCache-Control: no-cache\r\n"));
+    stream.print(F("Content-Length: "));
+    stream.print(generateSensorDataJSON().length());
+    stream.print(F("\r\nContent-Type: application/json\r\n\r\n"));
+    stream.print(generateSensorDataJSON());
+    stream.print(F("\r\n\r\n"));
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
@@ -437,14 +422,16 @@ int postDataWiFi(bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
+    // Send the request to the WiFiBee (it's transparent, just goes as a stream)
     Serial1.flush();
-    Serial1.print(generatePostRequest());
+    printPostRequest(Serial1);
     Serial1.flush();
 
 
+    // Send the request to the serial for debugging
     Serial.flush();
     Serial.println(F(" -- Request -- "));
-    Serial.print(generatePostRequest());
+    printPostRequest(Serial);
     Serial.flush();
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
@@ -520,18 +507,19 @@ int postDataGPRS(bool redirected = false)
     char url[] = "http://";
     strcat(url,  HOST_ADDRESS);
     strcat(url,  API_ENDPOINT);
-    String headers = generatePostHeaders(generateSensorDataJSON());
+    char header[] = "TOKEN: ";
+    strcat(header, REGISTRATION_TOKEN);
 
     Serial.flush();
     Serial.println(F(" -- Request -- "));
     Serial.println(url);
-    Serial.println(headers);
+    Serial.println(header);
     Serial.println(F("Content-Type: application/json"));
     Serial.println(generateSensorDataJSON());
     Serial.flush();
 
     // Add the needed HTTP Headers
-    gprsbee.addHTTPHeaders(headers);
+    gprsbee.addHTTPHeaders(header);
     gprsbee.addContentType(F("application/json"));
 
     // Set up the Response buffer
@@ -540,8 +528,8 @@ int postDataGPRS(bool redirected = false)
 
     // Actually make the post request
     bool response = (gprsbee.doHTTPPOSTWithReply(APN, url,
-                             generateSensorDataJSON(),
-                             strlen(generateSensorDataJSON()),
+                             generateSensorDataJSON().c_str(),
+                             strlen(generateSensorDataJSON().c_str()),
                              buffer, sizeof(buffer)));
 
     if (response)
