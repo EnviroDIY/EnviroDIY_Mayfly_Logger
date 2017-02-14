@@ -51,7 +51,7 @@ const char *DATA_HEADER = "JSON Formatted Data";
 // Register your site and get these tokens from data.envirodiy.org
 const char *REGISTRATION_TOKEN = "a6619e25-53ae-4843-aa96-704619828660";
 const char *SAMPLING_FEATURE = "63afe80f-a041-44d6-9df7-52775e973802";
-int TIME_ZONE = -5;
+const int TIME_ZONE = -5;
 const char *ONBOARD_TEMPERATURE_UUID = "ed75384f-3c5f-42c6-b260-5ce9b12f180c";
 const char *ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
 const char *UUIDs[] =
@@ -154,6 +154,14 @@ RTCTimer timer;  // The timer functions for the RTC
 // -----------------------------------------------
 // 8. Working functions
 // -----------------------------------------------
+
+// Used only for debugging - can be removed
+int freeRam ()
+{
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
 
 // Used to flush out the buffer after a post request.
 // Removing this may cause communication issues. If you
@@ -318,39 +326,31 @@ bool updateAllSensors()
     float tempVal = rtc.getTemperature();
     ONBOARD_TEMPERATURE = tempVal;
 
+    // Get the battery voltage
     float rawBattery = analogRead(BATTERY_PIN);
     ONBOARD_BATTERY = (3.3 / 1023.) * 1.47 * rawBattery;
+
+    // Return true when finished
     return true;
 }
 
 // This function generates the JSON data string that becomes the body of the POST request
+// TODO:  Figure out how to not use a string here
 String generateSensorDataJSON(void)
 {
-    char jsonString[] = "{\"sampling_feature\": \"";
-    strcat(jsonString, SAMPLING_FEATURE);
-    strcat(jsonString, ", \" \"timestamp\": \"");
-    strcat(jsonString, getDateTime_ISO8601().c_str());
-    strcat(jsonString, "\", \"");
-    strcat(jsonString, ONBOARD_TEMPERATURE_UUID);
-    strcat(jsonString, "\", ");
-    char valToChar[7];
-    strcat(jsonString, dtostrf(ONBOARD_TEMPERATURE,6,2,valToChar));
-    int sensor_num = 0;
+    String jsonString = "{";
+    jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
+    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
+    jsonString += "\"" + String(ONBOARD_TEMPERATURE_UUID) + "\": " + String(ONBOARD_TEMPERATURE) + ", ";
+    jsonString += "\"" + String(UUIDs[0]) + "\": " + String(freeRam()) + ", ";
+    int sensor_num = 1;
     while(sensor_num < 51)
     {
-      char valToChar2[13];
-      dtostrf(random(1000000000)/100000000.0,12,10,valToChar2);
-      strcat(jsonString, "\", \"");
-      strcat(jsonString, UUIDs[sensor_num]);
-      strcat(jsonString, "\", ");
-      strcat(jsonString, valToChar2);
+      jsonString += "\"" + String(UUIDs[sensor_num]) + "\": " + String(random(1000000000)/100000000.0,10) + ", ";
       sensor_num++;
     }
-    strcat(jsonString, "\", \"");
-    strcat(jsonString, ONBOARD_BATTERY_UUID);
-    strcat(jsonString, "\", ");
-    strcat(jsonString, dtostrf(ONBOARD_BATTERY,6,2,valToChar));
-    strcat(jsonString, "}");
+    jsonString += "\"" + String(ONBOARD_BATTERY_UUID) + "\": " + String(ONBOARD_BATTERY);
+    jsonString += "}";
     return jsonString;
 }
 
@@ -397,16 +397,15 @@ void logData(String rec)
 
 // This function generates the full POST request that gets sent to data.envirodiy.org
 // This is only needed for transparent Bee's (ie, WiFi)
-void printPostRequest(Stream & stream)
+void streamPostRequest(Stream & stream)
 {
     stream.print(F("POST "));
     stream.print(API_ENDPOINT);
     stream.print(F(" HTTP/1.1\r\nHost: "));
     stream.print(HOST_ADDRESS);
-    stream.print(F("\r\n TOKEN: "));
+    stream.print(F("\r\nTOKEN: "));
     stream.print(REGISTRATION_TOKEN);
-    stream.print(F("\r\nCache-Control: no-cache\r\n"));
-    stream.print(F("Content-Length: "));
+    stream.print(F("\r\nCache-Control: no-cache\r\nContent-Length: "));
     stream.print(generateSensorDataJSON().length());
     stream.print(F("\r\nContent-Type: application/json\r\n\r\n"));
     stream.print(generateSensorDataJSON());
@@ -424,14 +423,14 @@ int postDataWiFi(bool redirected = false)
 
     // Send the request to the WiFiBee (it's transparent, just goes as a stream)
     Serial1.flush();
-    printPostRequest(Serial1);
+    streamPostRequest(Serial1);
     Serial1.flush();
 
 
     // Send the request to the serial for debugging
-    Serial.flush();
     Serial.println(F(" -- Request -- "));
-    printPostRequest(Serial);
+    Serial.flush();
+    streamPostRequest(Serial);
     Serial.flush();
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
@@ -504,10 +503,10 @@ int postDataGPRS(bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
-    char url[] = "http://";
+    char url[strlen(HOST_ADDRESS) + strlen(API_ENDPOINT) + 8] = "http://";
     strcat(url,  HOST_ADDRESS);
     strcat(url,  API_ENDPOINT);
-    char header[] = "TOKEN: ";
+    char header[45] = "TOKEN: ";
     strcat(header, REGISTRATION_TOKEN);
 
     Serial.flush();
@@ -646,6 +645,8 @@ void setup()
     Serial.println(SKETCH_NAME);
     Serial.print(F("Current Mayfly RTC time is: "));
     Serial.println(getDateTime_ISO8601());
+    Serial.print(F("Current SRAM available is: "));
+    Serial.println(freeRam());
 }
 
 void loop()
@@ -666,11 +667,11 @@ void loop()
         logData(generateSensorDataJSON());
         // Post the data to the WebSDL
         int result;
-        if (strcasecmp(BEE_TYPE, "GPRS"))
+        if (strcasecmp(BEE_TYPE, "GPRS") == 0)
         {
             result = postDataGPRS();
         };
-        if (strcasecmp(BEE_TYPE, "WIFI"))
+        if (strcasecmp(BEE_TYPE, "WIFI") == 0)
         {
             result = postDataWiFi();
         };
