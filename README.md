@@ -10,7 +10,6 @@ The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is a powerfu
 2. Purchase an [EnviroDIY Mayfly Data Logger Board](https://www.amazon.com/EnviroDIY-Mayfly-Logger-Arduino-Compatible/dp/B01F9B4WCG) or an [EnviroDIY Mayfly Data Logger Board and Starter Kit](https://www.amazon.com/EnviroDIY-Mayfly-Arduino-Compatible-Starter/dp/B01FCVALDW) on Amazon.com.
 3. Install the [Arduino Integrated Development Environment (IDE) application](https://www.arduino.cc/en/Main/Software) on your computer; add "EnviroDIY ATmega Boards" using the Tools > Board > Boards Manager as described in the [Mayfly Data Logger Software](http://envirodiy.org/mayfly/software/) post.
 4. Clone or [download](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/archive/master.zip) (and unzip) this entire repository into your Arduino Sketchbook directory.
-5. Run the code sketches (from File > Sketchbook) in our [EnviroDIY_Mayfly_Logger > workshop](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/workshop) or [EnviroDIY_Mayfly_Logger > examples](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/examples) folders.
 
 ##Contribute
 Open an [issue](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/issues) to suggest and discuss potential changes/additions.
