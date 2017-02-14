@@ -263,7 +263,7 @@ String getDateTime(void)
 // This function generates the JSON data string that becomes the body of the POST request
 // For now, the Result UUID is hard coded here
 // TODO:  Move the Result UUID somewhere easier to configure.
-String generateSensorDataString(void)
+String generateSensorDataJSON(void)
 {
     String jsonString = "{ ";
     jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
@@ -290,7 +290,7 @@ void loop()
         lastUpdate = millis();
         Serial.println("\n---\n---\n");
         updateAllSensors(); // get the sensor value(s), store as string
-        String request = generatePostRequest(generateSensorDataString());
+        String request = generatePostRequest(generateSensorDataJSON());
         int result = postData(request);
         printPostResult(result);
     }

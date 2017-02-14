@@ -30,9 +30,8 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-// #include <avr/wdt.h>
-// #include <SPI.h>
 #include <SD.h>
+#include <SPI.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt.h>
@@ -315,7 +314,7 @@ void greenred4flash()
 // Any sensors connected - this example only uses temperature.
 bool updateAllSensors()
 {
-    // Get the temperature from the Mayfly's real time clock and convert to Farenheit
+    // Get the temperature from the Mayfly's real time clock
     rtc.convertTemperature();  //convert current temperature into registers
     float tempVal = rtc.getTemperature();
     ONBOARD_TEMPERATURE = tempVal;
@@ -326,7 +325,7 @@ bool updateAllSensors()
 }
 
 // This function generates the JSON data string that becomes the body of the POST request
-String generateSensorDataString(void)
+String generateSensorDataJSON(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
@@ -350,7 +349,7 @@ void setupLogFile()
   // Initialise the SD card
   if (!SD.begin(SD_SS_PIN))
   {
-    Serial.println("Error: SD card failed to initialise or is missing.");
+    Serial.println(F("Error: SD card failed to initialise or is missing."));
     //Hang
     //  while (true);
   }
@@ -403,9 +402,9 @@ String generatePostRequest(void)
 {
     String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
     request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += generatePostHeaders(generateSensorDataString());
+    request += generatePostHeaders(generateSensorDataJSON());
     request += "\r\n";
-    request += generateSensorDataString();
+    request += generateSensorDataJSON();
     request += "\r\n\r\n";
     return request;
 }
@@ -413,9 +412,9 @@ String generatePostRequest(void)
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
 int postDataWiFi(bool redirected = false)
 {
-    // Serial.println("Checking for remaining data in the buffer");
+    // Serial.println(F("Checking for remaining data in the buffer"));
     printRemainingChars(5, 5000);
-    // Serial.println("\n");
+    // Serial.println(F("\n"));
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
@@ -425,7 +424,7 @@ int postDataWiFi(bool redirected = false)
 
 
     Serial.flush();
-    Serial.println(" -- Request -- ");
+    Serial.println(F(" -- Request -- "));
     Serial.print(generatePostRequest().c_str());
     Serial.flush();
 
@@ -447,7 +446,7 @@ int postDataWiFi(bool redirected = false)
 
         int responseBytes = Serial1.readBytes(response, 9);
         int codeBytes = Serial1.readBytes(code, 3);
-        Serial.println("\n -- Response -- ");
+        Serial.println(F("\n -- Response -- "));
         Serial.print(response);
         Serial.println(code);
 
@@ -493,21 +492,21 @@ int postDataWiFi(bool redirected = false)
 // This function makes an HTTP connection to the server and POSTs data - for GPRS
 int postDataGPRS(bool redirected = false)
 {
-    // Serial.println("Checking for remaining data in the buffer");
+    // Serial.println(F("Checking for remaining data in the buffer"));
     printRemainingChars(5, 5000);
-    // Serial.println("\n");
+    // Serial.println(F("\n"));
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
     String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
-    String headers = generatePostHeaders(generateSensorDataString());
+    String headers = generatePostHeaders(generateSensorDataJSON());
 
     Serial.flush();
-    Serial.println(" -- Request -- ");
+    Serial.println(F(" -- Request -- "));
     Serial.println(url);
     Serial.println(headers);
-    Serial.println("Content-Type: application/json");
-    Serial.println(generateSensorDataString());
+    Serial.println(F("Content-Type: application/json"));
+    Serial.println(generateSensorDataJSON());
     Serial.flush();
 
     // Add the needed HTTP Headers
@@ -520,8 +519,8 @@ int postDataGPRS(bool redirected = false)
 
     // Actually make the post request
     bool response = (gprsbee.doHTTPPOSTWithReply(APN, url.c_str(),
-                             generateSensorDataString().c_str(),
-                             strlen(generateSensorDataString().c_str()),
+                             generateSensorDataJSON().c_str(),
+                             strlen(generateSensorDataJSON().c_str()),
                              buffer, sizeof(buffer)));
 
     if (response)
@@ -543,43 +542,53 @@ void printPostResult(int result)
     {
         case HTTP_SUCCESS:
         {
-            Serial.println("\nSucessfully sent data to " + HOST_ADDRESS + "\n");
+            Serial.print(F("\nSucessfully sent data to "));
+            Serial.println(HOST_ADDRESS);
         }
         break;
 
         case HTTP_FAILURE:
         {
-            Serial.println("\nFailed to send data to " + HOST_ADDRESS + "\n");
+            Serial.print(F("\nFailed to send data to "));
+            Serial.println(HOST_ADDRESS);
         }
         break;
 
         case HTTP_FORBIDDEN:
         {
-            Serial.println("\nAccess to " + HOST_ADDRESS + " forbidden - Check your reguistration token and UUIDs.\n");
+            Serial.print(F("\nAccess to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" forbidden - Check your reguistration token and UUIDs."));
         }
         break;
 
         case HTTP_TIMEOUT:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server or insufficient signal to send message.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" timed out, no response from server or insufficient signal to send message."));
         }
         break;
 
         case HTTP_REDIRECT:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " was redirected.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" was redirected."));
         }
         break;
 
         case HTTP_SERVER_ERROR:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " caused an internal server error.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" aused an internal server error."));
         }
         break;
 
         default:
         {
-            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
+            Serial.print(F("\nAn unknown error has occured, and we're pretty confused\n"));
         }
     }
 }
@@ -623,9 +632,11 @@ void setup()
     setupSleep();
 
   // Print a start-up note to the first serial port
-    Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
-    Serial.println("Now running " + SKETCH_NAME + "\n");
-    Serial.print("Current Mayfly RTC time is: " + getDateTime_ISO8601());
+    Serial.println(F("WebSDL Device: EnviroDIY Mayfly\n"));
+    Serial.print(F("Now running "));
+    Serial.println(SKETCH_NAME);
+    Serial.print(F("Current Mayfly RTC time is: "));
+    Serial.println(getDateTime_ISO8601());
 }
 
 void loop()
@@ -639,7 +650,7 @@ void loop()
         // Turn on the LED
         digitalWrite(GREEN_LED, HIGH);
         // Print a few blank lines to show new reading
-        Serial.println("\n---\n---\n");
+        Serial.println(F("\n---\n---\n"));
         // logging SRAM use
         logData("Start of Loop, " + getDateTime_ISO8601() + ", " +  freeRam() );
 
@@ -648,7 +659,7 @@ void loop()
         // logging SRAM use
         logData("Sensor Update, " + getDateTime_ISO8601() + ", " +  freeRam() );
         //Save the data record to the log file
-        // logData(generateSensorDataString());
+        // logData(generateSensorDataJSON());
         // Post the data to the WebSDL
         int result;
         if (BEE_TYPE == "GPRS")

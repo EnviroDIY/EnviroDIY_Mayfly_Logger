@@ -267,7 +267,7 @@ bool updateAllSensors()
 
 // This function generates the JSON data string that becomes the body of the POST request
 // For now, the Result UUID is hard coded here
-String generateSensorDataString(void)
+String generateSensorDataJSON(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
@@ -511,9 +511,9 @@ void loop()
         // Get the sensor value(s), store as string
         updateAllSensors();
         //Save the data record to the log file
-        logData(generateSensorDataString());
+        logData(generateSensorDataJSON());
         // Generate the sensor data string and post request
-        String request = generatePostRequest(generateSensorDataString());
+        String request = generatePostRequest(generateSensorDataJSON());
         // Post the data to the WebSDL
         int result = postData(request);
         // Print the response from the WebSDL
