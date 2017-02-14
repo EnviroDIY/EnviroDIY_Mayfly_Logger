@@ -7,14 +7,12 @@ Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
 Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
 Radio Module: Bee S6b WiFi module.
-
 This sketch is an example of posting data to the Web Streaming Data Loader
 Assumptions:
 1. The Bee WiFi module has must be configured correctly to connect to the
 wireless network prior to running this sketch.
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
 has been configured. In this example, only temperature is used.
-
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 **************************************************************************/
@@ -32,8 +30,8 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-#include <avr/wdt.h>
-#include <SPI.h>
+// #include <avr/wdt.h>
+// #include <SPI.h>
 #include <SD.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
@@ -48,7 +46,7 @@ const String SKETCH_NAME = "load_test_wifi.ino";
 
 // Data header, for data log file on SD card
 const String LOGGERNAME = "Mayfly 160073";
-const String FILE_NAME = "Mayfly 160073";
+const String FILE_NAME = "Load Test SRAM";
 const String DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
@@ -150,6 +148,14 @@ RTCTimer timer;  // The timer functions for the RTC
 // -----------------------------------------------
 // 8. Working functions
 // -----------------------------------------------
+
+// Used only for debugging - can be removed
+int freeRam ()
+{
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
 
 // Used to flush out the buffer after a post request.
 // Removing this may cause communication issues. If you
@@ -326,7 +332,8 @@ String generateSensorDataString(void)
     jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
     jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
     jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
-    int sensor_num = 0;
+    jsonString += "\"" + UUIDs[0] + "\": " + String(freeRam()) + ", ";
+    int sensor_num = 1;
     while(sensor_num < 51)
     {
       jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(1000000000)/100000000.0,10) + ", ";
@@ -616,9 +623,9 @@ void setup()
     setupSleep();
 
   // Print a start-up note to the first serial port
-    Serial.println("WebSDL Device: EnviroDIY Mayfly");
-    Serial.println("Now running " + SKETCH_NAME);
-    Serial.println("Current Mayfly RTC time is: " + getDateTime_ISO8601());
+    Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
+    Serial.println("Now running " + SKETCH_NAME + "\n");
+    Serial.print("Current Mayfly RTC time is: " + getDateTime_ISO8601());
 }
 
 void loop()
@@ -633,10 +640,15 @@ void loop()
         digitalWrite(GREEN_LED, HIGH);
         // Print a few blank lines to show new reading
         Serial.println("\n---\n---\n");
+        // logging SRAM use
+        logData("Start of Loop, " + getDateTime_ISO8601() + ", " +  freeRam() );
+
         // Get the sensor value(s), store as string
         updateAllSensors();
+        // logging SRAM use
+        logData("Sensor Update, " + getDateTime_ISO8601() + ", " +  freeRam() );
         //Save the data record to the log file
-        logData(generateSensorDataString());
+        // logData(generateSensorDataString());
         // Post the data to the WebSDL
         int result;
         if (BEE_TYPE == "GPRS")
@@ -647,8 +659,12 @@ void loop()
         {
             result = postDataWiFi();
         };
+        // logging SRAM use
+        logData("Post Result, " + getDateTime_ISO8601() + ", " +  freeRam() );
         // Print the response from the WebSDL
         printPostResult(result);
+        // logging SRAM use
+        logData("End Loop, " + getDateTime_ISO8601() + ", " +  freeRam() );
         // Turn off the LED
         digitalWrite(GREEN_LED, LOW);
         // Advance the timer

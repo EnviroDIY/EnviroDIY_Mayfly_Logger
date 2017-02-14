@@ -42,20 +42,20 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // 2. Device registration and sampling features
 // -----------------------------------------------
 // Skecth file name
-const String SKETCH_NAME = "load_test_gprs.ino";
+const char *SKETCH_NAME = "load_test_gprs.ino";
 
 // Data header, for data log file on SD card
-const String LOGGERNAME = "Mayfly 160073";
-const String FILE_NAME = "Mayfly 160073";
-const String DATA_HEADER = "JSON Formatted Data";
+const char *LOGGERNAME = "Mayfly 160073";
+const char *FILE_NAME = "Mayfly 160073";
+const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
-const String REGISTRATION_TOKEN = "a6619e25-53ae-4843-aa96-704619828660";
-const String SAMPLING_FEATURE = "63afe80f-a041-44d6-9df7-52775e973802";
-const String ONBOARD_TEMPERATURE_UUID = "ed75384f-3c5f-42c6-b260-5ce9b12f180c";
-const String ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
+const char *REGISTRATION_TOKEN = "a6619e25-53ae-4843-aa96-704619828660";
+const char *SAMPLING_FEATURE = "63afe80f-a041-44d6-9df7-52775e973802";
+const char *ONBOARD_TEMPERATURE_UUID = "ed75384f-3c5f-42c6-b260-5ce9b12f180c";
+const char *ONBOARD_BATTERY_UUID = "9a220558-b3a7-4ff2-8ff4-cd6582cb53c9";
 int TIME_ZONE = -5;
-String UUIDs[] =
+const char *UUIDs[] =
 {
   "0fc01830-fbcf-437f-b6bc-c17c7510aa95", "f8616ae2-686c-45b4-bd03-bb1a460a0bd2",
   "4d644311-3498-4117-86a0-5a7b34af72e4", "c21ccedb-cfc7-4549-9365-85b2e41f6e5a",
@@ -88,8 +88,8 @@ String UUIDs[] =
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
 // -----------------------------------------------
-const String HOST_ADDRESS = "data.envirodiy.org";
-const String API_ENDPOINT = "/api/data-stream/";
+const char *HOST_ADDRESS = "data.envirodiy.org";
+const char *API_ENDPOINT = "/api/data-stream/";
 
 // -----------------------------------------------
 // 4. Misc. Options
@@ -104,7 +104,7 @@ int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server
 // -----------------------------------------------
 int SERIAL_BAUD = 9600;  // Serial port BAUD rate
 int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
-const String BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
+const char *BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
 int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
@@ -320,18 +320,31 @@ bool updateAllSensors()
 // This function generates the JSON data string that becomes the body of the POST request
 String generateSensorDataString(void)
 {
-    String jsonString = "{";
-    jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
-    jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + ONBOARD_TEMPERATURE + ", ";
+    char jsonString[] = "{\"sampling_feature\": \"";
+    strcat(jsonString, SAMPLING_FEATURE);
+    strcat(jsonString, ", \" \"timestamp\": \"");
+    strcat(jsonString, getDateTime_ISO8601().c_str());
+    strcat(jsonString, "\", \"");
+    strcat(jsonString, ONBOARD_TEMPERATURE_UUID);
+    strcat(jsonString, "\", ");
+    char valToChar[7];
+    strcat(jsonString, dtostrf(ONBOARD_TEMPERATURE,6,2,valToChar));
     int sensor_num = 0;
     while(sensor_num < 51)
     {
-      jsonString += "\"" + UUIDs[sensor_num] + "\": " + String(random(1000000000)/100000000.0,10) + ", ";
+      char valToChar2[13];
+      dtostrf(random(1000000000)/100000000.0,12,10,valToChar2);
+      strcat(jsonString, "\", \"");
+      strcat(jsonString, UUIDs[sensor_num]);
+      strcat(jsonString, "\", ");
+      strcat(jsonString, valToChar);
       sensor_num++;
     }
-    jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + ONBOARD_BATTERY;
-    jsonString += "}";
+    strcat(jsonString, "\", \"");
+    strcat(jsonString, ONBOARD_BATTERY_UUID);
+    strcat(jsonString, "\", ");
+    strcat(jsonString, dtostrf(ONBOARD_BATTERY,6,2,valToChar));
+    strcat(jsonString, "}");
     return jsonString;
 }
 
@@ -377,27 +390,35 @@ void logData(String rec)
 }
 
 // This generates the POST headers.
-String generatePostHeaders(String dataString)
+char generatePostHeaders(char *dataString)
 {
-    String header = "TOKEN: " + REGISTRATION_TOKEN;
-    if (BEE_TYPE == "WIFI")  // Add additional headers for the WiFi
+    char header[] = "TOKEN: ";
+    strcat(header, REGISTRATION_TOKEN);
+    if (strcasecmp(BEE_TYPE, "WIFI")== 0)  // Add additional headers for the WiFi
     {
-        header += "\r\nCache-Control: no-cache\r\n";
-        header += "Content-Length: " + String(dataString.length()) + "\r\n";
-        header += "Content-Type: application/json\r\n";
+        strcat(header, "\r\nCache-Control: no-cache\r\n");
+        strcat(header, "Content-Length: ");
+        char lenDataString[4];
+        strcat(header, itoa(strlen(dataString), lenDataString, 10));
+        strcat(header, "\r\n");
+        strcat(header, "Content-Type: application/json\r\n");
     }
     return header;
 }
 
 // This function generates the full POST request that gets sent to data.envirodiy.org
-String generatePostRequest(void)
+char generatePostRequest(void)
 {
-    String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
-    request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += generatePostHeaders(generateSensorDataString());
-    request += "\r\n";
-    request += generateSensorDataString();
-    request += "\r\n\r\n";
+    char request[] = "POST ";
+    strcat(request, API_ENDPOINT);
+    strcat(request, " HTTP/1.1\r\n");
+    strcat(request, "Host: ");
+    strcat(request, HOST_ADDRESS);
+    strcat(request, "\r\n");
+    strcat(request, generatePostHeaders(generateSensorDataString()));
+    strcat(request, "\r\n");
+    strcat(request, generateSensorDataString());
+    strcat(request, "\r\n\r\n");
     return request;
 }
 
@@ -490,7 +511,9 @@ int postDataGPRS(bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
-    String url = "http://" + HOST_ADDRESS + API_ENDPOINT;
+    char url[] = "http://";
+    strcat(url,  HOST_ADDRESS);
+    strcat(url,  API_ENDPOINT);
     String headers = generatePostHeaders(generateSensorDataString());
 
     Serial.flush();
@@ -593,7 +616,7 @@ void setup()
     // Blink the LEDs to show the board is on and starting up
     greenred4flash();
 
-    if (BEE_TYPE == "GPRS")
+    if (strcasecmp(BEE_TYPE,"GPRS") == 0)
     {
         // Initialize the GPRSBee
         gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
