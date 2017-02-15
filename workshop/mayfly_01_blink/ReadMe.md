@@ -3,7 +3,7 @@ Workshop Sketch 1: Blink
 
 Lights blink!
 
-###Basic code elements, Lesson 1:
+### Basic code elements, Lesson 1: 
 
 * Comments
   * Anything after a two slashes (//) is ignored by compiler
@@ -20,7 +20,7 @@ Lights blink!
 * Loop block
   * Repeats over and over again
   * Time is recorded in milliseconds
-  * See [https://www.arduino.cc/en/Reference/Loop](https://www.arduino.cc/en/Reference/Loop) 
+  * See [https://www.arduino.cc/en/Reference/Loop](https://www.arduino.cc/en/Reference/Loop)
 * Variable reassignment:
   * `i = i +1`
   * `i++`
@@ -30,4 +30,3 @@ Lights blink!
 
 * Adjust blink rate
   * Change `delaytime` variable, and Upload code again (overwriting last upload)
-

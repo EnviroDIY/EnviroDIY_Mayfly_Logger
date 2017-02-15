@@ -1,19 +1,24 @@
 /**************************************************************************
 simple_logging_example.ino
+
 Initial Creation Date: 6/3/2016
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
-Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
-Radio Module: Bee S6b WiFi module.
+Hardware Platform: EnviroDIY Mayfly Arduino Datalogger
+Radio Module: Sodaq GPRSbee or Digi XBee S6B (WiFi)
+Software License: BSD-3.
+  Copyright (c) 2017, Stroud Water Research Center (SWRC)
+  and the EnviroDIY Development Team
 
 This sketch is an example of posting data to the Web Streaming Data Loader
+
 Assumptions:
 1. The Bee WiFi module has must be configured correctly to connect to the
-wireless network prior to running this sketch.
+   wireless network prior to running this sketch. (If Applicable)
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
-has been configured. In this example, only temperature is used.
+   has been configured. In this example, only temperature and batter voltage are used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
@@ -32,36 +37,36 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-#include <avr/wdt.h>
-#include <SPI.h>
 #include <SD.h>
+#include <SPI.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt.h>
+#include <GPRSbee.h>
 
 // -----------------------------------------------
 // 2. Device registration and sampling features
 // -----------------------------------------------
 // Skecth file name
-const String SKETCH_NAME = "simple_logging_example.ino";
+const char *SKETCH_NAME = "logging_to_EnviroDIY.ino";
 
 // Data header, for data log file on SD card
-const String LOGGERNAME = "Mayfly 160073";
-const String FILE_NAME = "Mayfly 160073";
-const String DATA_HEADER = "JSON Formatted Data";
+const char *LOGGERNAME = "Mayfly 160073";
+const char *FILE_NAME = "Mayfly 160073";
+const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
-const String REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
-const String SAMPLING_FEATURE = "39bf098f-d11d-4ea6-9be3-6a073969b019";
-const String ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
-const String ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
-int TIME_ZONE = -5;
+const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
+const char *SAMPLING_FEATURE = "39bf098f-d11d-4ea6-9be3-6a073969b019";
+const int TIME_ZONE = -5;
+const char *ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
+const char *ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
 
 // -----------------------------------------------
 // 3. WebSDL Endpoints for POST requests
 // -----------------------------------------------
-const String HOST_ADDRESS = "data.envirodiy.org";
-const String API_ENDPOINT = "/api/data-stream/";
+const char *HOST_ADDRESS = "data.envirodiy.org";
+const char *API_ENDPOINT = "/api/data-stream/";
 
 // -----------------------------------------------
 // 4. Misc. Options
@@ -76,10 +81,12 @@ int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server
 // -----------------------------------------------
 int SERIAL_BAUD = 9600;  // Serial port BAUD rate
 int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
+const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
 int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
 int RED_LED = 9;  // Pin for the red LED
+const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 int RTC_PIN = A7;  // RTC Interrupt pin
 #define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
@@ -93,6 +100,7 @@ int SD_SS_PIN = 12;  // SD Card Pin
 // -----------------------------------------------
 float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
 float ONBOARD_BATTERY = 0;  // variable to store the value coming from the sensor
+
 // Variables for the timer function
 int currentminute;
 int testtimer = 0;
@@ -146,25 +154,47 @@ uint32_t getNow()
   return currentepochtime;
 }
 
-// This function returns the datetime from the realtime clock as a string formated for the POST request
-String getDateTime(void)
+// This function returns the datetime from the realtime clock as an ISO 8601 formated string
+String getDateTime_ISO8601(void)
 {
   String dateTimeStr;
   //Create a DateTime object from the current time
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
+  dateTimeStr.replace(" ", "T");
+  String tzString = String(TIME_ZONE);
+  if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
+  {
+      tzString += ":00";
+  }
+  else if (-10 < TIME_ZONE && TIME_ZONE < 0)
+  {
+      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+  }
+  else if (TIME_ZONE == 0)
+  {
+      tzString = "Z";
+  }
+  else if (0 < TIME_ZONE && TIME_ZONE < 10)
+  {
+      tzString = "+0" + tzString + ":00";
+  }
+  else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
+  {
+      tzString = "+" + tzString + ":00";
+  }
+  dateTimeStr += tzString;
   return dateTimeStr;
 }
 
-// This sets up the function to be called by the timer.
-// This function has no return on its own.
+// This sets up the function to be called by the timer with no return of its own.
 // This structure is required by the timer library.
 // See http://support.sodaq.com/sodaq-one/adding-a-timer-to-schedule-readings/
 void showTime(uint32_t ts)
 {
   // Retrieve the current date/time
-  String dateTime = getDateTime();
+  String dateTime = getDateTime_ISO8601();
   return;
 }
 
@@ -251,29 +281,31 @@ void greenred4flash()
 }
 
 // This function updates the values for any connected sensors. Need to add code for
-// Any sensors connected - this example only uses temperature.
+// Any sensors connected - this example only uses temperature and battery voltage.
 bool updateAllSensors()
 {
-    // Get the temperature from the Mayfly's real time clock and convert to Farenheit
+    // Get the temperature from the Mayfly's real time clock
     rtc.convertTemperature();  //convert current temperature into registers
     float tempVal = rtc.getTemperature();
     ONBOARD_TEMPERATURE = tempVal;
 
+    // Get the battery voltage
     float rawBattery = analogRead(BATTERY_PIN);
     ONBOARD_BATTERY = (3.3 / 1023.) * 1.47 * rawBattery;
 
+    // Return true when finished
     return true;
 }
 
 // This function generates the JSON data string that becomes the body of the POST request
-// For now, the Result UUID is hard coded here
-String generateSensorDataString(void)
+// TODO:  Figure out how to not use a string here
+String generateSensorDataJSON(void)
 {
     String jsonString = "{";
-    jsonString += "\"sampling_feature\": \"" + SAMPLING_FEATURE + "\", ";
-    jsonString += "\"timestamp\": \"" + getDateTime() + "\", ";
-    jsonString += "\"" + ONBOARD_TEMPERATURE_UUID + "\": " + String(int(ONBOARD_TEMPERATURE));
-    jsonString += "\"" + ONBOARD_BATTERY_UUID + "\": " + String(int(ONBOARD_BATTERY));
+    jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
+    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
+    jsonString += "\"" + String(ONBOARD_TEMPERATURE_UUID) + "\": " + String(ONBOARD_TEMPERATURE) + ", ";
+    jsonString += "\"" + String(ONBOARD_BATTERY_UUID) + "\": " + String(ONBOARD_BATTERY);
     jsonString += "}";
     return jsonString;
 }
@@ -284,7 +316,7 @@ void setupLogFile()
   // Initialise the SD card
   if (!SD.begin(SD_SS_PIN))
   {
-    Serial.println("Error: SD card failed to initialise or is missing.");
+    Serial.println(F("Error: SD card failed to initialise or is missing."));
     //Hang
     //  while (true);
   }
@@ -306,7 +338,7 @@ void setupLogFile()
   logFile.close();
 }
 
-// Writes a string to a text file on the SDCar
+// Writes a string to a text file on the SD Card
 void logData(String rec)
 {
   // Re-open the file
@@ -319,38 +351,42 @@ void logData(String rec)
   logFile.close();
 }
 
-// This function generates the POST request that gets sent to data.envirodiy.org
-String generatePostRequest(String dataString)
+// This function generates the full POST request that gets sent to data.envirodiy.org
+// This is only needed for transparent Bee's (ie, WiFi)
+void streamPostRequest(Stream & stream)
 {
-    String request = "POST " + API_ENDPOINT + " HTTP/1.1\r\n";
-    request += "Host: " + HOST_ADDRESS + "\r\n";
-    request += "TOKEN: " + REGISTRATION_TOKEN + "\r\n";
-    request += "Content-Type: application/json\r\n";
-    request += "Cache-Control: no-cache\r\n";
-    request += "Content-Length: " + String(dataString.length()) + "\r\n";
-    request += "\r\n";
-    request += dataString;
-    request += "\r\n\r\n";
-    return request;
+    stream.print(F("POST "));
+    stream.print(API_ENDPOINT);
+    stream.print(F(" HTTP/1.1\r\nHost: "));
+    stream.print(HOST_ADDRESS);
+    stream.print(F("\r\nTOKEN: "));
+    stream.print(REGISTRATION_TOKEN);
+    stream.print(F("\r\nCache-Control: no-cache\r\nContent-Length: "));
+    stream.print(generateSensorDataJSON().length());
+    stream.print(F("\r\nContent-Type: application/json\r\n\r\n"));
+    stream.print(generateSensorDataJSON());
+    stream.print(F("\r\n\r\n"));
 }
 
-// This function makes an HTTP connection to the server and POSTs data
-int postData(String requestString, bool redirected = false)
+// This function makes an HTTP connection to the server and POSTs data - for WIFI
+int postDataWiFi(bool redirected = false)
 {
-    // Serial.println("Checking for remaining data in the buffer");
+    // Serial.println(F("Checking for remaining data in the buffer"));
     printRemainingChars(5, 5000);
-    // Serial.println("\n");
+    // Serial.println(F("\n"));
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
+    // Send the request to the WiFiBee (it's transparent, just goes as a stream)
     Serial1.flush();
-    Serial1.print(requestString.c_str());
+    streamPostRequest(Serial1);
     Serial1.flush();
 
 
+    // Send the request to the serial for debugging
+    Serial.println(F(" -- Request -- "));
     Serial.flush();
-    Serial.println(" -- Request -- ");
-    Serial.print(requestString.c_str());
+    streamPostRequest(Serial);
     Serial.flush();
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
@@ -371,7 +407,7 @@ int postData(String requestString, bool redirected = false)
 
         int responseBytes = Serial1.readBytes(response, 9);
         int codeBytes = Serial1.readBytes(code, 3);
-        Serial.println("\n -- Response -- ");
+        Serial.println(F("\n -- Response -- "));
         Serial.print(response);
         Serial.println(code);
 
@@ -414,6 +450,55 @@ int postData(String requestString, bool redirected = false)
     return result;
 }
 
+// This function makes an HTTP connection to the server and POSTs data - for GPRS
+int postDataGPRS(bool redirected = false)
+{
+    // Serial.println(F("Checking for remaining data in the buffer"));
+    printRemainingChars(5, 5000);
+    // Serial.println(F("\n"));
+
+    HTTP_RESPONSE result = HTTP_OTHER;
+
+    char url[strlen(HOST_ADDRESS) + strlen(API_ENDPOINT) + 8] = "http://";
+    strcat(url,  HOST_ADDRESS);
+    strcat(url,  API_ENDPOINT);
+    char header[45] = "TOKEN: ";
+    strcat(header, REGISTRATION_TOKEN);
+
+    Serial.flush();
+    Serial.println(F(" -- Request -- "));
+    Serial.println(url);
+    Serial.println(header);
+    Serial.println(F("Content-Type: application/json"));
+    Serial.println(generateSensorDataJSON());
+    Serial.flush();
+
+    // Add the needed HTTP Headers
+    gprsbee.addHTTPHeaders(header);
+    gprsbee.addContentType(F("application/json"));
+
+    // Set up the Response buffer
+    char buffer[1024];
+    memset(buffer, '\0', sizeof(buffer));
+
+    // Actually make the post request
+    bool response = (gprsbee.doHTTPPOSTWithReply(APN, url,
+                             generateSensorDataJSON().c_str(),
+                             strlen(generateSensorDataJSON().c_str()),
+                             buffer, sizeof(buffer)));
+
+    if (response)
+    {
+        result = HTTP_SUCCESS;
+    }
+    else // Otherwise timeout, no response from server
+    {
+        result = HTTP_TIMEOUT;
+    }
+
+    return result;
+}
+
 // Used only for debugging - can be removed
 void printPostResult(int result)
 {
@@ -421,43 +506,53 @@ void printPostResult(int result)
     {
         case HTTP_SUCCESS:
         {
-            Serial.println("\nSucessfully sent data to " + HOST_ADDRESS + "\n");
+            Serial.print(F("\nSucessfully sent data to "));
+            Serial.println(HOST_ADDRESS);
         }
         break;
 
         case HTTP_FAILURE:
         {
-            Serial.println("\nFailed to send data to " + HOST_ADDRESS + "\n");
+            Serial.print(F("\nFailed to send data to "));
+            Serial.println(HOST_ADDRESS);
         }
         break;
 
         case HTTP_FORBIDDEN:
         {
-            Serial.println("\nAccess to " + HOST_ADDRESS + " forbidden - Check your reguistration token and UUIDs.\n");
+            Serial.print(F("\nAccess to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" forbidden - Check your reguistration token and UUIDs."));
         }
         break;
 
         case HTTP_TIMEOUT:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " timed out, no response from server.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" timed out, no response from server or insufficient signal to send message."));
         }
         break;
 
         case HTTP_REDIRECT:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " was redirected.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" was redirected."));
         }
         break;
 
         case HTTP_SERVER_ERROR:
         {
-            Serial.println("\nRequest to " + HOST_ADDRESS + " caused an internal server error.\n");
+            Serial.print(F("\nRequest to "));
+            Serial.print(HOST_ADDRESS);
+            Serial.println(F(" aused an internal server error."));
         }
         break;
 
         default:
         {
-            Serial.println("\nAn unknown error has occured, and we're pretty confused\n");
+            Serial.print(F("\nAn unknown error has occured, and we're pretty confused\n"));
         }
     }
 }
@@ -465,35 +560,47 @@ void printPostResult(int result)
 // Main setup function
 void setup()
 {
-  // Start the primary serial connection
-  Serial.begin(SERIAL_BAUD);
-  // Start the serial connection with the *bee
-  Serial1.begin(BEE_BAUD);
+    // Start the primary serial connection
+    Serial.begin(SERIAL_BAUD);
+    // Start the serial connection with the *bee
+    Serial1.begin(BEE_BAUD);
 
-  // Start the Real Time Clock
+    // Start the Real Time Clock
     rtc.begin();
     delay(100);
 
-  // Set up pins for the LED's
+    // Set up pins for the LED's
     pinMode(GREEN_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
-
-  // Blink the LEDs to show the board is on and starting up
+    // Blink the LEDs to show the board is on and starting up
     greenred4flash();
+
+    if (strcasecmp(BEE_TYPE,"GPRS") == 0)
+    {
+        // Initialize the GPRSBee
+        gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
+        //Comment out the next line when used with GPRSbee Rev.4
+        gprsbee.setPowerSwitchedOnOff(true);
+        gprsbee.setMinSignalQuality(7);
+        // Only to see for debugging - comment this out
+        // gprsbee.setDiag(Serial);
+    }
 
     // Set up the log file
     setupLogFile();
 
-  // Setup timer events
+    // Setup timer events
     setupTimer();
 
-  // Setup sleep mode
+    // Setup sleep mode
     setupSleep();
 
-  // Print a start-up note to the first serial port
-    Serial.println("WebSDL Device: EnviroDIY Mayfly\n");
-    Serial.println("Now running " + SKETCH_NAME + "\n");
-    Serial.print("Current Mayfly RTC time is :" + getDateTime());
+    // Print a start-up note to the first serial port
+    Serial.println(F("WebSDL Device: EnviroDIY Mayfly"));
+    Serial.print(F("Now running "));
+    Serial.println(SKETCH_NAME);
+    Serial.print(F("Current Mayfly RTC time is: "));
+    Serial.println(getDateTime_ISO8601());
 }
 
 void loop()
@@ -507,15 +614,21 @@ void loop()
         // Turn on the LED
         digitalWrite(GREEN_LED, HIGH);
         // Print a few blank lines to show new reading
-        Serial.println("\n---\n---\n");
+        Serial.println(F("\n---\n---\n"));
         // Get the sensor value(s), store as string
         updateAllSensors();
         //Save the data record to the log file
-        logData(generateSensorDataString());
-        // Generate the sensor data string and post request
-        String request = generatePostRequest(generateSensorDataString());
+        logData(generateSensorDataJSON());
         // Post the data to the WebSDL
-        int result = postData(request);
+        int result;
+        if (strcasecmp(BEE_TYPE, "GPRS") == 0)
+        {
+            result = postDataGPRS();
+        };
+        if (strcasecmp(BEE_TYPE, "WIFI") == 0)
+        {
+            result = postDataWiFi();
+        };
         // Print the response from the WebSDL
         printPostResult(result);
         // Turn off the LED
