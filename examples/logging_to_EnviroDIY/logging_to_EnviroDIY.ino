@@ -63,13 +63,13 @@ const char *ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
 const char *ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
 
 // -----------------------------------------------
-// 3. WebSDL Endpoints for POST requests
+// 3. Device Connection Options
 // -----------------------------------------------
-const char *HOST_ADDRESS = "data.envirodiy.org";
-const char *API_ENDPOINT = "/api/data-stream/";
+const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
+const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 // -----------------------------------------------
-// 4. Misc. Options
+// 4. Timing Options For Logging
 // -----------------------------------------------
 int LOGGING_INTERVAL = 1;  // How frequently (in minutes) to log data
 int READ_DELAY = 1;  // How often (in minutes) the timer wakes up
@@ -77,16 +77,20 @@ int UPDATE_RATE = 200; // How frequently (in milliseconds) the logger checks if 
 int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server response
 
 // -----------------------------------------------
-// 5. Board setup info
+// 5. WebSDL Endpoints for POST requests
+// -----------------------------------------------
+const char *HOST_ADDRESS = "data.envirodiy.org";
+const char *API_ENDPOINT = "/api/data-stream/";
+
+// -----------------------------------------------
+// 6. Board setup info
 // -----------------------------------------------
 int SERIAL_BAUD = 9600;  // Serial port BAUD rate
 int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
-const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
 int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
 int RED_LED = 9;  // Pin for the red LED
-const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 int RTC_PIN = A7;  // RTC Interrupt pin
 #define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
@@ -96,7 +100,7 @@ int BATTERY_PIN = A6;    // select the input pin for the potentiometer
 int SD_SS_PIN = 12;  // SD Card Pin
 
 // -----------------------------------------------
-// 6. Setup variables
+// 7. Setup variables
 // -----------------------------------------------
 float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
 float ONBOARD_BATTERY = 0;  // variable to store the value coming from the sensor
@@ -266,6 +270,34 @@ void systemSleep()
   sensorsWake();
 }
 
+// Initializes the SDcard and prints a header to it
+void setupLogFile()
+{
+  // Initialise the SD card
+  if (!SD.begin(SD_SS_PIN))
+  {
+    Serial.println(F("Error: SD card failed to initialise or is missing."));
+    //Hang
+    //  while (true);
+  }
+
+  // Check if the file already exists
+  bool oldFile = SD.exists(FILE_NAME);
+
+  // Open the file in write mode
+  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+
+  // Add header information if the file did not already exist
+  if (!oldFile)
+  {
+    logFile.println(LOGGERNAME);
+    logFile.println(DATA_HEADER);
+  }
+
+  //Close the file to save it
+  logFile.close();
+}
+
 // Flashess to Mayfly's LED's
 void greenred4flash()
 {
@@ -308,34 +340,6 @@ String generateSensorDataJSON(void)
     jsonString += "\"" + String(ONBOARD_BATTERY_UUID) + "\": " + String(ONBOARD_BATTERY);
     jsonString += "}";
     return jsonString;
-}
-
-// Initializes the SDcard and prints a header to it
-void setupLogFile()
-{
-  // Initialise the SD card
-  if (!SD.begin(SD_SS_PIN))
-  {
-    Serial.println(F("Error: SD card failed to initialise or is missing."));
-    //Hang
-    //  while (true);
-  }
-
-  // Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
-
-  // Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
-
-  // Add header information if the file did not already exist
-  if (!oldFile)
-  {
-    logFile.println(LOGGERNAME);
-    logFile.println(DATA_HEADER);
-  }
-
-  //Close the file to save it
-  logFile.close();
 }
 
 // Writes a string to a text file on the SD Card
