@@ -1,6 +1,6 @@
-# Logging to data.EnviroDIY.org via WiFi
+# Logging to data.EnviroDIY.org via XBee WiFi or GPRSBee
 
-This sketch is an simple example of sending data to the [EnviroDIY data portal](http://data.envirodiy.org/) via a [Digi WiFi XBee S6B](https://www.digi.com/support/productdetail?pid=5585).  This example will only send data from the temperature sensor built into the Mayfly's real time clock and the Mayfly's current battery or power supply voltage.  As is, it will send data to a dummy site labeled "srgd_desk", which is Sara Damiano's desk at the Stroud Water Research Center.
+This sketch is an simple example of sending data to the [EnviroDIY data portal](http://data.envirodiy.org/) via either [Digi XBee WiFi  S6B](https://www.digi.com/support/productdetail?pid=5585) or [Sodaq GPRSBee](https://shop.sodaq.com/en/gprsbee.html) radio modules.  This example will only send data from the temperature sensor built into the Mayfly's real time clock and the Mayfly's current battery or power supply voltage.  As is, it will send data to a dummy site labeled "srgd_desk", which is Sara Damiano's desk at the Stroud Water Research Center. Therefore PLEASE FORK AND MODIFY FOR YOUR SENSOR STATION.
 
 ## Registering at the EnviroDIY Data Portal
 
@@ -15,11 +15,13 @@ This sketch is an simple example of sending data to the [EnviroDIY data portal](
 
 
 ## Programming your Mayfly with the Arduino IDE
-1. If you have not already done so, follow these instructions to install the Arduino IDE and set it up to connect to your Mayfly.
+1. If you have not already done so, follow the [Mayfly Data Logger Software](https://envirodiy.org/mayfly/software/) instructions to install the Arduino IDE and set it up to connect to your Mayfly.
 2. Download logging_to_EnviroDIY.ino and place it in a folder named "logging_to_EnviroDIY" in your main Arduino directory.
 3. Download the file https://github.com/EnviroDIY/Libraries/raw/master/libraries.zip from the EnviroDIY Libraries GitHub repository.  Decompress the zip file into your Arduino libraries folder.  (See "Manual Installation" in the [Arduino Library Guide](https://www.arduino.cc/en/Guide/Libraries#toc5) for more details.)
 4. Open the Arduino.cc software.
-5. If using a WiFiBee, connect it to a WiFi network using the instructions below for "Configuring WiFi."  If using a GPRSBee, put a paid sim card into the slot on the GPRSBee.  Connect a battery to both the Mayfly and the GPRSBee.  (The GPRSBee cannot draw power directly from the microUSB port like the WiFiBee can.)
+5. Configure radio module:
+  * If using a WiFiBee, connect it to a WiFi network using the instructions below for "Configuring WiFi."  
+  * If using a GPRSBee, put a paid sim card into the slot on the GPRSBee.  Connect a battery to both the Mayfly and the GPRSBee.  (The GPRSBee cannot draw power directly from the microUSB port like the WiFiBee can.)
 6. After plugging your WiFiBee or GPRSBee into the socket on your Mayfly, connect your Mayfly to your computer. Turn the Mayfly on using the physical switch on the board.  Make sure the Mayfly is visible to the Arduino Software.
 7. Open logging_to_EnviroDIY_wifi.ino from wherever you saved it.  Scroll to line 53 of the sketch.  You should see a string "REGISTRATION_TOKEN = " followed by a string of letters and numbers.  Look back at your site page on data.envirodiy.org.  Find the Registration Token on your site page.  Copy and paste that value into the sketch, replacing the values currently there.  Be careful to keep the value between quotation marks.
 8.  Continue to copy and paste the values of the Sampling Feature UUID and both result UUIDs into the corresponding lines in the sketch.
@@ -67,4 +69,5 @@ It is important to understand two basic limitations of the WiFiBee:
 
 This means that if you program your XBee while sitting at your local coffee shop, it will only be able to use that shop's WiFi until it has been reprogrammed.  This also means that regardless of what website URL you program into your sketch, the only sites the WiFiBee will actually be able to access are those hosted on the server at the destination IP address until the Bee has been reprogrammed.  This sketch calls the EnviroDIY Data Portal.  The WiFiBee can only make a connection to that portal if the destination IP address programmed into it is the IP address of that server.  If you later want to use your WiFiBee to access Google's home page, you will need to reprogram it with Google's IP address.  Both of these limitations could potentially be overcome using a complex enough sketch on the Mayfly, but that is far, far beyond the scope of the example.
 
+## Notes on GPRSBee, 2G vs. 3G
 If using a GPRSBee, it is important to remember that it only functions on 2G.  The service areas for 2G are NOT the same as those for 3G or 4G, so your cell phone may see great service even when the GPRSBee sees none.  As of January 1, 2017, AT&T has shut down all 2G service in the United States.  

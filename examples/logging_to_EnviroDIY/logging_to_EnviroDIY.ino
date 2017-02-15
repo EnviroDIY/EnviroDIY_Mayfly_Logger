@@ -1,19 +1,24 @@
 /**************************************************************************
 simple_logging_example.ino
+
 Initial Creation Date: 6/3/2016
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Additional Work By:  Sara Damiano (sdamiano@stroudcenter.org)
 Development Environment: PlatformIO 3.2.1
-Hardware Platform: Stroud Water Resources Mayfly Arduino Datalogger
+Hardware Platform: EnviroDIY Mayfly Arduino Datalogger
 Radio Module: Sodaq GPRSbee or Digi XBee S6B (WiFi)
+Software License: BSD-3.
+  Copyright (c) 2017, Stroud Water Research Center (SWRC)
+  and the EnviroDIY Development Team
 
 This sketch is an example of posting data to the Web Streaming Data Loader
+
 Assumptions:
 1. The Bee WiFi module has must be configured correctly to connect to the
-wireless network prior to running this sketch. (If Applicable)
+   wireless network prior to running this sketch. (If Applicable)
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
-has been configured. In this example, only temperature and batter voltage are used.
+   has been configured. In this example, only temperature and batter voltage are used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
@@ -183,7 +188,7 @@ String getDateTime_ISO8601(void)
   return dateTimeStr;
 }
 
-// This sets up the function to be called by the timer with no raturn of its own.
+// This sets up the function to be called by the timer with no return of its own.
 // This structure is required by the timer library.
 // See http://support.sodaq.com/sodaq-one/adding-a-timer-to-schedule-readings/
 void showTime(uint32_t ts)
@@ -333,7 +338,7 @@ void setupLogFile()
   logFile.close();
 }
 
-// Writes a string to a text file on the SDCar
+// Writes a string to a text file on the SD Card
 void logData(String rec)
 {
   // Re-open the file
