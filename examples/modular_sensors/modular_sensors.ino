@@ -274,17 +274,9 @@ String generateSensorDataJSON(void)
     jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
     jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
 
-    int k = 0;
     for (int i = 0; i < sensorCount; i++)
     {
-        k += i;
-        int numVars = SENSOR_LIST[i]->getNumVars();
-        for (int j = 0; j < numVars; j++)
-        {
-            k += j;
-            String* sensorValue = SENSOR_LIST[i]->getValueAsString();
-            jsonString += "\"" + String(UUIDs[k]) + "\": " + sensorValue[j];
-        }
+        jsonString += "\"" + String(UUIDs[i]) + "\": " + SENSOR_LIST[i]->getValueAsString();
         if (i + 1 != sensorCount)
         {
             jsonString += ", ";

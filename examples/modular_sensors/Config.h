@@ -39,8 +39,9 @@ const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 // -----------------------------------------------
 // 4. The array that contains all valid sensors
 // -----------------------------------------------
-SensorBase* SENSOR_LIST[] = {
-    new MayFlyOnboardSensors()
+SensorBase *SENSOR_LIST[] = {
+    new MayFlyOnboardTemp(),
+    new MayFlyOnboardBattery()
     // new YOUR_SENSOR_NAME_HERE()
 };
 

@@ -28,9 +28,10 @@ public:
     virtual bool sleep(void) = 0;
     virtual bool wake(void) = 0;
 
-    virtual int getNumVars(void) = 0;
-    virtual String* getVarNames(void) = 0;
-    virtual String* getValueAsString(void) = 0;
+    virtual String getSensorName(void) = 0;
+    virtual String getVarName(void) = 0;
+    virtual String getVarUnit(void) = 0;
+    virtual String getValueAsString(void) = 0;
 };
 
 
@@ -42,8 +43,8 @@ class Sensor : public SensorBase
 {
 public:
     Sensor(void);
-    Sensor(String name);
-    virtual ~Sensor();
+    // Sensor(String name);
+    // virtual ~Sensor();
 
     virtual SENSOR_STATUS setup(void);
     virtual SENSOR_STATUS getStatus(void);
@@ -51,10 +52,11 @@ public:
     virtual bool sleep(void);
     virtual bool wake(void);
 
-    virtual int getNumVars(void);
-    virtual String* getVarNames(void);
-    virtual T* getValues(void);
-    virtual String* getValueAsString(void);
+    virtual String getSensorName(void);
+    virtual String getVarName(void);
+    virtual String getVarUnit(void);
+    virtual T getValue(void);
+    virtual String getValueAsString(void);
 protected:
     String m_name;
     T m_value;
@@ -69,18 +71,18 @@ Sensor<T>::Sensor(void)
     m_status = setup();
 }
 
-template <typename T>
-Sensor<T>::Sensor(String name)
-    : m_name(name)
-{
-    m_status = setup();
-}
-
-template <typename T>
-Sensor<T>::~Sensor(void)
-{
-    // Do nothing
-}
+// template <typename T>
+// Sensor<T>::Sensor(String name)
+//     : m_name(name)
+// {
+//     m_status = setup();
+// }
+//
+// template <typename T>
+// Sensor<T>::~Sensor(void)
+// {
+//     // Do nothing
+// }
 
 template <typename T>
 SENSOR_STATUS Sensor<T>::setup(void)
@@ -92,12 +94,6 @@ template <typename T>
 SENSOR_STATUS Sensor<T>::getStatus(void)
 {
     return m_status;
-}
-
-template <typename T>
-bool Sensor<T>::update(void)
-{
-    return true;
 }
 
 template <typename T>
@@ -113,25 +109,31 @@ bool Sensor<T>::wake(void)
 }
 
 template <typename T>
-int Sensor<T>::getNumVars(void)
-{
-    return 1;
-}
-
-template <typename T>
-String* Sensor<T>::getVarNames(void)
+String Sensor<T>::getSensorName(void)
 {
     return m_name;
 }
 
 template <typename T>
-T* Sensor<T>::getValues(void)
+String Sensor<T>::getVarName(void)
+{
+    return m_name;
+}
+
+template <typename T>
+String Sensor<T>::getVarUnit(void)
+{
+    return "";
+}
+
+template <typename T>
+T Sensor<T>::getValue(void)
 {
     return m_value;
 }
 
 template <typename T>
-String* Sensor<T>::getValueAsString(void)
+String Sensor<T>::getValueAsString(void)
 {
     return String(m_value);
 }
