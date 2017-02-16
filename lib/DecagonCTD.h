@@ -5,6 +5,9 @@
  *Work in progress by Sara Damiano taken from code written
  *by Shannon Hicks and templates from USU.
  *
+ *Documentation fo the SDI-12 Protocol commands and responses
+ *for the Decagon CTD-10 can be found at:
+ *http://manuals.decagon.com/Integration%20Guides/CTD%20Integrators%20Guide.pdf
 */
 
 #ifndef _DECAGONCTD_h
@@ -16,19 +19,18 @@
 #include "WProgram.h"
 #endif
 
+#include "Sensor.h"
 
-class DecagonCTD : public Sensor<float/*SENSORS_DATA_TYPE*/>
+class DecagonCTD : public Sensor<float>
 {
 public:
-    DecagonCTD(char CTDaddress, int numReadings);
-    bool update();
+    DecagonCTD(void);
+    bool update(char CTDaddress, int numReadings, int dataPin);
     String getValueAsString();
-    bool wake();
-    bool sleep();
 private:
-    char _CTDaddress
-    int _numReadings
+    char _CTDaddress;
+    int _numReadings;
+    int _dataPin;
 };
 
 #endif
-

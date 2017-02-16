@@ -5,35 +5,33 @@
  *Work in progress by Sara Damiano taken from code written
  *by Shannon Hicks and templates from USU.
  *
+ *Documentation fo the SDI-12 Protocol commands and responses
+ *for the Decagon CTD-10 can be found at:
+ *http://manuals.decagon.com/Integration%20Guides/CTD%20Integrators%20Guide.pdf
 */
 
 #include "DecagonCTD.h"
-#include "SDI12_Mod.h"
+#include <SDI12_Mod.h>
 
-char CTDaddress = '1';      //for one sensor on channel '1'
-float CTDtempC, CTDdepthmm, CTDcond;
-
-#define DATAPIN 7         // change to the proper pin for sdi-12 data pin, pin 7 on shield 3.0
-int SwitchedPower = 22;    // sensor power is pin 22 on Mayfly
-SDI12 mySDI12(DATAPIN);
-
-
-DecagonCTD::DecagonCTD(char CTDaddress)
-  : Sensor<float/*SENSORS_DATA_TYPE*/>("specificConductance")
-  : Sensor<float/*SENSORS_DATA_TYPE*/>("temperature")
-  : Sensor<float/*SENSORS_DATA_TYPE*/>("waterDepth")
+DecagonCTD::DecagonCTD(void)
+  : Sensor<float>("Decagon CTD-10")
+  // : Sensor<float>("temperature")
+  // : Sensor<float>("waterDepth")
 {
-  _CTDaddress = CTDaddress;
-  _numReadings = numReadings
+    // Do nothing. Not because we can't, but we don't need to.
 }
 
 
 // Uses SDI-12 to communicate with a Decagon Devices CTD
-bool DecagonCTD::update()
+bool DecagonCTD::update(char CTDaddress, int numReadings, int dataPin)
 {
-  CTDdepthmm = 0;
-  CTDtempC = 0;
-  CTDcond = 0;
+  _CTDaddress = CTDaddress;
+  _numReadings = numReadings;
+  _dataPin = dataPin;
+
+  float m_value[3];
+
+  SDI12 mySDI12(_dataPin);
 
   for (int j = 0; j < _numReadings; j++) {   //averages x readings in this one loop
 
@@ -50,45 +48,28 @@ bool DecagonCTD::update()
     mySDI12.sendCommand(command);
     delay(500);
     if (mySDI12.available() > 0) {
-      float junk = mySDI12.parseFloat();
-      int x = mySDI12.parseInt();
-      float y = mySDI12.parseFloat();
-      int z = mySDI12.parseInt();
+      float junk = mySDI12.parseFloat();  // First return is the sensor address
+      int x = mySDI12.parseInt();  // Depth measurement in millimeters
+      float y = mySDI12.parseFloat();  // Temperature measurement in °C
+      int z = mySDI12.parseInt();  // Bulk Electrical Conductivity measurement in μS/cm.
 
-      CTDdepthmm += x;
-      CTDtempC += y;
-      CTDcond += z;
+      m_value[0] += x;
+      m_value[1] += y;
+      m_value[2] += z;
     }
 
     mySDI12.flush();
   }     // end of averaging loop
 
   float numRead_f = (float) _numReadings;
-  CTDdepthmm /= numRead_f ;
-  CTDtempC /= numRead_f ;
-  CTDcond /= numRead_f ;
-  
+  m_value[0] /= numRead_f ;
+  m_value[1] /= numRead_f ;
+  m_value[2] /= numRead_f ;
+
   return true;
 }
 
 String DecagonCTD::getValueAsString()
 {
-  return String(int(m_value));
+  return String(m_value);
 }
-
-
-bool DecagonCTD::sleep(void)
-{
-  // Put your sensor to sleep, if applicable
-  // Return true if successful
-  return true;
-}
-
-
-bool DecagonCTD::wake(void)
-{
-  // Wake your sensor up, if applicable
-  // Return true if successful
-  return true;
-}
-

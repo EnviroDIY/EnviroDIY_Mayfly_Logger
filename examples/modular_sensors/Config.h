@@ -3,9 +3,8 @@
 // -----------------------------------------------
 // 1. Include all sensors and necessary files here
 // -----------------------------------------------
-#include "MayFlyOnboardTempSensor.h"
-#include "MayFlyExampleSensor1.h"
 #include "Sensor.h"
+#include <MayFlyOnboardSensors.h>
 
 
 // -----------------------------------------------
@@ -24,20 +23,24 @@ const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
 const char *SAMPLING_FEATURE = "39bf098f-d11d-4ea6-9be3-6a073969b019";
 const int TIME_ZONE = -5;
 
+const char *UUIDs[] =
+{
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9"
+};
+
 
 // -----------------------------------------------
 // 3. Device Connection Options
 // -----------------------------------------------
-const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
+const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 
 // -----------------------------------------------
 // 4. The array that contains all valid sensors
 // -----------------------------------------------
 SensorBase* SENSOR_LIST[] = {
-    new MayFlyOnboardTempSensor(),
-    new MayFlyExampleSensor1()
+    new MayFlyOnboardSensors()
     // new YOUR_SENSOR_NAME_HERE()
 };
 
@@ -61,16 +64,17 @@ const char *API_ENDPOINT = "/api/data-stream/";
 // -----------------------------------------------
 // 7. Board setup info
 // -----------------------------------------------
-int SERIAL_BAUD = 9600;  // Serial port BAUD rate
-int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
-int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
-int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
-int GREEN_LED = 8;  // Pin for the green LED
-int RED_LED = 9;  // Pin for the red LED
+const int SERIAL_BAUD = 9600;  // Serial port BAUD rate
+const int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
+const int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
+const int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
+const int GREEN_LED = 8;  // Pin for the green LED
+const int RED_LED = 9;  // Pin for the red LED
 
-int RTC_PIN = A7;  // RTC Interrupt pin
+const int DATAPIN = 7;         // change to the proper pin for sdi-12 data pin, pin 7 on shield 3.0
+const int SwitchedPower = 22;    // sensor power is pin 22 on Mayfly
+
+const int RTC_PIN = A7;  // RTC Interrupt pin
 #define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
 
-int BATTERY_PIN = A6;    // select the input pin for the potentiometer
-
-int SD_SS_PIN = 12;  // SD Card Pin
+const int SD_SS_PIN = 12;  // SD Card Pin

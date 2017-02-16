@@ -18,7 +18,7 @@ Assumptions:
 1. The Bee WiFi module has must be configured correctly to connect to the
    wireless network prior to running this sketch. (If Applicable)
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
-   has been configured. In this example, only temperature and batter voltage are used.
+   has been configured. In this example, only temperature and battery voltage are used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.

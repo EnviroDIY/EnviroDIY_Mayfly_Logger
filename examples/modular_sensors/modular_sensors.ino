@@ -24,19 +24,35 @@ Assumptions:
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 **************************************************************************/
-#include <Wire.h>
-#include <Config.h>
-#include "Sodaq_DS3231.h"
+// -----------------------------------------------
+// Note: All 'Serial.print' statements can be
+// removed if they are not desired - used for
+// debugging only
+// -----------------------------------------------
 
-unsigned long lastUpdate = 0; // Keep track of last update time
-Sodaq_DS3231 sodaq;           // This is used for some board functions
-size_t sensorCount = 0;       // Keep this at 0 - it'll get set properly in the setup() function
+
+// -----------------------------------------------
+// 1. Include all sensors and necessary files here
+// -----------------------------------------------
+#include <Arduino.h>
+#include <Wire.h>
+#include <avr/sleep.h>
+#include <SD.h>
+#include <SPI.h>
+#include <RTCTimer.h>
+#include <Sodaq_DS3231.h>
+#include <Sodaq_PcInt.h>
+#include <GPRSbee.h>
+#include "Config.h"
 
 // Variables for the timer function
 int currentminute;
 int testtimer = 0;
 int testminute = 1;
 long currentepochtime = 0;
+
+// Keep this at 0 - it'll get set properly in the setup() function
+int sensorCount = 0;
 
 enum HTTP_RESPONSE
 {
@@ -48,7 +64,18 @@ enum HTTP_RESPONSE
     HTTP_REDIRECT,
     HTTP_OTHER
 };
+Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
+RTCTimer timer;  // The timer functions for the RTC
+//Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
+//SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
 
+// -----------------------------------------------
+// 8. Working functions
+// -----------------------------------------------
+
+// Used to flush out the buffer after a post request.
+// Removing this may cause communication issues. If you
+// prefer to not see the std::out, remove the print statement
 void printRemainingChars(int timeDelay = 1, int timeout = 5000)
 {
     while (timeout-- > 0 && Serial1.available() > 0)
@@ -241,15 +268,23 @@ bool updateAllSensors()
     return success;
 }
 
-String generateSensorDataString(void)
+String generateSensorDataJSON(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
     jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
 
+    int k = 0;
     for (int i = 0; i < sensorCount; i++)
     {
-        jsonString += "\"" + SENSOR_LIST[i]->getName() + "\": " + SENSOR_LIST[i]->getValueAsString();
+        k += i;
+        int numVars = SENSOR_LIST[i]->getNumVars();
+        for (int j = 0; j < numVars; j++)
+        {
+            k += j;
+            String* sensorValue = SENSOR_LIST[i]->getValueAsString();
+            jsonString += "\"" + String(UUIDs[k]) + "\": " + sensorValue[j];
+        }
         if (i + 1 != sensorCount)
         {
             jsonString += ", ";
@@ -524,7 +559,7 @@ void setup()
     Serial.print(F("Current Mayfly RTC time is: "));
     Serial.println(getDateTime_ISO8601());
     sensorCount = sizeof(SENSOR_LIST) / sizeof(SENSOR_LIST[0]);
-    Serial.print(F("There are ");
+    Serial.print(F("There are "));
     Serial.print(String(sensorCount));
     Serial.println(F(" sensors"));
 }

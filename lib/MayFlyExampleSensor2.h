@@ -1,4 +1,4 @@
-// MayFlyOnboardTempSensor2.h
+// MayFlyExampleSensor2.h
 
 #ifndef _MAYFLYEXAMPLESENSOR2_h
 #define _MAYFLYEXAMPLESENSOR2_h
@@ -22,4 +22,3 @@ public:
 };
 
 #endif
-
