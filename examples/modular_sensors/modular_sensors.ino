@@ -50,8 +50,10 @@ int currentminute;
 int testtimer = 0;
 int testminute = 1;
 long currentepochtime = 0;
+char currentTime[26] = "";
 
-// Keep this at 0 - it'll get set properly in the setup() function
+
+// For the number of sensors
 int sensorCount = 0;
 
 enum HTTP_RESPONSE
@@ -64,14 +66,19 @@ enum HTTP_RESPONSE
     HTTP_REDIRECT,
     HTTP_OTHER
 };
-Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
 RTCTimer timer;  // The timer functions for the RTC
-//Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
-//SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
 
 // -----------------------------------------------
 // 8. Working functions
 // -----------------------------------------------
+
+// Used only for debugging - can be removed
+int freeRam ()
+{
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+}
 
 // Used to flush out the buffer after a post request.
 // Removing this may cause communication issues. If you
@@ -160,6 +167,18 @@ void wakeISR()
   //Leave this blank
 }
 
+// This sets up the sensors.. most have no method defined.
+bool setupSensors()
+{
+    bool success = true;
+    for (int i = 0; i < sensorCount; i++)
+    {
+        success &= SENSOR_LIST[i]->setup();
+    }
+
+    return success;
+}
+
 // Sets up the sleep mode (used on device wake-up)
 void setupSleep()
 {
@@ -173,14 +192,26 @@ void setupSleep()
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 }
 
-void sensorsSleep()
+bool sensorsSleep()
 {
-  // Add any code which your sensors require before sleep
+    bool success = true;
+    for (int i = 0; i < sensorCount; i++)
+    {
+        success &= SENSOR_LIST[i]->sleep();
+    }
+
+    return success;
 }
 
-void sensorsWake()
+bool sensorsWake()
 {
-  // Add any code which your sensors require after waking
+    bool success = true;
+    for (int i = 0; i < sensorCount; i++)
+    {
+        success &= SENSOR_LIST[i]->wake();
+    }
+
+    return success;
 }
 
 // Puts the system to sleep to conserve battery life.
@@ -224,6 +255,7 @@ void setupLogFile()
     //  while (true);
   }
 
+  // String fileName = String(FILE_NAME) + "_" + getDateTime_ISO8601().substring(1,10);
   // Check if the file already exists
   bool oldFile = SD.exists(FILE_NAME);
 
@@ -233,8 +265,25 @@ void setupLogFile()
   // Add header information if the file did not already exist
   if (!oldFile)
   {
-    logFile.println(LOGGERNAME);
-    logFile.println(DATA_HEADER);
+    logFile.println(FILE_NAME);
+    logFile.print(F("Sampling Feature UUID: "));
+    logFile.println(SAMPLING_FEATURE);
+
+    String dataHeader = "\"Timestamp\", ";
+    for (int i = 0; i < sensorCount; i++)
+    {
+        dataHeader += "\"" + String(SENSOR_LIST[i]->getSensorName());
+        dataHeader += " " + String(SENSOR_LIST[i]->getVarName());
+        dataHeader += " " + String(SENSOR_LIST[i]->getVarUnit());
+        dataHeader += " (" + String(UUIDs[i]) + ")\"";
+        if (i + 1 != sensorCount)
+        {
+            dataHeader += ", ";
+        }
+    }
+
+    Serial.println(dataHeader);
+    logFile.println(dataHeader);
   }
 
   //Close the file to save it
@@ -258,8 +307,10 @@ void greenred4flash()
 // This function updates the values for any connected sensors.
 bool updateAllSensors()
 {
-    bool success = true;
+    // Get the clock time when we begin updating sensors
+    getDateTime_ISO8601().toCharArray(currentTime, 26) ;
 
+    bool success = true;
     for (int i = 0; i < sensorCount; i++)
     {
         success &= SENSOR_LIST[i]->update();
@@ -272,11 +323,11 @@ String generateSensorDataJSON(void)
 {
     String jsonString = "{";
     jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
-    jsonString += "\"timestamp\": \"" + getDateTime_ISO8601() + "\", ";
+    jsonString += "\"timestamp\": \"" + String(currentTime) + "\", ";
 
     for (int i = 0; i < sensorCount; i++)
     {
-        jsonString += "\"" + String(UUIDs[i]) + "\": " + SENSOR_LIST[i]->getValueAsString();
+        jsonString += "\"" + String(UUIDs[i]) + "\": " + String(SENSOR_LIST[i]->getValue());
         if (i + 1 != sensorCount)
         {
             jsonString += ", ";
@@ -285,6 +336,22 @@ String generateSensorDataJSON(void)
 
     jsonString += " }";
     return jsonString;
+}
+
+String generateSensorDataCSV(void)
+{
+    String csvString = "";
+
+    for (int i = 0; i < sensorCount; i++)
+    {
+        csvString += String(SENSOR_LIST[i]->getValue());
+        if (i + 1 != sensorCount)
+        {
+            csvString += ", ";
+        }
+    }
+
+    return csvString;
 }
 
 // Writes a string to a text file on the SD Card
@@ -318,7 +385,7 @@ void streamPostRequest(Stream & stream)
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
-int postDataWiFi(bool redirected = false)
+int postDataWiFi(void)
 {
     // Serial.println(F("Checking for remaining data in the buffer"));
     printRemainingChars(5, 5000);
@@ -400,7 +467,7 @@ int postDataWiFi(bool redirected = false)
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for GPRS
-int postDataGPRS(bool redirected = false)
+int postDataGPRS(void)
 {
     // Serial.println(F("Checking for remaining data in the buffer"));
     printRemainingChars(5, 5000);
@@ -535,6 +602,12 @@ void setup()
         // gprsbee.setDiag(Serial);
     }
 
+    // Count the number of sensors
+    sensorCount = sizeof(SENSOR_LIST) / sizeof(SENSOR_LIST[0]);
+
+    // Set up all the sensors
+    setupSensors();
+
     // Set up the log file
     setupLogFile();
 
@@ -548,12 +621,13 @@ void setup()
     Serial.println(F("WebSDL Device: EnviroDIY Mayfly"));
     Serial.print(F("Now running "));
     Serial.println(SKETCH_NAME);
+    Serial.print(F("Free RAM: "));
+    Serial.println(freeRam());
     Serial.print(F("Current Mayfly RTC time is: "));
     Serial.println(getDateTime_ISO8601());
-    sensorCount = sizeof(SENSOR_LIST) / sizeof(SENSOR_LIST[0]);
     Serial.print(F("There are "));
     Serial.print(String(sensorCount));
-    Serial.println(F(" sensors"));
+    Serial.println(F(" variables being sent to EnviroDIY"));
 }
 
 void loop()
@@ -566,12 +640,12 @@ void loop()
     {
         // Turn on the LED
         digitalWrite(GREEN_LED, HIGH);
-        // Print a few blank lines to show new reading
-        Serial.println(F("\n---\n---\n"));
+        // Print a line to show new reading
+        Serial.println(F("------------------------------------------\n"));
         // Get the sensor value(s), store as string
         updateAllSensors();
         //Save the data record to the log file
-        logData(generateSensorDataJSON());
+        logData(generateSensorDataCSV());
         // Post the data to the WebSDL
         int result;
         if (strcasecmp(BEE_TYPE, "GPRS") == 0)

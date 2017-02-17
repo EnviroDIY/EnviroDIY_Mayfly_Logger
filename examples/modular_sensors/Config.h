@@ -3,7 +3,7 @@
 // -----------------------------------------------
 // 1. Include all sensors and necessary files here
 // -----------------------------------------------
-#include "Sensor.h"
+#include <SensorBase.h>
 #include <MayFlyOnboardSensors.h>
 
 
@@ -11,12 +11,10 @@
 // 2. Device registration and sampling features
 // -----------------------------------------------
 // Skecth file name
-const char *SKETCH_NAME = "logging_to_EnviroDIY.ino";
+const char *SKETCH_NAME = "modular_sensors.ino";
 
 // Data header, for data log file on SD card
-const char *LOGGERNAME = "Mayfly 160073";
-const char *FILE_NAME = "Mayfly 160073";
-const char *DATA_HEADER = "JSON Formatted Data";
+const char *FILE_NAME = "Mayfly_160073";
 
 // Register your site and get these tokens from data.envirodiy.org
 const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
@@ -39,10 +37,12 @@ const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 // -----------------------------------------------
 // 4. The array that contains all valid sensors
 // -----------------------------------------------
-SensorBase *SENSOR_LIST[] = {
+// MayFlyOnboardTemp* temp;
+// MayFlyOnboardBatt* batt;
+SensorBase* SENSOR_LIST[] = {
     new MayFlyOnboardTemp(),
-    new MayFlyOnboardBattery()
-    // new YOUR_SENSOR_NAME_HERE()
+    new MayFlyOnboardBatt()
+    // new YOUR_sensorName_HERE()
 };
 
 
