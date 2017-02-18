@@ -30,15 +30,13 @@ const char *UUIDs[] =
 // -----------------------------------------------
 // 3. Device Connection Options
 // -----------------------------------------------
-const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
+const char *BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
 const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 
 // -----------------------------------------------
 // 4. The array that contains all valid sensors
 // -----------------------------------------------
-// MayFlyOnboardTemp* temp;
-// MayFlyOnboardBatt* batt;
 SensorBase* SENSOR_LIST[] = {
     new MayFlyOnboardTemp(),
     new MayFlyOnboardBatt()

@@ -36,7 +36,7 @@
 #include <avr/wdt.h>
 #include <SPI.h>
 #include <SD.h>
-#include <SDI12_Mod.h>
+#include <SDI12_PCINT3.h>
 #include <GPRSbee.h>
 #include <Adafruit_ADS1015.h>
 

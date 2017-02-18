@@ -310,10 +310,15 @@ bool updateAllSensors()
     // Get the clock time when we begin updating sensors
     getDateTime_ISO8601().toCharArray(currentTime, 26) ;
 
+
+
     bool success = true;
     for (int i = 0; i < sensorCount; i++)
     {
         success &= SENSOR_LIST[i]->update();
+        // Check for and skip the updates of any identical sensors
+        if (SENSOR_LIST[i+1]->getSensorLocation() == SENSOR_LIST[i]->getSensorLocation())
+        {i++;};
     }
 
     return success;
