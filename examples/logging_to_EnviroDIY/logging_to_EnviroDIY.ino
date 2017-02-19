@@ -41,7 +41,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <SPI.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
-#include <Sodaq_PcInt.h>
+#include <Sodaq_PcInt_PCINT0.h>
 #include <GPRSbee.h>
 
 // -----------------------------------------------

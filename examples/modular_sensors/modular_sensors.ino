@@ -1,7 +1,5 @@
-#include <Arduino.h>
-
 /**************************************************************************
-Mayfly_XBeeWiFi.ino
+modular_sensors.ino
 Written By:  Jeff Horsburgh (jeff.horsburgh@usu.edu)
 Updated By:  Kenny Fryar-Ludwig (kenny.fryarludwig@usu.edu)
 Creation Date: 6/3/2016
@@ -34,16 +32,17 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // -----------------------------------------------
 // 1. Include all sensors and necessary files here
 // -----------------------------------------------
-#include <Arduino.h>
-#include <Wire.h>
 #include <avr/sleep.h>
 #include <SD.h>
 #include <SPI.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
-#include <Sodaq_PcInt.h>
+#include <Sodaq_PcInt_PCINT0.h>
 #include <GPRSbee.h>
 #include "Config.h"
+
+// The timer functions for the RTC
+RTCTimer timer;
 
 // Variables for the timer function
 int currentminute;
@@ -52,10 +51,13 @@ int testminute = 1;
 long currentepochtime = 0;
 char currentTime[26] = "";
 
+// For the file name
+String fileName = "";
 
 // For the number of sensors
 int sensorCount = 0;
 
+// For the server response
 enum HTTP_RESPONSE
 {
     HTTP_FAILURE = 0,
@@ -66,7 +68,7 @@ enum HTTP_RESPONSE
     HTTP_REDIRECT,
     HTTP_OTHER
 };
-RTCTimer timer;  // The timer functions for the RTC
+
 
 // -----------------------------------------------
 // 8. Working functions
@@ -255,17 +257,17 @@ void setupLogFile()
     //  while (true);
   }
 
-  // String fileName = String(FILE_NAME) + "_" + getDateTime_ISO8601().substring(1,10);
+  String fileName = String(LoggerID) + "_" + getDateTime_ISO8601().substring(1,10);
   // Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
+  bool oldFile = SD.exists(fileName);
 
   // Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Add header information if the file did not already exist
   if (!oldFile)
   {
-    logFile.println(FILE_NAME);
+    logFile.println(LoggerID);
     logFile.print(F("Sampling Feature UUID: "));
     logFile.println(SAMPLING_FEATURE);
 
@@ -309,8 +311,6 @@ bool updateAllSensors()
 {
     // Get the clock time when we begin updating sensors
     getDateTime_ISO8601().toCharArray(currentTime, 26) ;
-
-
 
     bool success = true;
     for (int i = 0; i < sensorCount; i++)
@@ -359,11 +359,24 @@ String generateSensorDataCSV(void)
     return csvString;
 }
 
+String generateSensorDataDreamHost(void)
+{
+    String dhString = "http://swrcsensors.dreamhosters.com/portalsonar1.php?";
+    dhString += "LoggerID=" + String(LoggerID);
+    dhString += "&Loggertime=" + String(getNow());
+
+    for (int i = 0; i < sensorCount; i++)
+    {
+        dhString += "&" + String(SENSOR_LIST[i]->getDreamHost()) + "=" + String(SENSOR_LIST[i]->getValue());
+    }
+    return dhString;
+}
+
 // Writes a string to a text file on the SD Card
 void logData(String rec)
 {
   // Re-open the file
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Write the CSV data
   logFile.println(rec);
@@ -520,6 +533,32 @@ int postDataGPRS(void)
     return result;
 }
 
+// Post the data to dream host.  Do IF AND ONLY IF using GPRSBee
+int postDataDreamHost()
+{
+    HTTP_RESPONSE result = HTTP_OTHER;
+    printRemainingChars(5, 5000);
+
+    Serial.flush();
+    Serial.println(F(" -- Data to DreamHost -- "));
+    Serial.println(generateSensorDataDreamHost());
+    Serial.flush();
+    char buffer[10];
+    bool response = (gprsbee.doHTTPGET(APN, generateSensorDataDreamHost(),
+                buffer, sizeof(buffer)));
+
+    if (response)
+    {
+    result = HTTP_SUCCESS;
+    }
+    else // Otherwise timeout, no response from server
+    {
+    result = HTTP_TIMEOUT;
+    }
+
+    return result;
+}
+
 // Used only for debugging - can be removed
 void printPostResult(int result)
 {
@@ -656,6 +695,8 @@ void loop()
         if (strcasecmp(BEE_TYPE, "GPRS") == 0)
         {
             result = postDataGPRS();
+            printPostResult(result);
+            result = postDataDreamHost();
         };
         if (strcasecmp(BEE_TYPE, "WIFI") == 0)
         {

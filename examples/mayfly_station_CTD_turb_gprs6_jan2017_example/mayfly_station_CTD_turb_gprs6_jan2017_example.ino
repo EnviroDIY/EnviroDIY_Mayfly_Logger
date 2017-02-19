@@ -43,7 +43,7 @@
 //SODAQ  libraries
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
-#include <Sodaq_PcInt_Mod.h>
+#include <Sodaq_PcInt_PCINT0.h>
 
 String targetURL;
 #define APN "apn.konekt.io"
