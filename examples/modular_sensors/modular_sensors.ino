@@ -52,7 +52,7 @@ long currentepochtime = 0;
 char currentTime[26] = "";
 
 // For the file name
-String fileName = "";
+// String fileName = "";
 
 // For the number of sensors
 int sensorCount = 0;
@@ -253,16 +253,14 @@ void setupLogFile()
   if (!SD.begin(SD_SS_PIN))
   {
     Serial.println(F("Error: SD card failed to initialise or is missing."));
-    //Hang
-    //  while (true);
   }
 
-  String fileName = String(LoggerID) + "_" + getDateTime_ISO8601().substring(1,10);
+  // fileName += String(LoggerID) + F("_") + getDateTime_ISO8601().substring(0,10) + F(".txt");
   // Check if the file already exists
-  bool oldFile = SD.exists(fileName);
+  bool oldFile = SD.exists(FILE_NAME);
 
   // Open the file in write mode
-  File logFile = SD.open(fileName, FILE_WRITE);
+  File logFile = SD.open(FILE_NAME, FILE_WRITE);
 
   // Add header information if the file did not already exist
   if (!oldFile)
@@ -271,7 +269,7 @@ void setupLogFile()
     logFile.print(F("Sampling Feature UUID: "));
     logFile.println(SAMPLING_FEATURE);
 
-    String dataHeader = "\"Timestamp\", ";
+    String dataHeader = F("\"Timestamp\", ");
     for (int i = 0; i < sensorCount; i++)
     {
         dataHeader += "\"" + String(SENSOR_LIST[i]->getSensorName());
@@ -283,8 +281,7 @@ void setupLogFile()
             dataHeader += ", ";
         }
     }
-
-    Serial.println(dataHeader);
+    // Serial.println(dataHeader);
     logFile.println(dataHeader);
   }
 
@@ -316,9 +313,26 @@ bool updateAllSensors()
     for (int i = 0; i < sensorCount; i++)
     {
         success &= SENSOR_LIST[i]->update();
+        // Prints for debugging
+        Serial.print(F("--- Updated "));
+        Serial.print(SENSOR_LIST[i]->getSensorName());
+        Serial.print(F(" for "));
+        Serial.print(SENSOR_LIST[i]->getVarName());
+
         // Check for and skip the updates of any identical sensors
-        if (SENSOR_LIST[i+1]->getSensorLocation() == SENSOR_LIST[i]->getSensorLocation())
-        {i++;};
+        for (int j = i+1; j < sensorCount; j++)
+        {
+            if (SENSOR_LIST[i]->getSensorName() == SENSOR_LIST[j]->getSensorName() &&
+                SENSOR_LIST[i]->getSensorLocation() == SENSOR_LIST[j]->getSensorLocation())
+            {
+                // Prints for debugging
+                Serial.print(F(" and "));
+                Serial.print(SENSOR_LIST[i+1]->getVarName());
+                i++;
+            }
+            else {break;}
+        }
+        Serial.println(F(" ---"));
     }
 
     return success;
@@ -376,7 +390,7 @@ String generateSensorDataDreamHost(void)
 void logData(String rec)
 {
   // Re-open the file
-  File logFile = SD.open(fileName, FILE_WRITE);
+  File logFile = SD.open(FILE_NAME, FILE_WRITE);
 
   // Write the CSV data
   logFile.println(rec);
@@ -418,7 +432,7 @@ int postDataWiFi(void)
 
 
     // Send the request to the serial for debugging
-    Serial.println(F(" -- Request -- "));
+    Serial.println(F("\n \\/\\/---- Post Request to EnviroDIY ----\\/\\/ "));
     Serial.flush();
     streamPostRequest(Serial);
     Serial.flush();
@@ -441,7 +455,7 @@ int postDataWiFi(void)
 
         int responseBytes = Serial1.readBytes(response, 9);
         int codeBytes = Serial1.readBytes(code, 3);
-        Serial.println(F("\n -- Response -- "));
+        Serial.println(F(" -- Response -- "));
         Serial.print(response);
         Serial.println(code);
 
@@ -500,7 +514,7 @@ int postDataGPRS(void)
     strcat(header, REGISTRATION_TOKEN);
 
     Serial.flush();
-    Serial.println(F(" -- Request -- "));
+    Serial.println(F("\n \\/\\/---- Post Request to EnviroDIY ----\\/\\/ "));
     Serial.println(url);
     Serial.println(header);
     Serial.println(F("Content-Type: application/json"));
@@ -540,7 +554,7 @@ int postDataDreamHost()
     printRemainingChars(5, 5000);
 
     Serial.flush();
-    Serial.println(F(" -- Data to DreamHost -- "));
+    Serial.println(F("\n \\/\\/------ Data to DreamHost ------\\/\\/ "));
     Serial.println(generateSensorDataDreamHost());
     Serial.flush();
     char buffer[10];
@@ -672,6 +686,8 @@ void setup()
     Serial.print(F("There are "));
     Serial.print(String(sensorCount));
     Serial.println(F(" variables being sent to EnviroDIY"));
+    Serial.print(F("Data also being saved to SD Card as "));
+    Serial.println(FILE_NAME);
 }
 
 void loop()
@@ -686,17 +702,19 @@ void loop()
         digitalWrite(GREEN_LED, HIGH);
         // Print a line to show new reading
         Serial.println(F("------------------------------------------\n"));
+        // Serial.print(F("Free RAM: "));  // For debug
+        // Serial.println(freeRam());  // For debug
         // Get the sensor value(s), store as string
         updateAllSensors();
         //Save the data record to the log file
         logData(generateSensorDataCSV());
+        // Serial.println(generateSensorDataCSV());  // for debugging
         // Post the data to the WebSDL
         int result;
         if (strcasecmp(BEE_TYPE, "GPRS") == 0)
         {
+            postDataDreamHost();
             result = postDataGPRS();
-            printPostResult(result);
-            result = postDataDreamHost();
         };
         if (strcasecmp(BEE_TYPE, "WIFI") == 0)
         {

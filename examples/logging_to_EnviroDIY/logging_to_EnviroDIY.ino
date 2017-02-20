@@ -52,7 +52,7 @@ const char *SKETCH_NAME = "logging_to_EnviroDIY.ino";
 
 // Data header, for data log file on SD card
 const char *LOGGERNAME = "Mayfly 160073";
-const char *FILE_NAME = "Mayfly 160073";
+const char *FILE_NAME = "MF160073.csv";
 const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org

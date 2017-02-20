@@ -26,6 +26,11 @@ const int TMaddress = 1;  // The SDI-12 Address of the 5-TM
 // const int SDI12_PIN = 7;
 // const int switchedPower = 22;    // sensor power is pin 22 on Mayfly
 
+// change to the proper pins for Campbell OSB-3+
+const int OSBLowPin = 0;  // The low voltage analog pin
+const int OSBHighPin = 1;  // The high voltage analog pin
+// const int switchedPower = 22;    // sensor power is pin 22 on Mayfly
+
 // -----------------------------------------------
 // 2. Include all sensors and necessary files here
 // -----------------------------------------------
@@ -33,6 +38,7 @@ const int TMaddress = 1;  // The SDI-12 Address of the 5-TM
 #include <DecagonCTD.h>
 #include <Decagon5TM.h>
 #include <MaxbotixSonar.h>
+#include <CampbellOSB3.h>
 
 
 // -----------------------------------------------
@@ -41,8 +47,12 @@ const int TMaddress = 1;  // The SDI-12 Address of the 5-TM
 // Skecth file name
 const char *SKETCH_NAME = "modular_sensors.ino";
 
-// Data header, for data log file on SD card
+// Logger ID, for data file on SD card and dreamhost table
 const char *LoggerID = "Mayfly_160073";
+
+// The file name to save data on the SD card as
+// This MUST be no longer than 8 character + 3 character extension.
+const char *FILE_NAME = "MF160073.csv";
 
 // Register your site and get these tokens from data.envirodiy.org
 const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
@@ -51,13 +61,20 @@ const int TIME_ZONE = -5;
 
 const char *UUIDs[] =
 {
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
+"fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9",
 "fec11d32-0658-4ef0-8a27-bdffa2104e31", "a7329b1b-b002-4fa8-afba-ae83b82ab8e9"
 };
 
 // -----------------------------------------------
 // 4. Device Connection Options
 // -----------------------------------------------
-const char *BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
+const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
 const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 
@@ -65,15 +82,17 @@ const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 // 5. The array that contains all valid sensors
 // -----------------------------------------------
 SensorBase* SENSOR_LIST[] = {
-    new MayFlyOnboardTemp(batteryPin),
-    new MayFlyOnboardBatt(batteryPin),
     new DecagonCTD_Cond(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
     new DecagonCTD_Temp(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
     new DecagonCTD_Depth(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
     new Decagon5TM_Temp(TMaddress, switchedPower, SDI12_PIN),
     new Decagon5TM_Ea(TMaddress, switchedPower, SDI12_PIN),
     new Decagon5TM_VWC(TMaddress, switchedPower, SDI12_PIN),
-    new MaxbotixSonar_Depth(SonarExcite, SonarData)
+    new MaxbotixSonar_Depth(SonarExcite, SonarData),
+    new CampbellOSB3_TurbLow(switchedPower, OSBLowPin, OSBHighPin),
+    new CampbellOSB3_TurbHigh(switchedPower, OSBLowPin, OSBHighPin),
+    new MayFlyOnboardTemp(batteryPin),
+    new MayFlyOnboardBatt(batteryPin),
     // new YOUR_sensorName_HERE()
 };
 
