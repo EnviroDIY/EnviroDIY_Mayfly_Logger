@@ -37,8 +37,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-#include <SD.h>
-#include <SPI.h>
+#include <SDFat.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt_PCINT0.h>
@@ -52,7 +51,7 @@ const char *SKETCH_NAME = "logging_to_EnviroDIY.ino";
 
 // Data header, for data log file on SD card
 const char *LOGGERNAME = "Mayfly 160073";
-const char *FILE_NAME = "MF160073.csv";
+const char *FILE_NAME = "MF160073";
 const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
@@ -123,8 +122,11 @@ enum HTTP_RESPONSE
 };
 Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
 RTCTimer timer;  // The timer functions for the RTC
+SdFat SD;  // The SD initialization
+String fileName = String(FILE_NAME);  // For the file name
 //Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
 //SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
+
 
 // -----------------------------------------------
 // 8. Working functions
@@ -166,27 +168,27 @@ String getDateTime_ISO8601(void)
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
-  dateTimeStr.replace(" ", "T");
+  dateTimeStr.replace(F(" "), F("T"));
   String tzString = String(TIME_ZONE);
   if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
   {
-      tzString += ":00";
+      tzString += F(":00");
   }
   else if (-10 < TIME_ZONE && TIME_ZONE < 0)
   {
-      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+      tzString = tzString.substring(0,1) + F("0") + tzString.substring(1,2) + F(":00");
   }
   else if (TIME_ZONE == 0)
   {
-      tzString = "Z";
+      tzString = F("Z");
   }
   else if (0 < TIME_ZONE && TIME_ZONE < 10)
   {
-      tzString = "+0" + tzString + ":00";
+      tzString = "+0" + tzString + F(":00");
   }
   else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
   {
-      tzString = "+" + tzString + ":00";
+      tzString = "+" + tzString + F(":00");
   }
   dateTimeStr += tzString;
   return dateTimeStr;
@@ -277,15 +279,14 @@ void setupLogFile()
   if (!SD.begin(SD_SS_PIN))
   {
     Serial.println(F("Error: SD card failed to initialise or is missing."));
-    //Hang
-    //  while (true);
   }
 
+  fileName += "_" + getDateTime_ISO8601().substring(0,10) + ".csv";
   // Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
+  bool oldFile = SD.exists(fileName);
 
   // Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Add header information if the file did not already exist
   if (!oldFile)
@@ -346,7 +347,7 @@ String generateSensorDataJSON(void)
 void logData(String rec)
 {
   // Re-open the file
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Write the CSV data
   logFile.println(rec);

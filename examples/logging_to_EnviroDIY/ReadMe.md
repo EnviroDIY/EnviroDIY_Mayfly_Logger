@@ -58,7 +58,7 @@ Materials used:
 8. (OPTIONAL) If you would prefer, you may load the configuration profile (xbee_radio_config.xml) included, but be aware this will overwrite your current Bee settings.  After loading the profile, click the write button.  Then you will need to repeat step 6 and reconnect to your WiFi.
 9. Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
 10. Write the settings to your Bee radio by clicking the "Write" button.
-11. At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the WiFiBee into your MayFly board.  Align the WiFiBee so it matches the outline of the Bee on the Mayfly board.
+11. At this point, unplug the Explorer board from your computer, remove the Bee radio from the board, and insert the WiFiBee into your Mayfly board.  Align the WiFiBee so it matches the outline of the Bee on the Mayfly board.
 
 
 ## Other Notes

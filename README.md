@@ -38,7 +38,7 @@ Steps:
 10. Review all settings and make sure they are correct, including the current IP address of the intended WebSDL service.
 11. Write the settings to your XBee radio.
 12. Feel free to test your settings using the built-in "Consoles Working Mode". Note: Newline, null, and other characters may not input into the console correctly. I would recommend using an ASCII to Hex converter and inputting the raw hex into the appropriate section.
-13. At this point, unplug the Explorer board from your computer, remove the XBee radio from the board, and insert the radio into your MayFly board.
+13. At this point, unplug the Explorer board from your computer, remove the XBee radio from the board, and insert the radio into your Mayfly board.
 
 ##Sensors and Configuration
 

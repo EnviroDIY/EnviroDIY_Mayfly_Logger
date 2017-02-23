@@ -6,38 +6,48 @@
 // 1. Sensor Location Information
 // -----------------------------------------------
 
-// Set the pin to read the battery voltage
-int batteryPin = A6;
+// Mayfly version number
+const char *MFVersion = "v0.3";
 
 // change to the proper pins for Decagon CTD
 // sdi-12 data pin is usually, pin 7 on shield 3.0
-const int CTDaddress = 1;  // The SDI-12 Address of the CTD
+const int CTDSDI12address = 1;  // The SDI-12 Address of the CTD
 const int numberReadings = 10;  // The number of readings to average
-const int SDI12_PIN = 7;
-const int switchedPower = 22;    // sensor power is pin 22 on Mayfly
+const int CTDData = 7;  // The pin the CTD is attached to
+const int switchedPower = 22;  // sensor power is pin 22 on Mayfly
 
-// Change to the proper excite and recieve pin for Maxbotix Sonar.
-const int SonarExcite = 10;
+// Change to the proper excite (power) and recieve pin for MaxBotix Sonar.
+// The power must be continually on for the MaxBotix.
 const int SonarData = 11;
+const int SonarExcite = 10;
 
 // change to the proper pins for Decagon 5TM
 // sdi-12 data pin is usually, pin 7 on shield 3.0
-const int TMaddress = 1;  // The SDI-12 Address of the 5-TM
-// const int SDI12_PIN = 7;
-// const int switchedPower = 22;    // sensor power is pin 22 on Mayfly
+const int TMSDI12address = 1;  // The SDI-12 Address of the 5-TM
+const int TMData = 7;  // The pin the 5TM is attached to
+// const int switchedPower = 22;  // sensor power is pin 22 on Mayfly
 
-// change to the proper pins for Campbell OSB-3+
+// change to the proper pins for Campbell OSB 3+
+//  Campbell Campbell OSB 3+ Low Range calibration
 const int OSBLowPin = 0;  // The low voltage analog pin
+const float OSBLow_A = -2.4763E-07;  // The "A" value (X^2) from the low range calibration
+const float OSBLow_B = 1.0569E-01;  // The "B" value (X) from the low range calibration
+const float OSBLow_C = -2.9928E-01;  // The "C" value from the low range calibration
+//  Campbell Campbell OSB 3+ High Range calibration
 const int OSBHighPin = 1;  // The high voltage analog pin
+const float OSBHigh_A = 3.5310E-05;  // The "A" value (X^2) from the high range calibration
+const float OSBHigh_B = 4.0111E-01;  // The "B" value (X) from the high range calibration
+const float OSBHigh_C = 2.0709E-01;  // The "C" value from the high range calibration
+
 // const int switchedPower = 22;    // sensor power is pin 22 on Mayfly
 
 // -----------------------------------------------
 // 2. Include all sensors and necessary files here
 // -----------------------------------------------
-#include <MayFlyOnboardSensors.h>
+#include <MayflyOnboardSensors.h>
 #include <DecagonCTD.h>
 #include <Decagon5TM.h>
-#include <MaxbotixSonar.h>
+#include <MaxBotixSonar.h>
 #include <CampbellOSB3.h>
 
 
@@ -47,12 +57,12 @@ const int OSBHighPin = 1;  // The high voltage analog pin
 // Skecth file name
 const char *SKETCH_NAME = "modular_sensors.ino";
 
-// Logger ID, for data file on SD card and dreamhost table
+// Logger ID, for data file on SD card
 const char *LoggerID = "Mayfly_160073";
 
-// The file name to save data on the SD card as
-// This MUST be no longer than 8 character + 3 character extension.
-const char *FILE_NAME = "MF160073.csv";
+// The header for file name to save data on the SD card as
+// The date the file was started will be appended to this .
+const char *FILE_NAME = "MF160073";
 
 // Register your site and get these tokens from data.envirodiy.org
 const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
@@ -74,7 +84,7 @@ const char *UUIDs[] =
 // -----------------------------------------------
 // 4. Device Connection Options
 // -----------------------------------------------
-const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
+const char *BEE_TYPE = "GPRS";  // The type of XBee, either "GPRS" or "WIFI"
 const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 
@@ -82,17 +92,18 @@ const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 // 5. The array that contains all valid sensors
 // -----------------------------------------------
 SensorBase* SENSOR_LIST[] = {
-    new DecagonCTD_Cond(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
-    new DecagonCTD_Temp(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
-    new DecagonCTD_Depth(numberReadings, CTDaddress, switchedPower, SDI12_PIN),
-    new Decagon5TM_Temp(TMaddress, switchedPower, SDI12_PIN),
-    new Decagon5TM_Ea(TMaddress, switchedPower, SDI12_PIN),
-    new Decagon5TM_VWC(TMaddress, switchedPower, SDI12_PIN),
-    new MaxbotixSonar_Depth(SonarExcite, SonarData),
-    new CampbellOSB3_TurbLow(switchedPower, OSBLowPin, OSBHighPin),
-    new CampbellOSB3_TurbHigh(switchedPower, OSBLowPin, OSBHighPin),
-    new MayFlyOnboardTemp(batteryPin),
-    new MayFlyOnboardBatt(batteryPin),
+    // new DecagonCTD_Cond(numberReadings, CTDSDI12address, switchedPower, CTDData),
+    // new DecagonCTD_Temp(numberReadings, CTDSDI12address, switchedPower, CTDData),
+    // new DecagonCTD_Depth(numberReadings, CTDSDI12address, switchedPower, CTDData),
+    new Decagon5TM_Temp(TMSDI12address, switchedPower, TMData),
+    // new Decagon5TM_Ea(TMSDI12address, switchedPower, TMData),
+    // new Decagon5TM_VWC(TMSDI12address, switchedPower, TMData),
+    new MaxBotixSonar_Depth(SonarExcite, SonarData),
+    new CampbellOSB3_Turbidity(switchedPower, OSBLowPin, OSBLow_A, OSBLow_B, OSBLow_C),
+    // new CampbellOSB3_TurbHigh(switchedPower, OSBHighPin, OSBHigh_A, OSBHigh_B, OSBHigh_C),
+    new MayflyOnboardTemp(MFVersion),
+    new MayflyOnboardBatt(MFVersion),
+    new MayflyFreeRam(MFVersion)
     // new YOUR_sensorName_HERE()
 };
 

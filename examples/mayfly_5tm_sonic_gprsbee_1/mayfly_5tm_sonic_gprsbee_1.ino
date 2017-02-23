@@ -15,7 +15,7 @@
 #include <SoftwareSerial_PCINT12.h>
 
 const int SonarExcite = 10;
-SoftwareSerialMod sonarSerial(11, -1);            //define serial port for recieving data, output from maxSonar is inverted requiring true to be set.
+SoftwareSerial sonarSerial(11, -1);            //define serial port for recieving data, output from maxSonar is inverted requiring true to be set.
 
 String targetURL;
 boolean stringComplete = false;
@@ -46,7 +46,7 @@ int range_mm;
 #define DATAPIN 7         // change to the proper pin for sdi-12 data pin
 SDI12 mySDI12(DATAPIN);
 
-int SwitchedPower = 22;    // sensor power is pin 22 on Mayfly
+int switchedPower = 22;    // sensor power is pin 22 on Mayfly
 
 //#define XBEE_SleepPin 23
 
@@ -79,8 +79,8 @@ void setup()
   delay(100);
   pinMode(8, OUTPUT);
   pinMode(9, OUTPUT);
-  pinMode(SwitchedPower, OUTPUT);
-  digitalWrite(SwitchedPower, LOW);
+  pinMode(switchedPower, OUTPUT);
+  digitalWrite(switchedPower, LOW);
   pinMode(SonarExcite, OUTPUT);
   digitalWrite(SonarExcite, LOW);  //pin 10 is the power pin for the ultrasonic sensor
 

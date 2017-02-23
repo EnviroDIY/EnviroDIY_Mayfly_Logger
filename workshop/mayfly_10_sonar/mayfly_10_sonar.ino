@@ -1,6 +1,6 @@
 // This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor and a SSD1306 OLED display
 
-//Connect the Maxbotix sensor to the Mayfly's D4-5 Grove connector
+//Connect the MaxBotix sensor to the Mayfly's D4-5 Grove connector
 //Connect the OLED display to the Mayfly's I2C Grove connector
 
 // Import required libraries
@@ -34,7 +34,7 @@ void setup()
   display.println("Sonar demo");
   display.display();
 
-  Serial.println("Mayfly Maxbotix sonar sensor rangefinder example");
+  Serial.println("Mayfly MaxBotix sonar sensor rangefinder example");
   delay(3000);
 }
 

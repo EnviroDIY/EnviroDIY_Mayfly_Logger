@@ -51,6 +51,7 @@ env:
 #
 install:
     - pip install -U platformio
+    - platformio upgrade
     - platformio update
 #
 script:

@@ -33,8 +33,8 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // 1. Include all sensors and necessary files here
 // -----------------------------------------------
 #include <avr/sleep.h>
-#include <SD.h>
 #include <SPI.h>
+#include <SdFat.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt_PCINT0.h>
@@ -44,15 +44,16 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 // The timer functions for the RTC
 RTCTimer timer;
 
+// The SD initialization
+SdFat SD;
+String fileName = String(FILE_NAME);  // For the file name
+
 // Variables for the timer function
 int currentminute;
 int testtimer = 0;
 int testminute = 1;
 long currentepochtime = 0;
 char currentTime[26] = "";
-
-// For the file name
-// String fileName = "";
 
 // For the number of sensors
 int sensorCount = 0;
@@ -118,27 +119,27 @@ String getDateTime_ISO8601(void)
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
-  dateTimeStr.replace(" ", "T");
+  dateTimeStr.replace(F(" "), F("T"));
   String tzString = String(TIME_ZONE);
   if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
   {
-      tzString += ":00";
+      tzString += F(":00");
   }
   else if (-10 < TIME_ZONE && TIME_ZONE < 0)
   {
-      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+      tzString = tzString.substring(0,1) + F("0") + tzString.substring(1,2) + F(":00");
   }
   else if (TIME_ZONE == 0)
   {
-      tzString = "Z";
+      tzString = F("Z");
   }
   else if (0 < TIME_ZONE && TIME_ZONE < 10)
   {
-      tzString = "+0" + tzString + ":00";
+      tzString = "+0" + tzString + F(":00");
   }
   else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
   {
-      tzString = "+" + tzString + ":00";
+      tzString = "+" + tzString + F(":00");
   }
   dateTimeStr += tzString;
   return dateTimeStr;
@@ -253,14 +254,16 @@ void setupLogFile()
   if (!SD.begin(SD_SS_PIN))
   {
     Serial.println(F("Error: SD card failed to initialise or is missing."));
+    //Hang
+    //  while (true);
   }
 
-  // fileName += String(LoggerID) + F("_") + getDateTime_ISO8601().substring(0,10) + F(".txt");
+  fileName += String(LoggerID) + F("_") + getDateTime_ISO8601().substring(0,10) + F(".txt");
   // Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
+  bool oldFile = SD.exists(fileName.c_str());
 
   // Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Add header information if the file did not already exist
   if (!oldFile)
@@ -278,12 +281,17 @@ void setupLogFile()
         dataHeader += " (" + String(UUIDs[i]) + ")\"";
         if (i + 1 != sensorCount)
         {
-            dataHeader += ", ";
+            dataHeader += F(", ");
         }
     }
+
     // Serial.println(dataHeader);
     logFile.println(dataHeader);
   }
+
+  //Close the file to save it
+  logFile.close();
+}
 
   //Close the file to save it
   logFile.close();
@@ -332,7 +340,8 @@ bool updateAllSensors()
             }
             else {break;}
         }
-        Serial.println(F(" ---"));
+        Serial.println(F(" ---"));  // For Debugging
+        delay(250);  // A short delay before next sensor;
     }
 
     return success;
@@ -341,32 +350,32 @@ bool updateAllSensors()
 String generateSensorDataJSON(void)
 {
     String jsonString = "{";
-    jsonString += "\"sampling_feature\": \"" + String(SAMPLING_FEATURE) + "\", ";
-    jsonString += "\"timestamp\": \"" + String(currentTime) + "\", ";
+    jsonString += F("\"sampling_feature\": \"") + String(SAMPLING_FEATURE) + F("\", ");
+    jsonString += F("\"timestamp\": \"") + String(currentTime) + F("\", ");
 
     for (int i = 0; i < sensorCount; i++)
     {
-        jsonString += "\"" + String(UUIDs[i]) + "\": " + String(SENSOR_LIST[i]->getValue());
+        jsonString += F("\"") + String(UUIDs[i]) + F("\": ") + String(SENSOR_LIST[i]->getValue());
         if (i + 1 != sensorCount)
         {
-            jsonString += ", ";
+            jsonString += F(", ");
         }
     }
 
-    jsonString += " }";
+    jsonString += F(" }");
     return jsonString;
 }
 
 String generateSensorDataCSV(void)
 {
-    String csvString = "";
+    String csvString = String(currentTime) + F(", ");
 
     for (int i = 0; i < sensorCount; i++)
     {
         csvString += String(SENSOR_LIST[i]->getValue());
         if (i + 1 != sensorCount)
         {
-            csvString += ", ";
+            csvString += F(", ");
         }
     }
 
@@ -375,13 +384,13 @@ String generateSensorDataCSV(void)
 
 String generateSensorDataDreamHost(void)
 {
-    String dhString = "http://swrcsensors.dreamhosters.com/portalsonar1.php?";
-    dhString += "LoggerID=" + String(LoggerID);
-    dhString += "&Loggertime=" + String(getNow());
+    String dhString = F("http://swrcsensors.dreamhosters.com/portalsonar1.php?");
+    dhString += F("LoggerID=") + String(LoggerID);
+    dhString += F"(&Loggertime=") + String(getNow());
 
     for (int i = 0; i < sensorCount; i++)
     {
-        dhString += "&" + String(SENSOR_LIST[i]->getDreamHost()) + "=" + String(SENSOR_LIST[i]->getValue());
+        dhString += F("&") + String(SENSOR_LIST[i]->getDreamHost()) + F("=") + String(SENSOR_LIST[i]->getValue());
     }
     return dhString;
 }
@@ -390,7 +399,7 @@ String generateSensorDataDreamHost(void)
 void logData(String rec)
 {
   // Re-open the file
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Write the CSV data
   logFile.println(rec);
@@ -462,29 +471,29 @@ int postDataWiFi(void)
         printRemainingChars(5, 5000);
 
         // Check the response to see if it was successful
-        if (memcmp(response, "HTTP/1.0 ", responseBytes) == 0
-            || memcmp(response, "HTTP/1.1 ", responseBytes) == 0)
+        if (memcmp(response, F("HTTP/1.0 "), responseBytes) == 0
+            || memcmp(response, F("HTTP/1.1 "), responseBytes) == 0)
         {
-            if (memcmp(code, "200", codeBytes) == 0
-                || memcmp(code, "201", codeBytes) == 0)
+            if (memcmp(code, F"(200"), codeBytes) == 0
+                || memcmp(code, F("201"), codeBytes) == 0)
             {
                 // The first 12 characters of the response indicate "HTTP/1.1 200" which is success
                 result = HTTP_SUCCESS;
             }
-            else if (memcmp(code, "302", codeBytes) == 0)
+            else if (memcmp(code, F"(302"), codeBytes) == 0)
             {
                 result = HTTP_REDIRECT;
             }
-            else if (memcmp(code, "400", codeBytes) == 0
-                || memcmp(code, "404", codeBytes) == 0)
+            else if (memcmp(code, F("400"), codeBytes) == 0
+                || memcmp(code, F("404"), codeBytes) == 0)
             {
                 result = HTTP_FAILURE;
               }
-              else if (memcmp(code, "403", codeBytes) == 0)
+              else if (memcmp(code, F("403"), codeBytes) == 0)
               {
                   result = HTTP_FORBIDDEN;
               }
-            else if (memcmp(code, "500", codeBytes) == 0)
+            else if (memcmp(code, F("500"), codeBytes) == 0)
             {
                 result = HTTP_SERVER_ERROR;
             }
@@ -687,7 +696,7 @@ void setup()
     Serial.print(String(sensorCount));
     Serial.println(F(" variables being sent to EnviroDIY"));
     Serial.print(F("Data also being saved to SD Card as "));
-    Serial.println(FILE_NAME);
+    Serial.println(fileName);
 }
 
 void loop()
