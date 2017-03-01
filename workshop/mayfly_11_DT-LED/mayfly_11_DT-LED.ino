@@ -1,6 +1,7 @@
-// This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor and a SSD1306 OLED display
+// This Mayfly sketch parses data from Grove Digital Humidity and Temperature (DHT) board
+// and prints it on the serial monitor and a SSD1306 OLED display
 
-//Connect the Maxbotix sensor to the Mayfly's D4-5 Grove connector
+//Connect the Grove Digital Humidity and Temperature (DHT) board to D10-11 Grove connector
 //Connect the OLED display to the Mayfly's I2C Grove connector
 
 // Import required libraries
@@ -10,20 +11,22 @@
 #include <SPI.h>            // For SPI comm (needed for not getting compile error)
 #include <Wire.h>           // For I2C comm, but needed for not getting compile error
 #include <SoftwareSerial.h>
+#include "DHT.h"      // Includes the Adafruit DHT-sensor-library 1.3.0+, which was updated to require the Unified Adafruit_Sensor sensor
 
 // Pin definitions
 SDL_Arduino_SSD1306 display(4); // FOR I2C
 
-int range;
+#define DHTPIN 10     // what pin the DHT signal is connected to
+#define DHTTYPE DHT11   // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
 
-SoftwareSerial sonarSerial(5, -1);            //define serial port for recieving data.
-
-boolean stringComplete = false;
+float h;
+float t;
 
 void setup()
 {
   Serial.begin(57600);                                      //start serial port for display
-  sonarSerial.begin(9600);                                 //start serial port for maxSonar
+//  sonarSerial.begin(9600);                                 //start serial port for maxSonar
   pinMode(5, INPUT);
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C, false);  // initialize with the I2C addr 0x3C (for the 128x64)
   display.clearDisplay();
@@ -31,75 +34,59 @@ void setup()
   display.setTextColor(WHITE);
   display.setCursor(0,0);
   display.println("Mayfly");
-  display.println("Sonar demo");
+  display.println("DHT demo");
   display.display();
 
-  Serial.println("Mayfly Maxbotix sonar sensor rangefinder example");
+//DHT stuff
+   pinMode(22, OUTPUT);    // Setting up Pin 22 to provide power to Grove Ports
+   digitalWrite(22, HIGH); // Provide power to D10-11 and D6-7 Grove Ports
+   delay(200);
+   Serial.println("Digital Humidity/Temperature");
+
+    dht.begin();
+
   delay(3000);
 }
 
 void loop()
 {
-  range = EZreadSonar();
-  if(stringComplete)
-  {
-    stringComplete = false;                                //reset sringComplete ready for next reading
+  
+    // Reading temperature or humidity takes about 250 milliseconds
+    // Sensor readings may also be up to 2 seconds old
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
 
-    Serial.print("Range: ");
-    Serial.print(range);
-    Serial.println(" mm");
-
-    display.clearDisplay();
-    display.setTextSize(3);
-    display.setTextColor(WHITE);
-    display.setCursor(0,0);
-    display.println("Range:");
-    display.print(range);
-    display.println(" mm");
-    display.display();
-
-    delay(700);
-  }
-}
-
-
-int EZreadSonar()
-{
-  int result;
-  char inData[5];                                          //char array to read data into
-  int index = 0;
-
-  sonarSerial.flush();                                     // Clear cache ready for next reading
-
-  while (stringComplete == false) {
-    //Serial.print("reading ");    //debug line
-
-      if (sonarSerial.available())
+    // check if returns are valid, if they are NaN (not a number) then something went wrong
+    if (isnan(t) || isnan(h))
     {
-      char rByte = sonarSerial.read();                     //read serial input for "R" to mark start of data
-      if(rByte == 'R')
-      {
-        //Serial.println("rByte set");
-        while (index < 4)                                  //read next three character for range from sensor
-        {
-          if (sonarSerial.available())
-          {
-            inData[index] = sonarSerial.read();
-            //Serial.println(inData[index]);               //Debug line
-
-            index++;                                       // Increment where to write next
-          }
-        }
-        inData[index] = 0x00;                              //add a padding byte at end for atoi() function
-      }
-
-      rByte = 0;                                           //reset the rByte ready for next reading
-
-      index = 0;                                           // Reset index ready for next reading
-      stringComplete = true;                               // Set completion of read to true
-      result = atoi(inData);                               // Changes string data into an integer for use
+        Serial.println("Failed to read from DHT");
     }
-  }
+    else
+    {
+        Serial.print("Humidity: ");
+        Serial.print(h);
+        Serial.print(" %\t");
+        Serial.print("Temperature: ");
+        Serial.print(t);
+        Serial.println(" *C");
 
-  return result;
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(WHITE);
+        display.setCursor(0,0);
+        display.println("Humidity: ");
+        display.print(h);
+        display.println(" %");
+        display.println("Temp: ");
+        display.print(h);
+        display.println(" *C");
+      display.display();
+    
+        delay(700);
+    }
+  
+  
 }
+
+
+
