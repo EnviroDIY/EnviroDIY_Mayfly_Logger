@@ -37,7 +37,7 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-#include <SDFat.h>
+#include <SdFat.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
 #include <Sodaq_PcInt_PCINT0.h>
