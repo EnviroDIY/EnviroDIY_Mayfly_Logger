@@ -282,18 +282,12 @@ void setupLogFile()
   }
 
   fileName += "_" + getDateTime_ISO8601().substring(0,10) + ".csv";
-  // Check if the file already exists
-  bool oldFile = SD.exists(fileName);
 
   // Open the file in write mode
   File logFile = SD.open(fileName, FILE_WRITE);
 
-  // Add header information if the file did not already exist
-  if (!oldFile)
-  {
-    logFile.println(LOGGERNAME);
-    logFile.println(DATA_HEADER);
-  }
+  logFile.println(LOGGERNAME);
+  logFile.println(DATA_HEADER);
 
   //Close the file to save it
   logFile.close();
