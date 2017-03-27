@@ -18,7 +18,7 @@ Assumptions:
 1. The Bee WiFi module has must be configured correctly to connect to the
    wireless network prior to running this sketch. (If Applicable)
 2. The Mayfly has been registered at http://data.envirodiy.org and the sensor
-   has been configured. In this example, only temperature and batter voltage are used.
+   has been configured. In this example, only temperature and battery voltage are used.
 
 DISCLAIMER:
 THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
@@ -37,11 +37,10 @@ THIS CODE IS PROVIDED "AS IS" - NO WARRANTY IS GIVEN.
 #include <Arduino.h>
 #include <Wire.h>
 #include <avr/sleep.h>
-#include <SD.h>
-#include <SPI.h>
+#include <SdFat.h>
 #include <RTCTimer.h>
 #include <Sodaq_DS3231.h>
-#include <Sodaq_PcInt.h>
+#include <Sodaq_PcInt_PCINT0.h>
 #include <GPRSbee.h>
 
 // -----------------------------------------------
@@ -52,7 +51,7 @@ const char *SKETCH_NAME = "logging_to_EnviroDIY.ino";
 
 // Data header, for data log file on SD card
 const char *LOGGERNAME = "Mayfly 160073";
-const char *FILE_NAME = "Mayfly 160073";
+const char *FILE_NAME = "MF160073";
 const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
@@ -63,13 +62,13 @@ const char *ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
 const char *ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
 
 // -----------------------------------------------
-// 3. WebSDL Endpoints for POST requests
+// 3. Device Connection Options
 // -----------------------------------------------
-const char *HOST_ADDRESS = "data.envirodiy.org";
-const char *API_ENDPOINT = "/api/data-stream/";
+const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
+const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 // -----------------------------------------------
-// 4. Misc. Options
+// 4. Timing Options For Logging
 // -----------------------------------------------
 int LOGGING_INTERVAL = 1;  // How frequently (in minutes) to log data
 int READ_DELAY = 1;  // How often (in minutes) the timer wakes up
@@ -77,16 +76,20 @@ int UPDATE_RATE = 200; // How frequently (in milliseconds) the logger checks if 
 int COMMAND_TIMEOUT = 15000;  // How long (in milliseconds) to wait for a server response
 
 // -----------------------------------------------
-// 5. Board setup info
+// 5. WebSDL Endpoints for POST requests
+// -----------------------------------------------
+const char *HOST_ADDRESS = "data.envirodiy.org";
+const char *API_ENDPOINT = "/api/data-stream/";
+
+// -----------------------------------------------
+// 6. Board setup info
 // -----------------------------------------------
 int SERIAL_BAUD = 9600;  // Serial port BAUD rate
 int BEE_BAUD = 9600;  // Bee BAUD rate (9600 is default)
-const char *BEE_TYPE = "WIFI";  // The type of XBee, either "GPRS" or "WIFI"
 int BEE_DTR_PIN = 23;  // Bee DTR Pin (Data Terminal Ready - used for sleep)
 int BEE_CTS_PIN = 19;   // Bee CTS Pin (Clear to Send)
 int GREEN_LED = 8;  // Pin for the green LED
 int RED_LED = 9;  // Pin for the red LED
-const char* APN = "apn.konekt.io";  // The APN for the GPRSBee
 
 int RTC_PIN = A7;  // RTC Interrupt pin
 #define RTC_INT_PERIOD EveryMinute  //The interrupt period on the RTC
@@ -96,7 +99,7 @@ int BATTERY_PIN = A6;    // select the input pin for the potentiometer
 int SD_SS_PIN = 12;  // SD Card Pin
 
 // -----------------------------------------------
-// 6. Setup variables
+// 7. Setup variables
 // -----------------------------------------------
 float ONBOARD_TEMPERATURE = 0;  // Variable to store the temperature result in
 float ONBOARD_BATTERY = 0;  // variable to store the value coming from the sensor
@@ -119,8 +122,11 @@ enum HTTP_RESPONSE
 };
 Sodaq_DS3231 sodaq;   // Controls the Real Time Clock Chip
 RTCTimer timer;  // The timer functions for the RTC
+SdFat SD;  // The SD initialization
+String fileName = String(FILE_NAME);  // For the file name
 //Adafruit_ADS1115 ads;     // The Auxillary 16-bit ADD chip
 //SDI12 mySDI12(DATAPIN_SDI12);   // The SDI-12 Library
+
 
 // -----------------------------------------------
 // 8. Working functions
@@ -162,27 +168,27 @@ String getDateTime_ISO8601(void)
   DateTime dt(rtc.makeDateTime(getNow()));
   //Convert it to a String
   dt.addToString(dateTimeStr);
-  dateTimeStr.replace(" ", "T");
+  dateTimeStr.replace(F(" "), F("T"));
   String tzString = String(TIME_ZONE);
   if (-24 <= TIME_ZONE && TIME_ZONE <= -10)
   {
-      tzString += ":00";
+      tzString += F(":00");
   }
   else if (-10 < TIME_ZONE && TIME_ZONE < 0)
   {
-      tzString = tzString.substring(0,1) + "0" + tzString.substring(1,2) + ":00";
+      tzString = tzString.substring(0,1) + F("0") + tzString.substring(1,2) + F(":00");
   }
   else if (TIME_ZONE == 0)
   {
-      tzString = "Z";
+      tzString = F("Z");
   }
   else if (0 < TIME_ZONE && TIME_ZONE < 10)
   {
-      tzString = "+0" + tzString + ":00";
+      tzString = "+0" + tzString + F(":00");
   }
   else if (10 <= TIME_ZONE && TIME_ZONE <= 24)
   {
-      tzString = "+" + tzString + ":00";
+      tzString = "+" + tzString + F(":00");
   }
   dateTimeStr += tzString;
   return dateTimeStr;
@@ -266,6 +272,27 @@ void systemSleep()
   sensorsWake();
 }
 
+// Initializes the SDcard and prints a header to it
+void setupLogFile()
+{
+  // Initialise the SD card
+  if (!SD.begin(SD_SS_PIN))
+  {
+    Serial.println(F("Error: SD card failed to initialise or is missing."));
+  }
+
+  fileName += "_" + getDateTime_ISO8601().substring(0,10) + ".csv";
+
+  // Open the file in write mode
+  File logFile = SD.open(fileName, FILE_WRITE);
+
+  logFile.println(LOGGERNAME);
+  logFile.println(DATA_HEADER);
+
+  //Close the file to save it
+  logFile.close();
+}
+
 // Flashess to Mayfly's LED's
 void greenred4flash()
 {
@@ -310,39 +337,11 @@ String generateSensorDataJSON(void)
     return jsonString;
 }
 
-// Initializes the SDcard and prints a header to it
-void setupLogFile()
-{
-  // Initialise the SD card
-  if (!SD.begin(SD_SS_PIN))
-  {
-    Serial.println(F("Error: SD card failed to initialise or is missing."));
-    //Hang
-    //  while (true);
-  }
-
-  // Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
-
-  // Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
-
-  // Add header information if the file did not already exist
-  if (!oldFile)
-  {
-    logFile.println(LOGGERNAME);
-    logFile.println(DATA_HEADER);
-  }
-
-  //Close the file to save it
-  logFile.close();
-}
-
 // Writes a string to a text file on the SD Card
 void logData(String rec)
 {
   // Re-open the file
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   // Write the CSV data
   logFile.println(rec);
@@ -381,7 +380,6 @@ int postDataWiFi(bool redirected = false)
     Serial1.flush();
     streamPostRequest(Serial1);
     Serial1.flush();
-
 
     // Send the request to the serial for debugging
     Serial.println(F(" -- Request -- "));
@@ -487,6 +485,7 @@ int postDataGPRS(bool redirected = false)
                              strlen(generateSensorDataJSON().c_str()),
                              buffer, sizeof(buffer)));
 
+    // TODO:  Actually read the response
     if (response)
     {
         result = HTTP_SUCCESS;
@@ -581,7 +580,7 @@ void setup()
         gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
         //Comment out the next line when used with GPRSbee Rev.4
         gprsbee.setPowerSwitchedOnOff(true);
-        gprsbee.setMinSignalQuality(7);
+        gprsbee.setMinSignalQuality(5);
         // Only to see for debugging - comment this out
         // gprsbee.setDiag(Serial);
     }

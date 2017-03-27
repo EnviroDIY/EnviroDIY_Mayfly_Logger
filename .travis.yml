@@ -51,7 +51,10 @@ env:
 #
 install:
     - pip install -U platformio
+    - platformio upgrade
     - platformio update
-#
+    - pio lib -g install EnviroDIYLibs=https://github.com/EnviroDIY/Libraries.git
+    - pio lib -g update
+
 script:
-    - platformio ci --project-conf=platformio.ini
+- platformio ci --project-option="lib_ldf_mode = deep+" --board=mayfly
