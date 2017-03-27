@@ -1,80 +1,79 @@
 // This Mayfly sketch parses data from MaxSonar serial data and prints it on the serial monitor
 
-// Connect the MaxBotix serial data output pin to Mayfly pin 5
-// Provide 3.3v and GND to the MaxBotix sensor power pins
+// To use this sketch, connect the MaxBotix serial data output pin (pin 5) to Mayfly pin D5.
+// Connect the MaxBotix power pin (pin 6) to the Vcc pin next to Mayfly pin D5.
+// Connect the MaxBotix power pin (pin 7) to the ground pin near Mayfly pin D5.
+// Set the jumper controlling power to pins D4-5 to be continuously powered.
+// Leave all other pins on the MaxBotix unconnected
 
 #include <Arduino.h>
-#include <Wire.h>
 #include <SoftwareSerial.h>
-SoftwareSerial sonarSerial(5, -1);            //define serial port for recieving data.
 
-int range;
+SoftwareSerial sonarSerial(5, -1);  // Define serial port for recieving data.
 
-boolean stringComplete = false;
+
+int parseSonar(void)
+{
+    bool stringComplete = false;
+    int rangeAttempts = 0;
+    int result = 0;
+
+    // Serial.println(F("Beginning detection for Sonar"));  // For debugging
+    while (stringComplete == false && rangeAttempts < 50)
+    {
+        result = sonarSerial.parseInt();
+        sonarSerial.read();  // To throw away the carriage return
+
+        Serial.print("Range: ");
+        Serial.print(result);
+        Serial.println(" mm");
+
+        rangeAttempts++;
+
+        // If it cannot obtain a result , the sonar is supposed to send a value
+        // just above it's max range.  For 10m models, this is 9999, for 5m models
+        // it's 4999.  The sonar might also send readings of 300 or 500 (the
+        //  blanking distance) if there are too many acoustic echos.
+        // If the result becomes garbled or the sonar is disconnected, the parseInt function returns 0.
+        if (result == 0 || result == 300 || result == 500 || result == 4999 || result == 9999)
+        {
+            Serial.print(F("Bad or Suspicious Result, Retry Attempt #"));  // For debugging
+            Serial.println(rangeAttempts);  // For debugging
+        }
+        else
+        {
+            Serial.println(F("Good result found"));  // For debugging
+            stringComplete = true;  // Set completion of read to true
+        }
+    }
+    return result;
+}
+
 
 void setup()
 {
-  Serial.begin(57600);                                      //start serial port for display
-  sonarSerial.begin(9600);                                 //start serial port for maxSonar
-  pinMode(5, INPUT);
+    Serial.begin(57600);  // Start serial port for display
 
-  Serial.println("Mayfly MaxBotix sonar sensor rangefinder example");
-  delay(3000);
+    pinMode(5, INPUT);  // Set the pin mode for the software serial port
+    sonarSerial.begin(9600);  // Start serial port for maxSonar
+    sonarSerial.setTimeout(180);  // Set a timeout for the serial instance
+    // Even the slowest sensors should respond at a rate of 6Hz (166ms).
+
+    Serial.println("Mayfly MaxBotix sonar sensor rangefinder example");
+
+    // Read and print the header from the MaxBotix
+    // Serial.println(F("----------------------------------------------------"));
+    // for(int i=0; i < 6; i++)  // For debugging
+    // {
+    //     Serial.println(sonarSerial.readStringUntil('\r'));
+    // }
+    // Serial.println(F("----------------------------------------------------"));
+
 }
 
 void loop()
 {
-  range = EZreadSonar();
-  if(stringComplete)
-  {
-    stringComplete = false;                                //reset sringComplete ready for next reading
-
-    Serial.print("Range: ");
-    Serial.print(range);
-    Serial.println(" mm");
-
+    parseSonar();
     delay(1000);
-  }
-}
-
-
-int EZreadSonar()
-{
-  int result;
-  char inData[5];                                          //char array to read data into
-  int index = 0;
-
-  sonarSerial.flush();                                     // Clear cache ready for next reading
-
-  while (stringComplete == false) {
-    //Serial.print("reading ");    //debug line
-
-      if (sonarSerial.available())
-    {
-      char rByte = sonarSerial.read();                     //read serial input for "R" to mark start of data
-      if(rByte == 'R')
-      {
-        //Serial.println("rByte set");
-        while (index < 4)                                  //read next three character for range from sensor
-        {
-          if (sonarSerial.available())
-          {
-            inData[index] = sonarSerial.read();
-            //Serial.println(inData[index]);               //Debug line
-
-            index++;                                       // Increment where to write next
-          }
-        }
-        inData[index] = 0x00;                              //add a padding byte at end for atoi() function
-      }
-
-      rByte = 0;                                           //reset the rByte ready for next reading
-
-      index = 0;                                           // Reset index ready for next reading
-      stringComplete = true;                               // Set completion of read to true
-      result = atoi(inData);                               // Changes string data into an integer for use
-    }
-  }
-
-  return result;
+    Serial.println(F("----------------------------------------------------"));
 }
