@@ -6,12 +6,11 @@ Turns on and off a light emitting diode(LED) connected to digital pin 8, when pr
 ###Basic code elements, Lesson 2:
 
 * Flow Control
-  * if... else 
+  * if... else
 
-### Interactive Excercise
+### Interactive Exercise
 
 * Serial Monitor
   * Click on Serial Monitor button to open a separate window
+  * If you see strange characters, change the baud rate to 57600, in the selector at the bottom of the Serial Monitor window.
 * When you push the button, that can be considered another type of sensor for the Mayfly!
-  
-
