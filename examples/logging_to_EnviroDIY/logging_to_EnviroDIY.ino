@@ -387,7 +387,6 @@ int postDataWiFi(bool redirected = false)
     streamPostRequest(Serial1);
     Serial1.flush();
 
-
     // Send the request to the serial for debugging
     Serial.println(F(" -- Request -- "));
     Serial.flush();
@@ -492,6 +491,7 @@ int postDataGPRS(bool redirected = false)
                              strlen(generateSensorDataJSON().c_str()),
                              buffer, sizeof(buffer)));
 
+    // TODO:  Actually read the response
     if (response)
     {
         result = HTTP_SUCCESS;
@@ -586,7 +586,7 @@ void setup()
         gprsbee.init(Serial1, BEE_CTS_PIN, BEE_DTR_PIN);
         //Comment out the next line when used with GPRSbee Rev.4
         gprsbee.setPowerSwitchedOnOff(true);
-        gprsbee.setMinSignalQuality(7);
+        gprsbee.setMinSignalQuality(5);
         // Only to see for debugging - comment this out
         // gprsbee.setDiag(Serial);
     }
