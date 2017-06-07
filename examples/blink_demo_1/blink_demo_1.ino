@@ -4,7 +4,10 @@
  * at pins 8 and 9. To run this demo you will need to first connect to the Mayfly by 
  * specifying your board under Tools>Board (select appropriate Mayfly board) and 
  * specifying which communication port to use under Tools>Port. This demo assumes you
- * have installed the proper drivers to connect to the Mayfly.
+ * have installed the proper drivers to connect to the Mayfly. If you need a resource for 
+ * getting started with Arduino, the tutorial by Adafruit at 
+ * https://learn.adafruit.com/series/ladyadas-learn-arduino
+ * will get you connected and running a blink demo in about an hour.
  * 
  * Once connected to the mayfly, you need to Verify/Compile the sketch by clicking the
  * checkmark at the top, left corner of the Arudino app window. If there is an error,
