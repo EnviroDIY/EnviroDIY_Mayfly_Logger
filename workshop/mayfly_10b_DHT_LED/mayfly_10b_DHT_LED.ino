@@ -78,7 +78,7 @@ void loop()
         display.print(h);
         display.println(" %");
         display.println("Temp: ");
-        display.print(h);
+        display.print(t);
         display.println(" *C");
       display.display();
     
