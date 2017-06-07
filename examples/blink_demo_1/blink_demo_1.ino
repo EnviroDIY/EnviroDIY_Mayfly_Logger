@@ -1,5 +1,9 @@
 
-/*
+/***************************************
+ * Turns on an LED on for one second, then off for one second, repeatedly.
+ * Introduces use of variables. 
+ * Includes Serial Monitor readout in setup function.
+ * 
  * This is blink demo designed for the EnviroDIY Mayfly logger. The Mayfly has two LED lights 
  * at pins 8 and 9. To run this demo you will need to first connect to the Mayfly by 
  * specifying your board under Tools>Board (select appropriate Mayfly board) and 
@@ -15,27 +19,36 @@
  * and it will read "Done compiling." Always compile before uploading a sketch to your Arduino.
  * Once compiled, click on the right arrow button to upload the sketch to the Mayfly. 
  * If it worked, one of the LED lights on the board will begin to blink.  
- */
+ * 
+ original sketch:
+ modified 8 May 2014 by Scott Fitzgerald
+ modified 2 Sep 2016 by Arturo Guadalupi
+ modified 8 Sep 2016 by Colby Newman
+ for Mayfly: 
+ modified 7 Jun 2017 by Beth Fisher github.com/fisherba
+ ****************************************/
 
 //Sketches begin with a list of the outside libraries needed to run the sketch. 
 //They must be in your .../Arduino/libraries directory for the sketch to run.
-//Neither of these are required for the blink demo, but they are commonly required in sketches. 
+//These are not required for the blink demo, but they are commonly required in sketches. 
 //After you run the sketch, try commenting them out and re-run the sketch.
 #include <Arduino.h>
 #include <Wire.h>
 
 
-//This variables list is located before the "void" sets defines the variables for the sketch. 
+//This variables list is located before the functions and defines the variables for the sketch. 
 //Variables are useful for assigning information once at the beginning of a sketch, 
 //because most sketches will need to repeat information like pin locations. 
 //Notice that the sketch repeats the "delayTime" four times. 
 //"int" specifies interger data type.
 //Try modifying the delay time and LED pin and re-running the sketch.
-int delayTime = 500;   //milliseconds, so 1000 = one second
+int delayTime = 1000;   //milliseconds, so 1000 = one second
 int LED_BUILTIN = 9;   //Mayfly has LEDs at pins 8 (green) and 9 (red)
 
 
-// the "setup" function runs once when you press reset or power the board
+// The "setup" function runs once when you press reset or power the board. 
+// The "returned value" for this function is "void", which means it doesn't return a value, 
+// the function simply performs an action. 
 void setup ()
 {
     pinMode(LED_BUILTIN, OUTPUT);  // all you need to set up the LED blink
@@ -46,7 +59,8 @@ void setup ()
 }
 
 
-// the "loop" function runs over and over again, forever
+// The "loop" function runs over and over again. It performs an action wouthout returning a value, 
+// so "void" is once again used in the function declaration. 
 void loop ()
 {
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
