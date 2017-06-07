@@ -38,10 +38,10 @@ int LED_BUILTIN = 9;   //Mayfly has LEDs at pins 8 (green) and 9 (red)
 // the "setup" function runs once when you press reset or power the board
 void setup ()
 {
-    pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);  // all you need to set up the LED blink
     Serial.begin(57600);  //establishes data rate for serial transmission
     delay(delayTime);
-    Serial.println("Mayfly: Blink demo 1"); //sends a message to the Serial Monitor
+    Serial.println("Mayfly: Blink demo 1"); //sends a message to the Serial Monitor (click magnifying glass)
     delay(delayTime);
 }
 
