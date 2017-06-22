@@ -17,7 +17,7 @@
 SDL_Arduino_SSD1306 display(4); // FOR I2C
 
 #define DHTPIN 10     // what pin the DHT signal is connected to
-#define DHTTYPE DHT11   // DHT 11
+#define DHTTYPE DHT22   // DHT11, DHT22  (AM2302), DHT21 (AM2301)
 DHT dht(DHTPIN, DHTTYPE);
 
 float h;
@@ -50,7 +50,7 @@ void setup()
 
 void loop()
 {
-  
+
     // Reading temperature or humidity takes about 250 milliseconds
     // Sensor readings may also be up to 2 seconds old
     float h = dht.readHumidity();
@@ -78,15 +78,12 @@ void loop()
         display.print(h);
         display.println(" %");
         display.println("Temp: ");
-        display.print(h);
+        display.print(t);
         display.println(" *C");
       display.display();
-    
+
         delay(700);
     }
-  
-  
+
+
 }
-
-
-
