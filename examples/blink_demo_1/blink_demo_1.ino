@@ -10,6 +10,8 @@
  * https://learn.adafruit.com/series/ladyadas-learn-arduino
  * will get you connected and running a blink demo in about an hour.
  * 
+ * The elements of this sketch are also described at https://envirodiy.org/mayfly/software/blinking-leds/
+ * 
  * To run this demo you will need to first connect to the Mayfly by specifying your board under 
  * Tools>Board (select appropriate Mayfly board) and specifying which communication port to use 
  * under Tools>Port. 
@@ -45,9 +47,13 @@
 //because most sketches will need to repeat information like pin locations. 
 //Notice that the sketch repeats the "delayTime" four times. 
 //"int" specifies interger data type.
+
 //Try modifying the delay time and LED pin and re-running the sketch.
 int delayTime = 1000;   //milliseconds, so 1000 = one second
-int LED_BUILTIN = 9;    //Mayfly has LEDs at pins 8 (green) and 9 (red)
+
+//Assign pin numbers for built-in LEDs.
+int LED_BUILTIN_green = 8;    //Mayfly has LEDs at pins 8 (green) and 9 (red)
+int LED_BUILTIN_red = 9;    //Mayfly has LEDs at pins 8 (green) and 9 (red)
 
 
 // The "setup" function runs once when you press reset or power the board. 
@@ -55,7 +61,8 @@ int LED_BUILTIN = 9;    //Mayfly has LEDs at pins 8 (green) and 9 (red)
 // the function simply performs an action. 
 void setup ()
 {
-    pinMode(LED_BUILTIN, OUTPUT);           // all you need to set up the LED blink
+    pinMode(LED_BUILTIN_green, OUTPUT);           // all you need to set up the LED blink
+    pinMode(LED_BUILTIN_red, OUTPUT);           // all you need to set up the LED blink   
     Serial.begin(57600);                    //establishes data rate for serial transmission
     delay(delayTime);
     Serial.println("Mayfly: Blink demo 1"); //sends a message to the Serial Monitor (click magnifying glass)
@@ -67,8 +74,10 @@ void setup ()
 // so "void" is once again used in the function declaration. 
 void loop ()
 {
-  digitalWrite(LED_BUILTIN, HIGH);        // turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN_green, HIGH);        // turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN_red, LOW);        // turn the LED on (HIGH is the voltage level)
   delay(delayTime);                       // wait for the time specified in delayTime variable
-  digitalWrite(LED_BUILTIN, LOW);         // turn the LED off by making the voltage LOW
-  delay(delayTime);                       // wait for the time specified in delayTime variable
+  digitalWrite(LED_BUILTIN_green, LOW);         // turn the LED off by making the voltage LOW
+  digitalWrite(LED_BUILTIN_red, HIGH);        // turn the LED on (HIGH is the voltage level)
+ delay(delayTime);                       // wait for the time specified in delayTime variable
 }
