@@ -53,7 +53,7 @@ install:
     - pip install -U platformio
     - platformio upgrade
     - platformio update
-    - pio lib -g install EnviroDIYLibs=https://github.com/EnviroDIY/Libraries.git
+    - pio lib -g install https://github.com/EnviroDIY/Libraries.git#platformio
     - pio lib -g update
 
 script:
