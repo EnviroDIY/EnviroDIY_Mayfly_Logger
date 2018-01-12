@@ -4,7 +4,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "Adafruit_TSL2561_U.h"  // Adafruit_TSL2561 library for the TSL2561 digital luminosity (light) sensors
+#include <Adafruit_TSL2561_U.h>  // Adafruit_TSL2561 library for the TSL2561 digital luminosity (light) sensors
 
 
 // Create an instance of the TLS Sensor, using the correct I2C address
@@ -23,7 +23,9 @@ void setup(void) {
 
   if (tsl.begin()) {
     Serial.println("Luminosity sensor");
-  } else {
+  }
+  else
+  {
     Serial.println("No sensor?");
     while (1);
   }
