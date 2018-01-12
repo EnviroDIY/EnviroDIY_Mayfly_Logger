@@ -18,10 +18,12 @@ uint16_t broadband, ir;
 
 
 // The main setup function
-void setup(void) {
+void setup(void)
+{
   Serial.begin(57600);
 
-  if (tsl.begin()) {
+  if (tsl.begin())
+  {
     Serial.println("Luminosity sensor");
   }
   else
@@ -31,7 +33,7 @@ void setup(void) {
   }
 
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  //tsl.setGain(TSL2561_GAIN_0X);         // set no gain (for bright situtations)
+  //tsl.setGain(TSL2561_GAIN_1X);         // set no gain (for bright situtations)
   tsl.setGain(TSL2561_GAIN_16X);      // set 16x gain (for dim situations)
 
   // Changing the integration time gives you a longer time over which to sense light
@@ -45,7 +47,8 @@ void setup(void) {
 
 
 // The loop function, which will run repeatedly
-void loop(void) {
+void loop(void)
+{
 
   // Get both the broadband/full spectrum and IR light intensity from the sensor
   // These values are returned as raw ADC outputs (non-standard units)

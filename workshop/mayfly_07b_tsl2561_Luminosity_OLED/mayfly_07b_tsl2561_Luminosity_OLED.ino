@@ -22,8 +22,8 @@ uint16_t broadband, ir, visible, lux;
 // Create an instance of the OLED display
 SDL_Arduino_SSD1306 display(4); // FOR I2C
 
-uint16_t x;
 
+// The main setup function
 void setup()
 {
   Serial.begin(57600);
@@ -49,7 +49,7 @@ void setup()
   }
 
   // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  tsl.setGain(TSL2561_GAIN_0X);         // set no gain (for bright situtations)
+  tsl.setGain(TSL2561_GAIN_1X);         // set no gain (for bright situtations)
   //tsl.setGain(TSL2561_GAIN_16X);      // set 16x gain (for dim situations)
 
   // Changing the integration time gives you a longer time over which to sense light
@@ -63,6 +63,7 @@ void setup()
   // Now we're ready to get readings!
 }
 
+
 // The loop function, which will run repeatedly
 void loop()
 {
@@ -75,7 +76,7 @@ void loop()
 
   // Print results to the OLED
 
-      if (isnan(x))
+      if (isnan(broadband))
     {
         Serial.println("Failed to read from Lumin");
         display.println("Lumin failed");
