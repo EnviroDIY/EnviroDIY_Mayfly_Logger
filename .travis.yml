@@ -45,12 +45,12 @@ env:
     - PLATFORMIO_CI_SRC=workshop/mayfly_05_blink_temperature/mayfly_05_blink_temperature.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_06_humidity-temp/mayfly_06_humidity-temp.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_07_tsl2561_Luminosity/mayfly_07_tsl2561_Luminosity.ino
-    - PLATFORMIO_CI_SRC=workshop/mayfly_07b_tsl2561_Luminosity/mayfly_07b_tsl2561_Luminosity.ino
+    - PLATFORMIO_CI_SRC=workshop/mayfly_07b_tsl2561_Luminosity_OLED/mayfly_07b_tsl2561_Luminosity_OLED.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_08_magnetswitch/mayfly_08_magnetswitch.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_09_tmp36_analogTemp_xbee/mayfly_09_tmp36_analogTemp_xbee.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_10_sonar/mayfly_10_sonar.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_10b_DHT_LED/mayfly_10b_DHT_LED.ino
-    - PLATFORMIO_CI_SRC=workshop/mayfly_10c_TempDS18B20/mayfly_10c_TempDS18B20.ino
+    - PLATFORMIO_CI_SRC=workshop/mayfly_10c_TempDS18B20_LED/mayfly_10c_TempDS18B20_LED.ino
 #
 install:
     - pip install -U platformio
