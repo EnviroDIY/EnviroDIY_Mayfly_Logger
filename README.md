@@ -4,15 +4,16 @@ The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is a powerfu
 
 <img src="http://363hx939kn9r1sp3hxo0om0z.wpengine.netdna-cdn.com/wp-content/uploads/2016/05/20160508_134514-001.jpg" width="300">
 
-##Getting Started
+## Getting Started
 
-1. Read [Getting Started With the Mayfly Data Logger](http://envirodiy.org/mayfly/).
+1. Read [Getting Started With the Mayfly Data Logger](http://envirodiy.org/mayfly/) on the EnviroDIY community website.
 2. Purchase an [EnviroDIY Mayfly Data Logger Board](https://www.amazon.com/EnviroDIY-Mayfly-Logger-Arduino-Compatible/dp/B01F9B4WCG) or an [EnviroDIY Mayfly Data Logger Board and Starter Kit](https://www.amazon.com/EnviroDIY-Mayfly-Arduino-Compatible-Starter/dp/B01FCVALDW) on Amazon.com.
 3. Install the [Arduino Integrated Development Environment (IDE) application](https://www.arduino.cc/en/Main/Software) on your computer; add "EnviroDIY ATmega Boards" using the Tools > Board > Boards Manager as described in the [Mayfly Data Logger Software](http://envirodiy.org/mayfly/software/) post.
-4. Clone or [download](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/archive/master.zip) (and unzip) this entire repository into your Arduino Sketchbook directory.
-5. Run the code sketches (from File > Sketchbook) in our [EnviroDIY_Mayfly_Logger > workshop](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/workshop) or [EnviroDIY_Mayfly_Logger > examples](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/examples) folders.
+4. Clone or [download](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/archive/master.zip) (and unzip) this entire repository into your Arduino Sketchbook directory, for schematics, and code examples to learn how to program the Mayfly Board.
+5. Learn by running the example and workshop code sketches, using the Arduino IDE (from File > Sketchbook), from our [EnviroDIY_Mayfly_Logger > examples](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/examples) or [EnviroDIY_Mayfly_Logger > workshop](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/workshop) folders.
+6. Use our [ModularSensors](https://github.com/EnviroDIY/ModularSensors) code library and other [EnviroDIY libraries on GitHub](https://github.com/EnviroDIY) to deploy solar-powered environmental monitoring stations.
 
-##Contribute
+## Contribute
 Open an [issue](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/issues) to suggest and discuss potential changes/additions.
 
 For power contributors:
@@ -24,14 +25,14 @@ For power contributors:
 5. Submit a pull request :D
 
 
-##License
+## License
 Software sketches and code are released under the BSD 3-Clause License -- See [LICENSE.md](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/LICENSE.md) file for details.
 
 Documentation is licensed as [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA) copyright.
 
 Hardware designs shared are released, unless otherwise indicated, under the [CERN Open Hardware License 1.2](http://www.ohwr.org/licenses/cern-ohl/v1.2) (CERN_OHL).
 
-##Credits
+## Credits
 [EnviroDIY](http://envirodiy.org/)™ is presented by the Stroud Water Research Center, with contributions from a community of enthusiasts sharing do-it-yourself ideas for environmental science and monitoring.
 
 [S. Hicks](https://github.com/s-hicks2) is the primary developer of the EnviroDIY Mayfly Logger, with input from many [other contributors](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/graphs/contributors).

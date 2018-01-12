@@ -49,12 +49,14 @@ Temporary Items
 # PyCharm
 .idea/
 
+
 # Atom / PlatformIO
 .pioenvs
 .piolibdeps
 .clang_complete
 .gcc-flags.json
 lib/readme.txt
+platformio.ini
 
 # Other
 SRGD_Home_profile_2026.xml
@@ -62,3 +64,7 @@ SWRC_profile_2026.xml
 POST_test.py
 examples/post_test_1
 examples/post_test_2
+examples/mayfly_station_CTD_turb_gprs6_jan2017_example
+examples/mayfly_CT_sonic_gprsbee_1
+examples/mayfly_5tm_sonic_gprsbee_1
+examples/modular_sensors
