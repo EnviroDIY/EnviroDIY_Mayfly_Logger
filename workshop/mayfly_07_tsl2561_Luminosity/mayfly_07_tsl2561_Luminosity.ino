@@ -14,7 +14,7 @@ Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_LOW);  // I2C address 0x29 (addr pin s
 // Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_HIGH);  // I2C address 0x49 (addr pin set high)
 
 // Create variables for the full spectrum (broadband) and IR luminosity results
-uint16_t broadband ir;
+uint16_t broadband, ir;
 
 
 // The main setup function
