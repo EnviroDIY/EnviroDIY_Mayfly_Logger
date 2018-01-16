@@ -1,14 +1,23 @@
-//This Mayfly sketch reads data from a Grove digital temperature/humidity board (DHT11)
+/**************************************************************************************
+Logs temperature and humidity at one second intervals to serial monitor.
+Written for Mayfly logger and Grove digital temperature/humidity board (DHT11), with
+options for DHT 21 and 22.
+Connect the Grove Digital Temp/Humidity board to D10-11 Grove connector on the Mayfly.
+After upload open the serial monitor (magnifying lens button) to view data.
 
-//Connect the Grove Digital Temp/Humidity board to D10-11 Grove connector on the Mayfly
+modified 7 Jun 2017 by Beth Fisher github.com/fisherba
+**************************************************************************************/
 
-#include <Arduino.h>
-#include <Wire.h>
-#include "DHT.h"
 
-#define DHTPIN 10     // what pin the DHT signal is connected to
+//Arduino sketches begin with a list of the outside libraries needed to run the sketch.
+//They must be in your .../Arduino/libraries directory for the sketch to run.
+#include <Arduino.h>  // Arduino IDE automatically includes Arduino.h, but other IDEs require that you include it.
+#include <Wire.h>   // This library is included with the Arduino IDE, and allows communication with I2C/TWI devices.
+#include <DHT.h>
 
-// Uncomment whatever type you're using
+#define DHTPIN 10     // Specifies the pin connected to the DHT signal.
+
+// Uncomment the digital temperature/humidity model you're using
 #define DHTTYPE DHT11   // DHT 11
 //#define DHTTYPE DHT22   // DHT 22  (AM2302)
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
@@ -46,5 +55,6 @@ void loop()
         Serial.print("Temperature: ");
         Serial.print(t);
         Serial.println(" *C");
+        delay(1000);
     }
 }
