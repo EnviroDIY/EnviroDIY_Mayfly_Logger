@@ -33,10 +33,10 @@ env:
     - PLATFORMIO_CI_SRC=examples/blink_demo_2/blink_demo_2.ino
     - PLATFORMIO_CI_SRC=examples/digital_humidity_temperature/digital_humidity_temperature.ino
     - PLATFORMIO_CI_SRC=examples/initial_demo_blink_temperature/initial_demo_blink_temperature.ino
+    - PLATFORMIO_CI_SRC=examples/logging_to_EnviroDIY/logging_to_EnviroDIY.ino
     - PLATFORMIO_CI_SRC=examples/mayfly_serial_simple/mayfly_serial_simple.ino
     - PLATFORMIO_CI_SRC=examples/mayfly_sonar/mayfly_sonar.ino
     - PLATFORMIO_CI_SRC=examples/simple_file_example/simple_file_example.ino
-    - PLATFORMIO_CI_SRC=examples/logging_to_EnviroDIY/logging_to_EnviroDIY.ino
 
     - PLATFORMIO_CI_SRC=workshop/mayfly_01_blink/mayfly_01_blink.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_02_button/mayfly_02_button.ino
@@ -45,9 +45,12 @@ env:
     - PLATFORMIO_CI_SRC=workshop/mayfly_05_blink_temperature/mayfly_05_blink_temperature.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_06_humidity-temp/mayfly_06_humidity-temp.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_07_tsl2561_Luminosity/mayfly_07_tsl2561_Luminosity.ino
+    - PLATFORMIO_CI_SRC=workshop/mayfly_07b_tsl2561_Luminosity_OLED/mayfly_07b_tsl2561_Luminosity_OLED.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_08_magnetswitch/mayfly_08_magnetswitch.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_09_tmp36_analogTemp_xbee/mayfly_09_tmp36_analogTemp_xbee.ino
     - PLATFORMIO_CI_SRC=workshop/mayfly_10_sonar/mayfly_10_sonar.ino
+    - PLATFORMIO_CI_SRC=workshop/mayfly_10b_DHT_LED/mayfly_10b_DHT_LED.ino
+    - PLATFORMIO_CI_SRC=workshop/mayfly_10c_TempDS18B20_LED/mayfly_10c_TempDS18B20_LED.ino
 #
 install:
     - pip install -U platformio
