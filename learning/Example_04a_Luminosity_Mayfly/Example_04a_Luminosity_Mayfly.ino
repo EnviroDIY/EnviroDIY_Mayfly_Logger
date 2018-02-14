@@ -9,7 +9,7 @@
 
 // Create an instance of the TLS Sensor, using the correct I2C address
 // Un-comment the correct one
-Adafruit_TSL2561_Uni fied tsl(TSL2561_ADDR_LOW);  // I2C address 0x29 (addr pin set LOW)
+Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_LOW);  // I2C address 0x29 (addr pin set LOW)
 // Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_FLOAT);  // I2C address 0x39 (addr pin left floating)
 // Adafruit_TSL2561_Unified tsl(TSL2561_ADDR_HIGH);  // I2C address 0x49 (addr pin set high)
 
