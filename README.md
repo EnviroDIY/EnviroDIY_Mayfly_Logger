@@ -35,7 +35,7 @@ Hardware designs shared are released, unless otherwise indicated, under the [CER
 ## Credits
 [EnviroDIY](http://envirodiy.org/)™ is presented by the Stroud Water Research Center, with contributions from a community of enthusiasts sharing do-it-yourself ideas for environmental science and monitoring.
 
-[S. Hicks](https://github.com/s-hicks2) is the primary developer of the EnviroDIY Mayfly Logger, with input from many [other contributors](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/graphs/contributors).
+[Shannon Hicks](https://github.com/s-hicks2) is the primary developer of the EnviroDIY Mayfly Data Logger hardware, with input from many [other contributors](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/graphs/contributors).
 
 This project has benefited from the support from the following funders:
 
