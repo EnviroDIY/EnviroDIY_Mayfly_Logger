@@ -55,11 +55,11 @@ const char *FILE_NAME = "MF160073";
 const char *DATA_HEADER = "JSON Formatted Data";
 
 // Register your site and get these tokens from data.envirodiy.org
-const char *REGISTRATION_TOKEN = "5a3e8d07-8821-4240-91c9-26c610966b2c";
-const char *SAMPLING_FEATURE = "39bf098f-d11d-4ea6-9be3-6a073969b019";
+const char *REGISTRATION_TOKEN = "3522beb5-f508-458f-b3f2-f37b00068bc7";
+const char *SAMPLING_FEATURE = "5bdba7fd-d356-410b-b75f-a44c2a4eea77";
 const int TIME_ZONE = -5;
-const char *ONBOARD_TEMPERATURE_UUID = "fec11d32-0658-4ef0-8a27-bdffa2104e31";
-const char *ONBOARD_BATTERY_UUID = "a7329b1b-b002-4fa8-afba-ae83b82ab8e9";
+const char *ONBOARD_TEMPERATURE_UUID = "ad6b2392-1e32-4f95-b8f7-394f98957b8a";
+const char *ONBOARD_BATTERY_UUID = "443f94f4-9e1e-4068-bdc6-ba0496bfbcbe";
 
 // -----------------------------------------------
 // 3. Device Connection Options
@@ -141,14 +141,13 @@ void printRemainingChars(int timeDelay = 1, int timeout = 5000)
     {
         while (Serial1.available() > 0)
         {
-            // char netChar = Serial1.read();
-            // Serial.print(netChar);
-            Serial1.read();
+            char netChar = Serial1.read();
+            Serial.print(netChar);
+            // Serial1.read();
             delay(timeDelay);
         }
         delay(timeDelay);
     }
-    Serial1.flush();
 }
 
 // Helper function to get the current date/time from the RTC
@@ -354,17 +353,12 @@ void logData(String rec)
 // This is only needed for transparent Bee's (ie, WiFi)
 void streamPostRequest(Stream & stream)
 {
-    stream.print(F("POST "));
-    stream.print(API_ENDPOINT);
-    stream.print(F(" HTTP/1.1\r\nHost: "));
-    stream.print(HOST_ADDRESS);
-    stream.print(F("\r\nTOKEN: "));
-    stream.print(REGISTRATION_TOKEN);
-    stream.print(F("\r\nCache-Control: no-cache\r\nContent-Length: "));
-    stream.print(generateSensorDataJSON().length());
-    stream.print(F("\r\nContent-Type: application/json\r\n\r\n"));
-    stream.print(generateSensorDataJSON());
-    stream.print(F("\r\n\r\n"));
+    stream.print(String(F("POST /api/data-stream/  HTTP/1.1")));
+    stream.print(String(F("\r\nHost: data.envirodiy.org")));
+    stream.print(String(F("\r\nTOKEN: ")) + String(REGISTRATION_TOKEN));
+    stream.print(String(F("\r\nContent-Length: ")) + String(generateSensorDataJSON().length()));
+    stream.print(String(F("\r\nContent-Type: application/json\r\n\r\n")));
+    stream.print(String(generateSensorDataJSON()));
 }
 
 // This function makes an HTTP connection to the server and POSTs data - for WIFI
@@ -376,16 +370,127 @@ int postDataWiFi(bool redirected = false)
 
     HTTP_RESPONSE result = HTTP_OTHER;
 
-    // Send the request to the WiFiBee (it's transparent, just goes as a stream)
+    String resp;
+
+    // Get into command mode
+    while (resp != "OK\r")
+    {
+        delay(1000);
+        Serial1.print("+++");
+        Serial1.flush();
+        resp = Serial1.readString();
+        Serial.println("+++");
+        Serial.println(resp);
+    }
+
+    // Set security to WPA2
+    Serial1.println("ATEE 2");
     Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATEE 2");
+    Serial.println(resp);
+
+    // Set the Wifi access point
+    Serial1.println("ATID Stroud-Mobile");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATID Stroud-Mobile");
+    Serial.println(resp);
+
+    // Set the Wifi password
+    Serial1.println("ATPK phone970");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATPK phone970");
+    Serial.println(resp);
+
+    // Write changes to flash
+    Serial1.println("ATWR");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATWR");
+    Serial.println(resp);
+
+    // Apply changes
+    Serial1.println("ATAC");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATAC");
+    Serial.println(resp);
+
+    // Make sure we have internet connection
+    while (resp != "0")
+    {
+        Serial1.println("ATAI");
+        Serial1.flush();
+        resp = Serial1.readStringUntil('\r');
+        Serial.println("ATAI");
+        Serial.println(resp);
+        delay(500);
+    }
+
+    // Look up the IP address, just in case it's changed
+    Serial1.println("ATLA data.enviroDIY.org");
+    Serial1.flush();
+    String IP = Serial1.readString();
+    Serial.println("ATLA data.enviroDIY.org");
+    Serial.println(IP);
+
+    // Set the IP address to whatever the lookup returned
+    Serial1.print("ATDL ");
+    Serial1.println(IP);
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.print("ATDL ");
+    Serial.println(IP);
+    Serial.println(resp);
+
+    // Set port to 80 (0x50)
+    Serial1.println("ATDE 50");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATDE 50");
+    Serial.println(resp);
+
+    // Set mode to transparent
+    Serial1.println("ATAP 0");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATAP 0");
+    Serial.println(resp);
+
+    // Write changes to flash
+    Serial1.println("ATWR");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATWR");
+    Serial.println(resp);
+
+    // Apply changes
+    Serial1.println("ATAC");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATAC");
+    Serial.println(resp);
+
+    // Exit command mode
+    Serial1.println("ATCN");
+    Serial1.flush();
+    resp = Serial1.readString();
+    Serial.println("ATCN");
+    Serial.println(resp);
+
+    // Send the request to the WiFiBee (it's transparent, just goes as a stream)
+    Serial1.println("Hi!");
+    Serial1.flush();
+    printRemainingChars(5, 5000);
     streamPostRequest(Serial1);
     Serial1.flush();
+    printRemainingChars(5, 5000);
 
     // Send the request to the serial for debugging
     Serial.println(F(" -- Request -- "));
-    Serial.flush();
     streamPostRequest(Serial);
-    Serial.flush();
 
     // Add a brief delay for at least the first 12 characters of the HTTP response
     int timeout = COMMAND_TIMEOUT;
