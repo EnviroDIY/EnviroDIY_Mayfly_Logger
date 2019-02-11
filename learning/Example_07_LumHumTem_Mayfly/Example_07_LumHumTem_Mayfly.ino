@@ -29,29 +29,29 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void setup()
 {
-  Serial.begin(57600);
+    Serial.begin(57600);
 
-  if (tsl.begin())
-  {
-    Serial.println("Luminosity sensor");
-  }
-  else
-  {
-    Serial.println("No sensor?");
-    while (1);
-  }
+    if (tsl.begin())
+    {
+        Serial.println("Luminosity sensor");
+    }
+    else
+    {
+        Serial.println("No sensor?");
+        while (1);
+    }
 
-  // You can change the gain on the fly, to adapt to brighter/dimmer light situations
-  //tsl.setGain(TSL2561_GAIN_1X);         // set no gain (for bright situtations)
-  tsl.setGain(TSL2561_GAIN_16X);      // set 16x gain (for dim situations)
+    // You can change the gain on the fly, to adapt to brighter/dimmer light situations
+    //tsl.setGain(TSL2561_GAIN_1X);         // set no gain (for bright situtations)
+    tsl.setGain(TSL2561_GAIN_16X);      // set 16x gain (for dim situations)
 
-  // Changing the integration time gives you a longer time over which to sense light
-  // longer timelines are slower, but are good in very low light situtations!
-  tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);  // shortest integration time (bright light)
-  //tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  // medium integration time (medium light)
-  //tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  // longest integration time (dim light)
-    
-    
+    // Changing the integration time gives you a longer time over which to sense light
+    // longer timelines are slower, but are good in very low light situtations!
+    tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);  // shortest integration time (bright light)
+    //tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  // medium integration time (medium light)
+    //tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  // longest integration time (dim light)
+
+
     pinMode(22, OUTPUT);    // Setting up Pin 22 to provide power to Grove Ports
     digitalWrite(22, HIGH); // Provide power to D10-11 and D6-7 Grove Ports
     delay(200);
@@ -61,35 +61,32 @@ void setup()
     dht.begin();
 }
 
+
 void loop()
 {
-
-    
     // Reading temperature or humidity takes about 250 milliseconds
     // Sensor readings may also be up to 2 seconds old
     float h = dht.readHumidity();
     float t = dht.readTemperature();
 
 
-  // Get both the broadband/full spectrum and IR light intensity from the sensor
-  // These values are returned as raw ADC outputs (non-standard units)
-  tsl.getLuminosity(&broadband, &ir);
-  // Print results to the serial port
-  Serial.print("IR: "); Serial.print(ir);   Serial.print("\t\t");
-  Serial.print("Full: "); Serial.print(broadband);   Serial.print(" \t");
-  Serial.print("Visible: "); Serial.print(broadband - ir);   Serial.print("\t");
+    // Get both the broadband/full spectrum and IR light intensity from the sensor
+    // These values are returned as raw ADC outputs (non-standard units)
+    tsl.getLuminosity(&broadband, &ir);
+    // Print results to the serial port
+    Serial.print("IR: "); Serial.print(ir);   Serial.print("\t\t");
+    Serial.print("Full: "); Serial.print(broadband);   Serial.print(" \t");
+    Serial.print("Visible: "); Serial.print(broadband - ir);   Serial.print("\t");
 
-  // Calculate and print illuminance in lux (ie, convert sensor units to the standard SI unit)
-  Serial.print("Lux: "); Serial.println(tsl.calculateLux(broadband, ir));
+    // Calculate and print illuminance in lux (ie, convert sensor units to the standard SI unit)
+    Serial.print("Lux: "); Serial.println(tsl.calculateLux(broadband, ir));
 
-        Serial.print("Humidity: ");
-        Serial.print(h);
-        Serial.print(" %\t");
-        Serial.print("Temperature: ");
-        Serial.print(t);
-        Serial.println(" *C");
+    Serial.print("Humidity: ");
+    Serial.print(h);
+    Serial.print(" %\t");
+    Serial.print("Temperature: ");
+    Serial.print(t);
+    Serial.println(" *C");
 
-  delay(1000);
-
-
+    delay(1000);
 }

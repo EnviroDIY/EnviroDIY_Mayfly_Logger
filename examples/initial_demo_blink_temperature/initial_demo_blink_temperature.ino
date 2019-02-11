@@ -41,9 +41,9 @@ void setup ()
 void loop ()
 {
     if (State8 == LOW) {
-      State8 = HIGH;
+        State8 = HIGH;
     } else {
-      State8 = LOW;
+        State8 = LOW;
     }
     digitalWrite(8, State8);
     State9 = !State8;

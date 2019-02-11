@@ -1,17 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
-#include <SD.h>
+#include <SdFat.h>
 
 //Digital pin 12 is the MicroSD slave select pin on the Mayfly
-#define SD_SS_PIN 12
+const int8_t SdSsPin = 12;
+SdFat SD;
 
 //The data log file
-#define FILE_NAME "DataLog.txt"
+const char *fileName = "DataLog.txt";
 
 //Data header  (these lines get written to the beginning of a file when it's created)
-#define LOGGERNAME "Mayfly microSD Card Tester"
-#define DATA_HEADER "SampleNumber, Battery_volts"
+const char *loggerName = "Mayfly microSD Card Tester";
+const char *dataHeader = "SampleNumber, Battery_volts";
 
 int sampleinterval = 10;    //time between samples, in seconds
 
@@ -22,55 +23,25 @@ int batterysenseValue = 0;  // variable to store the value coming from the analo
 float batteryvoltage;       // the battery voltage as calculated by the formula below
 
 
-void setup()
-{
-  //Initialise the serial connection
-  Serial.begin(57600);
-
-  //Initialise log file
-  setupLogFile();
-
-  //Echo the data header to the serial connection
-  Serial.println(DATA_HEADER);
-
-}
-
-void loop()
-{
-  String dataRec = createDataRecord();
-
-  //Save the data record to the log file
-  logData(dataRec);
-
-  //Echo the data to the serial connection
-  Serial.println(dataRec);
-
-  delay(sampleinterval*1000);   //multiply by 1000 to convert from milliseconds to seconds
-
-}
-
-
 void setupLogFile()
 {
   //Initialise the SD card
-  if (!SD.begin(SD_SS_PIN))
+  if (!SD.begin(SdSsPin))
   {
     Serial.println("Error: SD card failed to initialise or is missing.");
-    //Hang
-  //  while (true);
   }
 
   //Check if the file already exists
-  bool oldFile = SD.exists(FILE_NAME);
+  bool oldFile = SD.exists(fileName);
 
   //Open the file in write mode
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   //Add header information if the file did not already exist
   if (!oldFile)
   {
-    logFile.println(LOGGERNAME);
-    logFile.println(DATA_HEADER);
+    logFile.println(loggerName);
+    logFile.println(dataHeader);
   }
 
   //Close the file to save it
@@ -81,7 +52,7 @@ void setupLogFile()
 void logData(String rec)
 {
   //Re-open the file
-  File logFile = SD.open(FILE_NAME, FILE_WRITE);
+  File logFile = SD.open(fileName, FILE_WRITE);
 
   //Write the CSV data
   logFile.println(rec);
@@ -102,4 +73,33 @@ String createDataRecord()
   data += batteryvoltage;     //adds the battery voltage to the data string
   samplenum++;   //increment the sample number
   return data;
+}
+
+
+void setup()
+{
+  //Initialise the serial connection
+  Serial.begin(57600);
+
+  //Initialise log file
+  setupLogFile();
+
+  //Echo the data header to the serial connection
+  Serial.println(dataHeader);
+
+}
+
+
+void loop()
+{
+  String dataRec = createDataRecord();
+
+  //Save the data record to the log file
+  logData(dataRec);
+
+  //Echo the data to the serial connection
+  Serial.println(dataRec);
+
+  delay(sampleinterval*1000);   //multiply by 1000 to convert from milliseconds to seconds
+
 }
