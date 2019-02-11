@@ -52,7 +52,7 @@ Materials used:
 7. After connecting to WiFi, find these settings and set them to the proper values for the EnviroDIY Data Portal.  The other settings should be left to default or will be set on connecting to your Wifi.
   - AH - Network type: _Infrastructure [2]_
   - IP - IP Protocol: _TCP [1]_
-  - DL - Destination IP Address: _129.123.9.68_
+  - DL - Destination IP Address: _129.123.41.212_
   - DE - Destination Port: _50_
   - AP - API Enable: _Transparent Mode [0]_
 8. (OPTIONAL) If you would prefer, you may load the configuration profile (xbee_radio_config.xml) included, but be aware this will overwrite your current Bee settings.  After loading the profile, click the write button.  Then you will need to repeat step 6 and reconnect to your WiFi.
