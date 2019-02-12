@@ -1,12 +1,22 @@
-//Connect the Grove Digital Humidity and Temperature (DHT) board to D10-11 Grove connector on the Mayfly
+/**************************************************************************************
+Logs temperature and humidity at one second intervals to serial monitor.
+Written for Mayfly logger and Grove digital temperature/humidity board (DHT11), with
+options for DHT 21 and 22.
+Connect the Grove Digital Temp/Humidity board to D10-11 Grove connector on the Mayfly.
+After upload open the serial monitor (magnifying lens button) to view data.
 
-#include <Arduino.h>
-#include <Wire.h>
-#include "DHT.h"      // Includes the Adafruit DHT-sensor-library 1.3.0+, which was updated to require the Unified Adafruit_Sensor sensor
+modified 7 Jun 2017 by Beth Fisher github.com/fisherba
+**************************************************************************************/
 
-#define DHTPIN 10     // what pin the DHT signal is connected to
+//Arduino sketches begin with a list of the outside libraries needed to run the sketch.
+//They must be in your .../Arduino/libraries directory for the sketch to run.
+#include <Arduino.h>  // Arduino IDE automatically includes Arduino.h, but other IDEs require that you include it.
+#include <Wire.h>  // This library is included with the Arduino IDE, and allows communication with I2C/TWI devices.
+#include <DHT.h>  // Includes the Adafruit DHT-sensor-library 1.3.0+, which was updated to require the Unified Adafruit_Sensor sensor
 
-// Uncomment whatever type you're using!
+#define DHTPIN 10     // Specifies the pin connected to the DHT signal.
+
+// Uncomment the digital temperature/humidity model you're using
 #define DHTTYPE DHT11   // DHT 11
 //#define DHTTYPE DHT22   // DHT 22  (AM2302)
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
@@ -20,8 +30,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 void setup()
 {
-    pinMode(22, OUTPUT);    // Setting up Pin 22 to provide power to Grove Ports
-    digitalWrite(22, HIGH); // Provide power to D10-11 and D6-7 Grove Ports
+    pinMode(22, OUTPUT);      //pin D22 is the enable line for the Mayfly's switched 3.3/5v power lines
+    digitalWrite(22, HIGH);   //set this pin high and leave it on for the rest of the sketch
     delay(200);
     Serial.begin(57600);
     Serial.println("Digital Humidity/Temperature");

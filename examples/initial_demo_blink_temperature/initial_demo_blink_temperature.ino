@@ -31,6 +31,7 @@ void setup ()
 {
     pinMode(8, OUTPUT);
     pinMode(9, OUTPUT);
+
     Serial.begin(57600);
     Wire.begin();
     rtc.begin();
@@ -46,6 +47,7 @@ void loop ()
         State8 = LOW;
     }
     digitalWrite(8, State8);
+
     State9 = !State8;
     digitalWrite(9, State9);
 

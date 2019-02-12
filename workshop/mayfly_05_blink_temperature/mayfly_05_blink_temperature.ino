@@ -1,4 +1,5 @@
 /**************************************************************************
+initial_demo_blink_temperature.ino
 
 * Written By:  Shannon Hicks <shicks@stroudcenter.org>
 * Documentation By: Anthony Aufdenkampe <aaufdenkampe@limno.com>
@@ -36,15 +37,14 @@ void setup ()
     rtc.begin();
 
     Serial.println("EnviroDIY Mayfly: Blink demo with serial temperature");
-
 }
 
 void loop ()
 {
     if (State8 == LOW) {
-      State8 = HIGH;
+        State8 = HIGH;
     } else {
-      State8 = LOW;
+        State8 = LOW;
     }
     digitalWrite(8, State8);
 

@@ -8,12 +8,11 @@ After upload open the serial monitor (magnifying lens button) to view data.
 modified 7 Jun 2017 by Beth Fisher github.com/fisherba
 **************************************************************************************/
 
-
 //Arduino sketches begin with a list of the outside libraries needed to run the sketch.
 //They must be in your .../Arduino/libraries directory for the sketch to run.
 #include <Arduino.h>  // Arduino IDE automatically includes Arduino.h, but other IDEs require that you include it.
-#include <Wire.h>   // This library is included with the Arduino IDE, and allows communication with I2C/TWI devices.
-#include <DHT.h>
+#include <Wire.h>  // This library is included with the Arduino IDE, and allows communication with I2C/TWI devices.
+#include <DHT.h>  // Includes the Adafruit DHT-sensor-library 1.3.0+, which was updated to require the Unified Adafruit_Sensor sensor
 
 #define DHTPIN 10     // Specifies the pin connected to the DHT signal.
 
@@ -21,6 +20,11 @@ modified 7 Jun 2017 by Beth Fisher github.com/fisherba
 #define DHTTYPE DHT11   // DHT 11
 //#define DHTTYPE DHT22   // DHT 22  (AM2302)
 //#define DHTTYPE DHT21   // DHT 21 (AM2301)
+
+// Connect pin 1 (on the left) of the sensor to +5V
+// Connect pin 2 of the sensor to whatever your DHTPIN is
+// Connect pin 4 (on the right) of the sensor to GROUND
+// Connect a 10K resistor from pin 2 (data) to pin 1 (power) of the sensor
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -55,6 +59,5 @@ void loop()
         Serial.print("Temperature: ");
         Serial.print(t);
         Serial.println(" *C");
-        delay(1000);
     }
 }
