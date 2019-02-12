@@ -1,0 +1,3 @@
+[submodule "Arduino_boards"]
+	path = Arduino_boards
+	url = https://github.com/EnviroDIY/Arduino_boards.git
