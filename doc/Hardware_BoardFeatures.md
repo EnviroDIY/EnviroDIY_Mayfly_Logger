@@ -2,7 +2,7 @@ Board Features
 ==============
 The Mayfly Data Logger board has many unique features and hardware options. Learn more below!
 
-<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/doc/images/doc/images/mayfly0.3_topview_labels3.jpg" width="600">
+<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_topview_labels3.jpg" width="600">
 
 ## Features of the EnviroDIY Mayfly Data Logger
 

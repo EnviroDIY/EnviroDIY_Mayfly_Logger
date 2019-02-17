@@ -2,20 +2,20 @@ Design Documentation
 ==============
 The documentation contained in this folder are based on documentation provided by the EnviroDIY community website at https://www.envirodiy.org/mayfly/. These are:
 
-- ### [Getting Started](doc/Intro_GettingStarted.md)
+- ### [Getting Started](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/Intro_GettingStarted.md)
 
 - ### Hardware
-  - #### [Board Features](doc/Hardware_BoardFeatures.md)
-  - #### [Jumper Settings](doc/Hardware_JumperSettings.md)
+  - #### [Board Features](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/Hardware_BoardFeatures.md)
+  - #### [Jumper Settings](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/Hardware_JumperSettings.md)
 
-- ### [Software](doc/Software_Intro.md)
+- ### [Software](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/Software_Intro.md)
 
 
 ## Hardware Design Files
 
 We share our EnviroDIY Mayfly logger hardware design files and documentation in this repository's [hardware](hardware) and [doc](doc) folders, including:
-- [Board schematic images](hardware), for versions 0.3, 0.4, 0.5, and 0.5b.
-- [EAGLE PCB electronic design files](hardware/Mayfly_v0p5b), for use with the EAGLE electronic design automation (EDA) software (a [free maker edition](https://www.autodesk.com/products/eagle/compare) is available).
+- [Board schematic images](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/hardware), for versions 0.3, 0.4, 0.5, and 0.5b.
+- [EAGLE PCB electronic design files](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/hardware/Mayfly_v0p5b), for use with the EAGLE electronic design automation (EDA) software (a [free maker edition](https://www.autodesk.com/products/eagle/compare) is available).
 
 ## Hardware Design Credits
 
