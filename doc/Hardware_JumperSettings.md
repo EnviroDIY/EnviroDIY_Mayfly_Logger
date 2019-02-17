@@ -2,9 +2,10 @@ Jumper settings
 ==============
 The back of the Mayfly board contains 11 different solder jumpers to allow the user to configure the board with different options.  Learn more about the Jumper Settings.
 
-![Mayfly v0.3 Bottom View](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_bottomview.jpg)
 
 ## Jumpers on back of Mayfly board
+
+![Mayfly v0.3 Bottom View](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_bottomview.jpg)
 
 On the back of the Mayfly board, there are 11 user-configurable solder jumpers.
 

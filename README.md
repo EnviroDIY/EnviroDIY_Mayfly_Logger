@@ -2,11 +2,12 @@ EnviroDIY Mayfly Data Logger
 ==============
 The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is an Arduino-framework microcontroller board designed specifically for environmental Internet of Things (IoT) applications with the goal to facilitate professional-quality, [do-it-yourself (DIY) environmental science and monitoring](https://www.envirodiy.org).
 
+<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_sideview_right.jpg" width="300" align="right">
+
 Mayfly Data Logger can be programmed using standard Aruduino code and community libraries via the [Arduino Integrated Development Environment (IDE) software](https://www.arduino.cc/en/Main/Software) or the more powerful [PlatformIO IDE](https://platformio.org). The Mayfly Data Logger features the ATmega1284p processor, which has 4 times more flash memory for sketches, 8 times more RAM, and almost twice as many input pins as the ATmega328p chip found in the most common Arduino boards. The Mayfly Data Logger also has an integrated solar lipo battery charger, a precise real time clock (RTC), a microSD memory card socket, an XBee radio module socket, and other [hardware features](https://www.envirodiy.org/mayfly/hardware/features/).
 
 This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger) provides hardware design files and example code sketches, the [EnviroDIY community](https://www.envirodiy.org) provides support via project posts and forums, and the [Mayfly Logger board is available for purchase on on Amazon](https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=envirodiy) for user convenience.
 
-<img src="http://363hx939kn9r1sp3hxo0om0z.wpengine.netdna-cdn.com/wp-content/uploads/2016/05/20160508_134514-001.jpg" width="300">
 
 ## Getting Started
 
