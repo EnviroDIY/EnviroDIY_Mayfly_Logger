@@ -2,7 +2,7 @@ Jumper settings
 ==============
 The back of the Mayfly board contains 11 different solder jumpers to allow the user to configure the board with different options.  Learn more about the Jumper Settings.
 
-<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_bottomview.jpg" width="600">
+![Mayfly v0.3 Bottom View](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_bottomview.jpg)
 
 ## Jumpers on back of Mayfly board
 
@@ -36,6 +36,8 @@ SJ12:  Only on board v0.5, this jumper allows you to easily connect the onboard 
 
 
 ## Jumpers on Grove Ports
+
+![Mayfly v0.3 Grove Ports](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly_groveports.jpg)
 
 On the front of the board, there are 4 small 3-pin headers next to the Grove connectors.  These headers allow you to select what voltage signal goes on the V line of the Grove connector.
 

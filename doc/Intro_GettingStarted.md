@@ -3,7 +3,7 @@ Getting Started With the Mayfly Data Logger
 
 The EnviroDIY Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. It features the ATmega1284p processor, which is much more powerful than the 328p chip found on most other Arduino boards. It has 4 times more flash memory for sketches, 8 times more RAM, and almost twice as many input pins.
 
-<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/doc/images/mayfly0.3_sideview_right.jpg" width="300">
+<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_sideview_right.jpg" width="300">
 
 ## Features:
 
