@@ -1,20 +1,22 @@
-EnviroDIY Mayfly Data Logger
+Design Documentation
 ==============
+The documentation contained in this folder are based on documentation provided by the EnviroDIY community website at https://www.envirodiy.org/mayfly/. These are:
 
-The EnviroDIY Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. It features the ATmega1284p processor, which is much more powerful than the 328p chip found on most other Arduino boards. It has 4 times more flash memory for sketches, 8 times more RAM, and almost twice as many input pins.
+- ### [Getting Started](doc/Intro_GettingStarted.md)
 
-##Features:
+- ### Hardware
+  - #### [Board Features](doc/Hardware_BoardFeatures.md)
+  - #### [Jumper Settings](doc/Hardware_JumperSettings.md)
 
-* 128K Flash memory, 16K RAM
-* 28 digital I/O pins, 8 analog pins, plus 4 additional high-resolution ADC pins
-* 2 serial UART ports
-* microSD memory card socket
-* Onboard realtime clock (RTC) (DS3231)
-* Solar lipo battery charging
-* Bee module socket
-* 2 LEDs, 1 user programmable pushbutton
-* 3.3v main board voltage, additional 5-volt boost circuity for external devices
-* Two 20-pin headers for accessing all available I/O pins
-* 6 Grove-style sockets for easy connections to sensors and devices
+- ### [Software](doc/Software_Intro.md)
 
-The memory card socket, RTC, and solar charging features make it very easy to use this board for data logging and low-power operation. But it can also be used by itself, or with a wide variety of devices and accessories.  The Mayfly can be powered by a 3.7v lithium battery or through the microUSB port. Programming can be done through the microUSB port or via the FTDI header.
+
+## Hardware Design Files
+
+We share our EnviroDIY Mayfly logger hardware design files and documentation in this repository's [hardware](hardware) and [doc](doc) folders, including:
+- [Board schematic images](hardware), for versions 0.3, 0.4, 0.5, and 0.5b.
+- [EAGLE PCB electronic design files](hardware/Mayfly_v0p5b), for use with the EAGLE electronic design automation (EDA) software (a [free maker edition](https://www.autodesk.com/products/eagle/compare) is available).
+
+## Hardware Design Credits
+
+The Mayfly Logger was developed by [Shannon Hicks](https://github.com/s-hicks2) and based on the [SODAQ Mbili board](https://support.sodaq.com/sodaq-one/sodaq-mbili-1284p/) hardware and the [SODAQ Mbili bootloader](https://github.com/SodaqMoja/HardwareMbili) software designed by Gregory Knauff (GKNFF).
