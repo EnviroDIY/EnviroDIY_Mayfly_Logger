@@ -20,9 +20,7 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 
 ## Design & Documentation
 
-We share our EnviroDIY Mayfly logger hardware design files and documentation in this repository's [hardware](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/hardware) and [doc](doc) folders, including:
-- [Board schematic images](hardware), for versions 0.3, 0.4, 0.5, and 0.5b.
-- [EAGLE PCB electronic design files](hardware/Mayfly_v0p5b), for use with the EAGLE electronic design automation (EDA) software (a [free maker edition](https://www.autodesk.com/products/eagle/compare) is available).
+We share our EnviroDIY Mayfly logger hardware design files and documentation in this repository's [Hardware Design Files](hardware) pages and [Documentation](doc) pages.
 
 
 ## Contribute
