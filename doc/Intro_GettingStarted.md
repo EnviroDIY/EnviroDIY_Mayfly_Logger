@@ -1,9 +1,9 @@
 Getting Started With the Mayfly Data Logger
 ==============
 
-The EnviroDIY Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. It features the ATmega1284p processor, which is much more powerful than the 328p chip found on most other Arduino boards. It has 4 times more flash memory for sketches, 8 times more RAM, and almost twice as many input pins.
+<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_sideview_right.jpg" width="300" align="right">
 
-<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_sideview_right.jpg" width="300">
+The EnviroDIY Mayfly Data Logger is a powerful, user-programmable microprocessor board that is fully compatible with the Arduino IDE software. It features the ATmega1284p processor, which is much more powerful than the 328p chip found on most other Arduino boards. It has 4 times more flash memory for sketches, 8 times more RAM, and almost twice as many input pins.
 
 ## Features:
 
@@ -25,10 +25,12 @@ The memory card socket, RTC, and solar charging features make it very easy to us
 
 Find information about the Mayfly circuit board and its features, with descriptions about the various connectors and sockets, and the schematic diagram.
 
-Get hardware details.
+- [Get hardware details](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tree/master/hardware).
 
 ## Software Instructions
 
 Follow these instructions for adding the Mayfly board to your Arduino IDE, then you can program it with some of these sample code sketches.
 
-Get software details.
+- [Get software details](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/Software_Intro.md).
+
+- Follow our [LearnEnviroDIY tutorial](https://envirodiy.github.io/LearnEnviroDIY/) to use our [ModularSensors](https://github.com/EnviroDIY/ModularSensors) code library and other [EnviroDIY libraries on GitHub](https://github.com/EnviroDIY)
