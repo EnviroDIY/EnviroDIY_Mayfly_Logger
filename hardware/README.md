@@ -14,6 +14,10 @@ See our [Documentation](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/tre
 
 For questions, use our Q&A forum at https://envirodiy.org/forum/mayfly/.
 
+## Pelican Case Drilling Template
+
+We also provide a convenient [Pelican case 1120 drilling template](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/hardware/1120Pelican_enviroDIY_5.pdf) for optimal positioning of holes for submersible cord grips on a model 1120 Pelican case.
+
 ## Hardware Design Credits
 
 The Mayfly Logger was developed by [Shannon Hicks](https://github.com/s-hicks2) and based on the [SODAQ Mbili board](https://support.sodaq.com/sodaq-one/sodaq-mbili-1284p/) hardware and the [SODAQ Mbili bootloader](https://github.com/SodaqMoja/HardwareMbili) software designed by Gregory Knauff (GKNFF).
