@@ -54,12 +54,12 @@ It performs an action wouthout returning a value, so "void" is once again used i
 ```cpp
 void loop ()
 {
-    digitalWrite(LED_BUILTIN_green, HIGH);  // turn the LED on (HIGH is the voltage level)
-    digitalWrite(LED_BUILTIN_red, LOW);     // turn the LED on (HIGH is the voltage level)
-    delay(delayTime);                       // wait for the time specified in delayTime variable
-    digitalWrite(LED_BUILTIN_green, LOW);   // turn the LED off by making the voltage LOW
-    digitalWrite(LED_BUILTIN_red, HIGH);    // turn the LED on (HIGH is the voltage level)
-    delay(delayTime);                       // wait for the time specified in delayTime variable
+    digitalWrite(LED_BUILTIN_green, HIGH); // turn the green LED on (HIGH is the voltage level)
+    digitalWrite(LED_BUILTIN_red, LOW);    // and turn the red LED off (LOW is the voltage level)
+    delay(delayTime);                      // wait for the time specified in delayTime variable
+    digitalWrite(LED_BUILTIN_green, LOW);  // now turn the green LED off by making the voltage LOW
+    digitalWrite(LED_BUILTIN_red, HIGH);   // and turn the red LED on
+    delay(delayTime);                      // wait for the time specified in delayTime variable
 }
 ```
 
