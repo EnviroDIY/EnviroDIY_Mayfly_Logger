@@ -53,10 +53,12 @@ Temporary Items
 # Atom / PlatformIO
 .pioenvs
 .piolibdeps
+.pio
 .clang_complete
 .gcc-flags.json
 lib/readme.txt
 platformio.ini
+.vscode
 
 # Other
 SRGD_Home_profile_2026.xml
