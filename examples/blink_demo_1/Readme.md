@@ -78,7 +78,7 @@ Once connected to the mayfly, you need to Verify/Compile the sketch by clicking 
 If there are no errors the window color will not change and it will read "Done compiling."
 Always compile before uploading a sketch to your Arduino.
 Once compiled, click on the right arrow button to upload the sketch to the Mayfly.
-If it worked, one of the LED lights on the board will begin to blink.
+If it worked, the LED lights on the board will begin to blink.
 
 ## Credits
 
