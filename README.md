@@ -43,8 +43,8 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 | A7=D31 _or_ D10 | RTC Interrupt      | 20 pin header                          | A7 is connected to RTC interrupt by default; Use SJ1 to disconnect A7 and/or to connect D10 |
 | D22           | Switched power/LED4  | Switched power on all Grove ports      | Pin is not directly accessible, only switched power; Cut SJ3 to disconnect LED4 (red) |
 | D21           | user push button     | 20 pin header                          | Cut SJ to disconnect button |
-| D8            | LED1 (red)           | 20 pin header                          |  |
-| D9            | LED2 (green)         | 20 pin header                          |  |
+| D8            | LED1 (green)         | 20 pin header                          |  |
+| D9            | LED2 (red)           | 20 pin header                          |  |
 | A6=D30        | Battery measurement  | None                                   | Connected via voltage divider - for v0.4 and newer, use multiplier of 1.27; for v0.3 and older, use multiplier of 1.47 |
 | D4-7, D10-11  | General Purpose I/O  | Grove connector; 20 pin header         |  |
 | AA0-AA3       | Auxilliary ADC       | Grove connector; 20 pin header         | Connected to _Auxillary_ adc (TI ADS1115), not to Mayfly analog pins |
