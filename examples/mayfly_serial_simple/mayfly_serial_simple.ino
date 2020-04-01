@@ -1,12 +1,10 @@
 #include <Arduino.h>
-#include <Wire.h>
 
 void setup()
 {
-  Serial.begin(57600);  //Start the serial connection with the computer (UART-0)
+  Serial.begin(57600);  // Start the serial connection with the computer (UART-0)
 
-  Serial1.begin(9600);    //this is the Mayfly's default Xbee port (UART-1)
-
+  Serial1.begin(9600);  // Start the connection on the Mayfly's Xbee port (UART-1)
 }
 
 void loop()
