@@ -14,12 +14,13 @@ The EnviroDIY Mayfly Data Logger is a powerful, user-programmable microprocessor
 * Onboard realtime clock (RTC) (DS3231)
 * Solar lipo battery charging
 * Bee module socket
-* 2 LEDs, 1 user programmable pushbutton
+* 2 LEDs, 1 user programmable push-button
 * 3.3v main board voltage, additional 5-volt boost circuity for external devices
 * Two 20-pin headers for accessing all available I/O pins
 * 6 Grove-style sockets for easy connections to sensors and devices
 
-The memory card socket, RTC, and solar charging features make it very easy to use this board for data logging and low-power operation. But it can also be used by itself, or with a wide variety of devices and accessories.  The Mayfly can be powered by a 3.7v lithium battery or through the microUSB port. Programming can be done through the microUSB port or via the FTDI header.
+The memory card socket, RTC, and solar charging features make it very easy to use this board for data logging and low-power operation. But it can also be used by itself, or with a wide variety of devices and accessories.
+The Mayfly can be powered by a 3.7v lithium battery or through the microUSB port. Programming can be done through the microUSB port or via the FTDI header.
 
 ## Hardware Details
 

@@ -15,7 +15,7 @@ NOTE:  If the USB cable or an FTDI adapter is connected to the Mayfly (ie, to co
 
 The Mayfly board operates at 3.3V - below the voltage of a healthy LiPo battery (3.5V - 4.2V) - meaning that the battery voltage cannot be measured directly.
 To lower the voltage to a level the Mayfly can safely measure, we put two resisters in series and measure the voltage between them.
-That is, we use a (voltage divider)[https://en.wikipedia.org/wiki/Voltage_divider].
+That is, we use a [voltage divider](https://en.wikipedia.org/wiki/Voltage_divider).
 The formula (from Ohm's law) for the voltage measured across a voltage divider is:
 
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/87a064548a3f0245508a1dca24782acf863b9947)
