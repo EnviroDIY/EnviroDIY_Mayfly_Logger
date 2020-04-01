@@ -43,8 +43,10 @@ The "returned value" for this function is "void", which means it doesn't return 
 ```cpp
 void setup ()
 {
-    pinMode(LED_BUILTIN_green, OUTPUT);  // lets the board know we want to use the pin as output to turn on the LED
+    pinMode(LED_BUILTIN_green, OUTPUT);  // set the pin as output to turn on the LED
     pinMode(LED_BUILTIN_red, OUTPUT);    // all you need to set up the LED blink
+    delay(delayTime);
+    Serial.println("Mayfly: Blink demo 1");  // sends a message to the Serial Monitor
     delay(delayTime);
 }
 ```

@@ -36,9 +36,9 @@ void setup()
 {
     pinMode(LED_BUILTIN_green, OUTPUT); // all you need to set up the LED blink
     pinMode(LED_BUILTIN_red, OUTPUT);   // all you need to set up the LED blink
-    Serial.begin(57600);                //establishes data rate for serial transmission
+    Serial.begin(57600);                // establishes data rate for serial transmission
     delay(delayTime);
-    Serial.println("Mayfly: Blink demo 1"); //sends a message to the Serial Monitor (click magnifying glass)
+    Serial.println("Mayfly: Blink demo 1"); // sends a message to the Serial Monitor
     delay(delayTime);
 }
 
