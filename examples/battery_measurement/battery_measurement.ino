@@ -34,8 +34,9 @@ void loop() {
   Serial.print(batterysenseValue);
   Serial.print(" bits;    ");
 
-  // Convert ADC output to raw voltage by multiplying by the maximum voltage of the ADC (3.3V), then multiplied by 1.47, which is the resistor divider factor (see ReadMe).
-  batteryvoltage = (3.3/1023.) * 1.47 * batterysenseValue; 
+  // Convert ADC output to raw voltage by multiplying by the maximum voltage of the ADC (3.3V), then multiplied by 4.7, which is the resistor divider factor (see ReadMe).
+  batteryvoltage = (3.3/1023.) * 4.7 * batterysenseValue;    //for Mayfly v0.5 and later      
+  //batteryvoltage = (3.3/1023.) * 1.47 * batterysenseValue;   //for Mayfly v0.3 and v0.4
   
   Serial.print("Voltage: ");
   Serial.print(batteryvoltage);
