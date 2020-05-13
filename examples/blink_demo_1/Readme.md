@@ -15,7 +15,7 @@ Both lights can be controlled using code with the ```pinMode``` and ```digitalWr
 Arduino sketches (really c++ programs) begin with a list of the outside libraries needed to run the sketch.
 These libraries must be installed on your .../Arduino/libraries directory for the sketch to run.
 This example only uses one library, the Arudino framework library (```Arduino.h```).
-We use the include that library with the following code:
+We include that library with the following code:
 ```cpp
 #include <Arduino.h>
 ```
@@ -24,7 +24,7 @@ After including the Arduino framework, we name some "global variables" for the s
 This variables list is located before the functions and defines the variables for the sketch.
 Variables are useful for assigning information once at the beginning of a sketch, because most sketches will need to repeat information like pin locations.
 Notice that the sketch re-uses the value ```delayTime``` four times.
-The text ```int``` before the name of the variable specifies interger data type.
+The text ```int``` before the name of the variable specifies integer data type.
 
 Try modifying the delay time and LED pin and re-running the sketch.
 ```cpp
@@ -74,8 +74,8 @@ To run this demo you will need to first connect to the Mayfly by specifying your
 Tools>Board (select appropriate Mayfly board) and specifying which communication port to use
 under Tools>Port.
 
-Once connected to the mayfly, you need to Verify/Compile the sketch by clicking the checkmark at the top, left corner of the Arudino app window. If there is an error, it will appear (in orange) below.
-If there are no errors the window color will not change and it will read "Done compiling."
+Once connected to the Mayfly, you need to Verify/Compile the sketch by clicking the checkmark at the top, left corner of the Arudino app window. If there is an error, it will appear (in orange) below.
+If there are no errors, the window color will not change and it will read "Done compiling."
 Always compile before uploading a sketch to your Arduino.
 Once compiled, click on the right arrow button to upload the sketch to the Mayfly.
 If it worked, the LED lights on the board will begin to blink.
