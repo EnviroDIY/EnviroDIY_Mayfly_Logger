@@ -26,7 +26,7 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 - One programmable push-button
 - Option of using external power supply at 5-12V
 
-## Pin-out
+## Pin-out for v0.5b
 
 | Pin Number[s] | Function             | Access                                 | Notes |
 |---------------|----------------------|----------------------------------------|-------|
@@ -49,7 +49,7 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 | D4-7, D10-11  | General Purpose I/O  | Grove connector; 20 pin header         |  |
 | AA0-AA3       | Auxilliary ADC       | Grove connector; 20 pin header         | Connected to _Auxillary_ adc (TI ADS1115), not to Mayfly analog pins |
 
-## Solder Jumper Connections
+## Solder Jumper Connections for v0.5b
 
 | Number | Function                        | Default Connection                |
 |--------|---------------------------------|-----------------------------------|
