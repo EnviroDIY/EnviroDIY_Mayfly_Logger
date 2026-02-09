@@ -1,10 +1,10 @@
 EnviroDIY Mayfly Data Logger
 ==============
-The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is an Arduino-framework microcontroller board designed specifically for environmental Internet of Things (IoT) applications with the goal to facilitate professional-quality, [do-it-yourself (DIY) environmental science and monitoring](https://www.envirodiy.org).
+The [EnviroDIY™ Mayfly Data Logger](http://envirodiy.org/mayfly/) is an Arduino-framework microcontroller board designed specifically for environmental Internet of Things (IoT) applications with the goal to facilitate professional-quality, do-it-yourself (DIY) environmental science and monitoring.
 
-This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger) provides hardware design files and example code sketches, the [EnviroDIY community](https://www.envirodiy.org) provides support via project posts and forums, and the [Mayfly Logger board is available for purchase on on Amazon](https://www.amazon.com/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords=envirodiy) for user convenience.
+This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger) provides hardware design files and example code sketches, the [EnviroDIY community](https://www.envirodiy.org) provides support via project posts and forums, and the [Mayfly Logger board is available for purchase on the [EnviroDIY Shop](https://www.envirodiy.org/shop/) for user convenience.
 
-<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.3_sideview_right.jpg" width="300" align="right">
+<img src="https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly1p0_A.jpg" width="300" align="right">
 
 ## Features:
 
@@ -16,17 +16,18 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 - Integrated 6V solar lipo battery charger
 - Precise real time clock (RTC, [DS3231](https://datasheets.maximintegrated.com/en/ds/DS3231.pdf)) with separate power supply
 - Auxillary 16 bit ADC ([TI ADS1115](http://www.ti.com/lit/ds/symlink/ads1114.pdf))
-- FTDI chip for USB communication
+- FTDI chip for USB communication via USB-C port
 - microSD memory card socket
 - XBee radio/wifi/cellular module socket
-- 6 [Grove](http://wiki.seeedstudio.com/Grove_System/) connectors with access to I2C, auxillary ADC, and digital pins
-- 0.5A switchable power supply for sensors at either 3.3V or 5V
+- 7 [Grove](http://wiki.seeedstudio.com/Grove_System/) connectors with access to I2C, auxillary ADC, and digital pins
+- 0.5A switchable power supply for sensors at 3.3V and 5V, and 0.2A at 12V
 - On-board power switch
-- Two controllable LED's, red and green
+- Two controllable LED's (red and green)
 - One programmable push-button
-- Option of using external power supply at 5-12V
+- Onboard humidity/temperature sensor and analog light sensor
+- Onboard auxiliary 8MB flash memory chip
 
-## Pin-out for v0.5b
+## Pin-out for v1.x
 
 | Pin Number[s] | Function             | Access                                 | Notes |
 |---------------|----------------------|----------------------------------------|-------|
@@ -45,11 +46,11 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 | D21           | user push button     | 20 pin header                          | Cut SJ to disconnect button |
 | D8            | LED1 (green)         | 20 pin header                          |  |
 | D9            | LED2 (red)           | 20 pin header                          |  |
-| A6=D30        | Battery measurement  | None                                   | Connected via voltage divider - for v0.4 and newer, use multiplier of 1.27; for v0.3 and older, use multiplier of 1.47 |
+| A6=D30        | Battery measurement  | None                                   | Connected via voltage divider |
 | D4-7, D10-11  | General Purpose I/O  | Grove connector; 20 pin header         |  |
 | AA0-AA3       | Auxilliary ADC       | Grove connector; 20 pin header         | Connected to _Auxillary_ adc (TI ADS1115), not to Mayfly analog pins |
 
-## Solder Jumper Connections for v0.5b
+## Solder Jumper Connections for v1.x
 
 | Number | Function                        | Default Connection                |
 |--------|---------------------------------|-----------------------------------|
@@ -57,17 +58,11 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 | SJ2    | Disconnect D21 from user button | Pin D21 is connected to button (closed) |
 | SJ3    | Disconnect D22 from LED3        | Pin D22 is connected to LED3 (closed)   |
 | SJ4    | Disconnect LED4 from solar      | LED4 indicates solar charging status (closed) |
-| SJ5*   | 5V Boost enable                 | Boost enabled                                 |
-| SJ6**  | Connect D18 to RTC RST/32kHz    | Not connected (open)                          |
 | SJ7    | Pin A5 to XBee ASSOC _or_ RI    | Not connected (all pads open)                 |
 | SJ8    | XBee Din to TX0/TX1             | XBee Din connected to TX1                     |
 | SJ9    | XBee Dout to RX0/RX1            | XBee Dout connected to RX1                    |
-| SJ10** | Connect D18 to SD card detect   | Not connected (open)                          |
-| SJ11   | USB FTDI programming enable     | FTDI enabled (closed)                         |
 | SJ12   | D10 external pull-up            | D10 (INT2) is not pulled up externally (open) |
 
-\* SJ5 has been removed in versions newer than v0.4
-** SJ6 and SJ10 should not both be closed at the same time
 
 ## Programming
 
