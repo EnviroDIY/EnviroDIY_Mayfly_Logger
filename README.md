@@ -20,7 +20,7 @@ This [EnviroDIY_Mayfly_Logger Github repository](https://github.com/EnviroDIY/En
 - microSD memory card socket
 - XBee radio/wifi/cellular module socket
 - 7 [Grove](http://wiki.seeedstudio.com/Grove_System/) connectors with access to I2C, auxillary ADC, and digital pins
-- 0.5A switchable power supply for sensors at 3.3V and 5V, and 0.2A at 12V
+- 0.5A switchable power supply for sensors at 3.3V and 5V, and 0.15A at 12V
 - On-board power switch
 - Two controllable LED's (red and green)
 - One programmable push-button
