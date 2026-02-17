@@ -1,4 +1,4 @@
-Jumper settings
+Jumper settings for v0.5b
 ==============
 On the back of the Mayfly v0.5b board, there are 12 user-configurable solder jumpers to allow the user to configure the board with different options.
 
