@@ -1,4 +1,4 @@
-Board Features
+Board Features for v0.5b
 ==============
 The Mayfly Data Logger board has many unique features and hardware options. Learn more below!
 
