@@ -66,7 +66,7 @@ By cutting the SJ13 trace and soldering the middle pad to the LiPo setting, you 
 
 ## Jumpers on Grove Ports
 
-![Mayfly v0.3 Grove Ports](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly_groveports.jpg)
+![Mayfly v0.5b Grove Ports](https://github.com/EnviroDIY/EnviroDIY_Mayfly_Logger/blob/master/doc/images/mayfly0.5_groveports.jpg)
 
 On the front of the board, there are 4 small 3-pin headers next to the Grove connectors.
 These headers allow you to select what voltage signal goes on the V line of the Grove connector.
