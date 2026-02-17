@@ -21,12 +21,12 @@ The formula (from Ohm's law) for the voltage measured across a voltage divider i
 ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/87a064548a3f0245508a1dca24782acf863b9947)
 
 If the resistors were exactly the same value, the measured voltage would be exactly half of the overall voltage.
-On the newer versions of the Mayfly (v0.5, v0.5b), the two resistors are set at 2.7MΩ and 10MΩ.
+On the newest versions of the Mayfly (v0.5, v0.5b, v1.0, and v1.1), the two resistors are set at 2.7MΩ and 10MΩ.
 Adding those resistance values and solving for input voltage gives:
 
 ![](equation2.png)
 
-So for board versions v0.5 and v0.5b, use a multiplier of 4.7.  On the older Mayfly boards (v0.4 and older) the two resistors were set at 4.7MΩ and 10MΩ leading to a multiplier of 1.47.
+So for board versions v0.5 and v0.5b, use a multiplier of 4.7.  On the older Mayfly boards (v0.4 and v0.3) the two resistors were set at 4.7MΩ and 10MΩ leading to a multiplier of 1.47.
 
 The resolution of the analog measurement on Mayfly pin A6 is 10 bit.
 When reporting battery voltage, you should not report any further significant figures than the resolution of the measurement.
