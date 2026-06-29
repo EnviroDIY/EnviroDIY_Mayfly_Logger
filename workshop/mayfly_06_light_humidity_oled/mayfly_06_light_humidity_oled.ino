@@ -1,12 +1,19 @@
+//This code example is for using the EnviroDIY OLED Half-shield with Mayfly v1.0 and v1.1 boards only.
+//Connect the OLED half-shield into the 2x10 header on the right-hand side of the Mayfly (next to the CR1220 battery socket), 
+//      making sure to match the curved end of the OLED shield with the curved corner of the Mayfly board. 
+//This example only displays data on the OLED screen, it doesn't utilize the pushbuttons on the OLED half-shield.
+//The code below will display temperature and humidity from the onboard SHT41 sensor, light data from the onboard analog light sensor, 
+//      and external lipo battery voltage (or USB voltage if connected to a computer).  
+
 #include <Wire.h>
-//#include <Adafruit_SSD1306.h>    
-//#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>    
+#include <Adafruit_GFX.h>
 #include "Adafruit_SHT4x.h"
 
 Adafruit_SHT4x sht4 = Adafruit_SHT4x();
 
-//#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
-//Adafruit_SSD1306 display(128, 32, &Wire, -1);
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+Adafruit_SSD1306 display(128, 32, &Wire, -1);
 
 int State8 = LOW;
 int State9 = LOW;
@@ -22,19 +29,20 @@ void setup ()
     Serial.begin(57600);
     Wire.begin();
   
-    Serial.println("EnviroDIY Mayfly v1.0: Onboard sensor demo");   
+    Serial.println("EnviroDIY Mayfly v1.x
+      : Onboard sensor demo");   
     sht4.begin();
     sht4.setPrecision(SHT4X_HIGH_PRECISION);
     sht4.setHeater(SHT4X_NO_HEATER);
 
-//  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);  // initialize with the I2C addr 0x3C (for the 128x64)
-//  display.clearDisplay();
-//  display.setTextSize(1);
-//  display.setTextColor(WHITE);
-//  display.setCursor(0,0);
-//  display.println("Mayfly");
-//  display.println("Light/Humidity");
-//  display.display();
+  display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);  // initialize with the I2C addr 0x3C (for the 128x64)
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("Mayfly");
+  display.println("Light/Humidity");
+  display.display();
 
 }
 
@@ -63,18 +71,18 @@ void loop ()
   Serial.print("Light: "); Serial.print(lightpercent,1);Serial.print("%;    ");
   Serial.print("Battery: "); Serial.print(batteryvoltage);Serial.println("v;   ");
 
-  //      //the OLED code:  
-  //      display.clearDisplay();   //you always have to clear the display each time you want to push new text to it
-  //      display.setTextSize(1);
-  //      display.setTextColor(WHITE);
-  //      display.setCursor(0,0);
-  //      //display.print("Temp: "); 
-  //      display.print(temp.temperature); display.print((char)247);  display.println("C");
-  //      //display.print("Hum: "); 
-  //      display.print(humidity.relative_humidity); display.println(" %rH");
-  //      display.print("Light: "); display.print(lightpercent,1); display.println("%");
-  //      display.print("Battery: "); display.print(batteryvoltage); display.print("v");
-  //      display.display();   //you always have to end each push with this line in order to actually display all of the various lines above on the screen 
+        //the OLED code:  
+        display.clearDisplay();   //you always have to clear the display each time you want to push new text to it
+        display.setTextSize(1);
+        display.setTextColor(WHITE);
+        display.setCursor(0,0);
+        //display.print("Temp: "); 
+        display.print(temp.temperature); display.print((char)247);  display.println("C");
+        //display.print("Hum: "); 
+        display.print(humidity.relative_humidity); display.println(" %rH");
+        display.print("Light: "); display.print(lightpercent,1); display.println("%");
+        display.print("Battery: "); display.print(batteryvoltage); display.print("v");
+        display.display();   //you always have to end each push with this line in order to actually display all of the various lines above on the screen 
 
     delay(1000);
 }
